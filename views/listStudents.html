@@ -1,0 +1,132 @@
+{{!< layout/default}}
+
+<style>
+    
+</style>
+{{#extend "css"}}
+
+{{/extend}}
+<!--Comenzar desde abajo del nav-->
+<div class="col-md-12" style="margin-top:60px;">
+    <div class="row"> 
+        <div class="col-md-2" >
+           
+        </div>
+      <br>    
+    </div>
+</div> <hr>
+<div class="container-fluid">
+    <div class="tab-content">
+            <div class="col-md-12 col-xs-12 box-shadows table-responsive">
+                    <table id="tablaListaAlumnos" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Rut</th>
+                                <th>Nombre</th>
+                                <th>Horario</th>
+                                <th>Prueba electiva</th>
+                                <th>Curso</th>
+                                <th>Tipo de curso</th>
+                            </tr>
+                            <tbody>
+                                    <tr>
+                                      <th scope="row">19.129.178-6</th>
+                                      <td>Mark</td>
+                                      <td>Estudiantes</td>
+                                      <td>Ciencias</td>
+                                      <td>EST C</td>
+                                      <td>Anual</td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row">16.125.146-8</th>
+                                      <td>Jacob</td>
+                                      <td>Estudiantes</td>
+                                      <td>Ciencias</td>
+                                      <td>EST A</td>
+                                      <td>Anual</td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row">17.456.354-2</th>
+                                      <td>Larry</td>
+                                      <td>Estudiantes</td>
+                                      <td>Ciencias</td>
+                                      <td>EST D</td>
+                                      <td>Intensivo</td>
+                                    </tr>
+                                  </tbody>
+                        </thead>
+                    </table>
+                    <div id="loadingStudents">
+                        <center>
+                            <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                            <span class="sr-only">Cargando...</span>
+                        </center>
+                    </div>
+                </div>
+    </div>
+</div>
+
+
+
+<!-- Modal formato-->
+<div class="modal fade" id="modalEstudiantes" tabindex="-1" role="dialog" aria-labelledby="modal_title">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background: #c5cff5">
+                    <h4 class="modal-title" id="modal_title"></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal_body"></div>
+                <div class="modal-footer" id="modal_footer"></div>
+            </div>
+        </div>
+    </div>
+
+
+
+{{#extend "js"}}
+<script>
+    $(document).ready(function() {
+    var tableListaAlumnos = $('#tablaListaAlumnos').DataTable({  
+        
+    "iDisplayLength": 50,
+        "oLanguage": {  
+            "sSearch": "Buscar"
+        },
+        "responsive": true,
+                    "columns": [
+                        { "data": "rut" },
+                        { "data": "nombre" },
+                        { "data": "apellido" },
+                        { "data": "estado" },
+                        { "data": "estado" },
+                        { "data": "estado" }
+                    ],
+        
+       
+    });
+    $('#tablaListaAlumnos tbody').on( 'click', 'tr', function (){
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        }
+        else {
+            tableListaAlumnos.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+           
+        }
+    });
+    $('#tablaListaAlumnos tbody').on('dblclick', 'tr', function() {
+        //alert("holi")
+        columnaseleccionada = tableListaAlumnos.row($(this)).data();
+        console.log(columnaseleccionada)
+            
+           
+        ModalEditarAlumnos();
+});
+    
+});
+
+</script>
+{{/extend}}

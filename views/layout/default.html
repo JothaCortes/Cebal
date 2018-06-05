@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {{! Document Layout}}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Cebal</title>
+    <link rel="stylesheet" href="/public/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/public/fontawesome/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="/public/css/datatables.min.css">
+    <link rel="stylesheet" href="/public/css/sweetalert2.css">
+    <link rel="stylesheet" href="/public/DataTables/datatables.min.css">
+    
+    
+    
+    
+    <!--Aqui van todos los css-->
+    <style>
+    body {
+         font-size: 0.9rem;
+         
+    }
+    .navbar {
+        padding: 0.1rem 4rem;
+    }
+    .bg-dark {
+        background-color: rgba(0,0,0,0.8)!important;
+    }
+    .navbar-nav .nav-item .nav-link {
+        font-size: 15px !important;
+    }
+    .navbar-dark .navbar-nav .nav-link {
+    color: #ccc;
+}
+    .navbar-nav .nav-item .nav-link:hover {
+        color:#2980b9 !important;
+    }
+    .navbar-nav .active a {
+        color:#3498db !important;
+    }
+    #container {
+            margin-top:100px;
+        }
+    </style>
+    {{#block "css"}}
+   
+    {{/block}}
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto">
+                        <li class="nav-item">
+                                <a class="nav-link active" href="/"><i class="fas fa-home"></i> Home</a>
+                            </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/students"><i class="fas fa-user"></i> Ficha alumno</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-money-check-alt"></i> Finanzas</a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="#">Estado de pagos</a>
+                              <a class="dropdown-item" href="#">Boletas</a>
+                              <a class="dropdown-item" href="#">Estado cursos</a>
+                              <a class="dropdown-item" href="#">Firma de contratos</a>
+                              <a class="dropdown-item" href="#">Cuotas impagas</a>
+                            </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-graduation-cap"></i> Cursos</a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="/listStudents">Listado de alumnos</a>
+                              <a class="dropdown-item" href="#">Another action</a>
+                              <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-project-diagram"></i> PSU</a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="#">Action</a>
+                              <a class="dropdown-item" href="#">Another action</a>
+                              <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-toolbox"></i> Administración</a>
+                            <div class="dropdown-menu">
+                              <a class="dropdown-item" href="#">Action</a>
+                              <a class="dropdown-item" href="#">Another action</a>
+                              <a class="dropdown-item" href="#">Something else here</a>
+                            </div>
+                    </li>
+                </div>
+                <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-user"></i> {{{ credentials.name }}} {{{credentials.lastname }}}
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="#"><i class="fa fa-wrench"></i> Configuración</a>
+                            <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                        </div>   
+                    </li>
+                </ul>         
+        </nav>
+    </div>
+
+
+        {{{ content }}}
+    <!--Aqui van todos los scripts-->
+<script>
+        const ajax = ({type, url, data}) => {
+            
+            return new Promise((resolve, reject)=>{
+                let options = {
+                    url
+                };
+                if(!type){
+                    options.type = 'GET';
+                } else {
+                    options.type = type;
+                }
+    
+                if(data) options.data = data;
+    
+                $.ajax(options)
+                .done((result) => {
+                    resolve(result);
+                })
+                .fail(() => {
+                    reject({error: 'ERROR IN --> '+url+' <--'});
+                });
+            });
+        };
+</script>
+<script src="/public/js/jquery.min.js"></script>
+<script src="/public/js/bootstrap.min.js"></script>
+<script src="/public/js/datatables.min.js"></script>
+<script src="/public/js/sweetalert2.js"></script>
+<script src="/public/DataTables/datatables.min.js"></script>
+
+
+    {{#block "js"}}
+    {{/block}}
+    
+</body>
+</html>

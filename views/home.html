@@ -1,0 +1,87 @@
+
+{{!< layout/default}}
+<style>
+     #img imagen {
+            max-height: 100px;
+            max-width:10%;
+         }
+</style>
+{{#block "css"}}
+   
+{{/block}}
+<div class="container-fluid">
+    <div class="row" style="margin-top:95px; margin-left: 75px;">
+        <div class="col-md-3">
+            <div class="card" style="width: 8rem;">
+                    <img class="card-img-top" src="/public/img/lista.png" alt="Card image cap">
+                <div class="card-body">
+                    <button class="btn btn-primary btn-block" id="verListaMatriculas"> Ver matrículas</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="width: 11rem;">
+                    <img class="card-img-top" src="/public/img/lista.png" alt="Card image cap">
+                <div class="card-body">
+                        <center><a href="#" class="btn btn-primary btn-sm">Matrículas cerradas</a></center>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="width: 11rem;">
+                    <img class="card-img-top" src="/public/img/lista.png" alt="Card image cap">
+                <div class="card-body">
+                        <center><a href="#" class="btn btn-primary btn-sm">Matrícula anual</a></center>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card" style="width: 11rem;">
+                    <img class="card-img-top" src="/public/img/lista.png" alt="Card image cap">
+                <div class="card-body">
+                        <center><a href="#" class="btn btn-primary btn-sm">Matrícula intensiva</a></center>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:85px; margin-left: 75px;">
+        <div class="col-md-12">
+        <center><h1>Preuniversitario Cebal</h1></center> 
+        </div>
+
+    </div>
+</div>
+<!-- Modal formato-->
+<div class="modal fade" id="modalmatriculas" tabindex="-1" role="dialog" aria-labelledby="modal_title">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #c5cff5">
+                <h4 class="modal-title" id="modal_title"></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
+        </div>
+    </div>
+</div>
+
+{{#extend "js"}}
+<script>
+$('#verListaMatriculas').on('click', function () {
+    ModalMatriculas();
+})
+function ModalMatriculas() { 
+      $('#modalmatriculas').modal();
+      $('#modal_title').text('Listado de matriculas');
+      $('#modal_body').html(`
+      
+
+      `)
+}
+
+</script>
+
+{{/extend}}
+

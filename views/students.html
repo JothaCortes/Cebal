@@ -1,0 +1,465 @@
+{{!< layout/default}}
+
+<style>
+    .modal-lg {
+    max-width: 1000px;
+}
+.modal-dialog {
+    margin: 0 auto;
+}
+.modal-header {
+    padding: 0.6rem;
+}
+</style>
+{{#extend "css"}}
+
+{{/extend}}
+
+
+
+<!--Menu de busqueda -->
+<div class="col-md-12" style="margin-top:60px;">
+        <div class="row"> 
+            <div class="col-md-2" >
+            </div>
+          <br>    
+        </div>
+</div> <hr>
+<!--Menu Botones-->
+<div class="container-fluid">
+<div class="tab-content">
+    
+       <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+            <div class="row">
+                <div class="col-md-2 col-xs-12">
+                    <br>
+                    <button class="btn btn-primary btn-block" id="agregarEstudiante">
+                        <i class="fa fa-plus" aria-hidden="true"></i> Agregar
+                    </button>
+                    <br>
+                    <button class="btn btn-success btn-block" id="modificarEstudiante" disabled>
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i> Modificar
+                    </button>
+                    <br>
+                </div>
+    
+                <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                    <table id="example" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Rut</th>
+                                <th>Nombre</th>
+                                <th>Apellidos</th>
+                                <th>Estado</th>
+                            </tr>
+                            <tbody>
+                                    <tr>
+                                      <th scope="row">19.129.178-6</th>
+                                      <td>Mark</td>
+                                      <td>Otto</td>
+                                      <td>Retirado</td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row">16.125.146-8</th>
+                                      <td>Jacob</td>
+                                      <td>Thornton</td>
+                                      <td>Matriculado</td>
+                                    </tr>
+                                    <tr>
+                                      <th scope="row">17.456.354-2</th>
+                                      <td>Larry</td>
+                                      <td>the Bird</td>
+                                      <td>No Matriculado</td>
+                                    </tr>
+                                  </tbody>
+                        </thead>
+                    </table>
+                    <div id="loadingStudents">
+                        <center>
+                            <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                            <span class="sr-only">Cargando...</span>
+                        </center>
+                    </div>
+                </div>
+            </div>
+        </div>
+   </div> 
+</div>
+<!-- Modal formato-->
+<div class="modal fade" id="modalEstudiantes" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{{#extend "js"}}
+<script>
+
+let columnaseleccionada;
+let dataTable;
+$(document).ready(function() {
+    var dataTable = $('#example').DataTable({  
+        
+    "iDisplayLength": 50,
+        "oLanguage": {  
+            "sSearch": "Buscar"
+        },
+        "responsive": true
+    });
+    $('#example tbody').on( 'click', 'tr', function (){
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+        }
+        else {
+            dataTable.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+        }
+    });
+    $('#example tbody').on('dblclick', 'tr', function() {
+        //alert("holi")
+        columnaseleccionada = dataTable.row($(this)).data();
+        console.log(columnaseleccionada)
+        ModalEditarAlumnos();
+});
+    
+});
+
+</script>
+<script>
+//EDITAR DATOS DEL DATATABLE AL HACER DOBLE CLICK
+function ModalEditarAlumnos() { 
+    console.log(columnaseleccionada)
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Editar alumno');
+      $('#modal_body').html(`
+      
+    <div class="col-md-12" style="margin-top:20px;">
+        <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre</label>
+        <input value="${columnaseleccionada[1]}" id="clientNameFormMod" type="text"  required class="form-control border-input" placeholder="Nombre del cliente">
+    </div>
+      `)};
+//AGREGAR UN NUEVO ESTUDIANTE CON SU APODERADO
+$('#agregarEstudiante').on('click', function () {
+    nuevoEstudiante();
+})
+
+    function nuevoEstudiante() { 
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Ingreso de nuevo alumno');
+      $('#modal_body').html(`
+
+      <ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Ingreso Alumnos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Datos académicos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Datos matrícula</a>
+        </li>
+    </ul>
+
+
+
+
+
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <div style="padding:5px;"> 
+            <div class="row">
+
+                <div class="col-md-12">
+                    <h4>Datos alumno</h4><br>
+                </div>
+                <div class="col-md-4">
+                    <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut</label>
+                <input id="rutNuevoAlumno" type="text"  required class="form-control border-input" placeholder="Rut del alumno">
+                </div>
+
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento</label>
+                    <input id ="fechaNuevoAlumno" type="date" name="fecha" class="form-control border-input">
+                </div>
+
+                <div class="col-md-4">
+                </div>
+
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre</label>
+                    <input id="nombreNuevoAlumno" type="text"  required class="form-control border-input" placeholder="Nombre del cliente">
+                </div>
+
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"> Apellido paterno</label>
+                    <input id="apellido1NuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese primer apellido">
+                </div>
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;">Apellido materno</label>
+                    <input id="apellido2NuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese segundo apellido">
+                </div>
+
+               
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
+                    <input id="correoNuevoAlumno" type="email" name="email" class="form-control border-input"  value="" placeholder="Ingrese correo">
+                </div>
+
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                    <input id="celularNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
+                </div>
+
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección</label>
+                    <input id="direccionNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección">
+                </div>
+                <div class="col-md-12" style="margin-top:3px;">
+                  <br>  <h4>Datos apoderado</h4><br>
+                </div>
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
+                    <input id="nombreApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese nombre apoderado">
+                </div>
+
+                <div class="col-md-6" style="margin-top:3px;">
+                    <label style="float:left;">Parentesco</label>
+                    <input id="parentescoApoderado" type="text" class="form-control border-input"  value="" placeholder="Parentesco apoderado">
+                </div>
+
+                <div class="col-md-4" style="margin-top:3px;">
+                    <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
+                    <input id="trabajoApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección de trabajo">
+                </div>
+
+                <div class="col-md-6" style="margin-top:3px;">
+                    <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                    <input id="celularApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
+                </div>  
+
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="limpiarNuevoAlumno" class="btn btn-dark btn-block" >Limpiar</button>
+                </div>
+
+                <div class="col-md-8" style="margin-top:15px;">
+                    <button id="guardarNuevoAlumno" class="btn btn-primary btn-block" > <i class="far fa-hdd"></i> Guardar</button>
+                </div>
+
+            </div>
+        </div>   
+        </div>
+
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div style="padding:5px;"> 
+            <div class="row">
+                <div class="col-md-4">
+                    <label style="float:left;"><i class="fas fa-school"></i> Colegio</label>
+                    <input id="colegioNuevoAlumno" type="text"  required class="form-control border-input" placeholder="*...">
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="far fa-calendar"></i> Egreso</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                            <option>Egresado</option>
+                            <option>No egresado</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-2">
+                    <label style="float:left;"><i class="fab fa-bimobject"></i> Becado</label>
+                    <select class="form-control" id="exampleFormControlSelect1">
+                            <option>Si</option>
+                            <option>No</option>
+                        </select>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="far fa-calendar-check"></i> Año de egreso</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                            <option>2013</option>
+                            <option>2014</option>
+                            <option>2015</option>
+                            <option>2016</option>
+                            <option>2017</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> Cursando</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                            <option>Primero medio</option>
+                            <option>Segundo medio</option>
+                            <option>Tercero medio</option>
+                            <option>Cuarto medio</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-2">
+                    <label for="exampleFormControlSelect1"><i class="fas fa-book"></i> Promedio</label>
+                    <input id="promedioalumno" type="text" class="form-control border-input"  placeholder="Ej: 60">
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="far fa-calendar-alt"></i> Horario</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                            <option>Estudiantes</option>
+                            <option>Intensivo día</option>
+                            <option>Intensivo tarde</option>
+                            <option>11:25 hrs</option>
+                            <option>08:45 hrs</option>
+                            <option>19:00 hrs</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i>Prueba electiva</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                            <option>Ciencias</option>
+                            <option>Historia</option>
+                            <option>Historia y ciencias</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-4"></div>
+
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="limpiarNuevoAlumno" class="btn btn-dark btn-block" >Limpiar</button>
+                </div>
+
+                <div class="col-md-8" style="margin-top:15px;">
+                    <button id="guardarNuevoAlumno" class="btn btn-primary btn-block" > <i class="far fa-hdd"></i> Guardar</button>
+                </div>
+                
+            
+            </div>
+            </div>
+        </div>
+
+
+
+        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <div style="padding:5px;"> 
+            <div class="row">
+        
+        
+        
+                <div class="col-md-3" style="margin-top:3px;">
+                    <label style="float:left;"><i class="far fa-calendar"></i> Fecha de matrícula</label>
+                    <input id ="fechaNuevoAlumno" type="date" name="fecha" class="form-control border-input">
+                </div>
+                <div class="col-md-3">
+                    <label for="exampleFormControlSelect1"><i class="fas fa-book"></i> Día de cobro</label>
+                    <input id="promedioalumno" type="text" class="form-control border-input"  placeholder="Ej: 5">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> Tipo de curso</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                            <option>Anual</option>
+                            <option>Intensivo</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> Forma de pago</label>
+                        <select class="form-control" id="exampleFormControlSelect1">
+                            <option>Cuotas</option>
+                            <option>Contado</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-12">
+                    <h4>Descuentos</h4><br>
+                </div>
+                    descuentos xxx
+            </div>
+            </div>    
+        </div>
+    </div>
+
+
+      
+      
+      `)
+    $('#limpiarNuevoAlumno').on('click', function () {
+        $('#rutNuevoAlumno').val('')
+        $('#fechaNuevoAlumno').val('')
+        $('#nombreNuevoAlumno').val('')
+        $('#apellido1NuevoAlumno').val('')
+        $('#apellido2NuevoAlumno').val('')
+        $('#correoNuevoAlumno').val('')
+        $('#celularNuevoAlumno').val('')
+        $('#direccionNuevoAlumno').val('')
+        $('#nombreApoderado').val('')
+        $('#parentescoApoderado').val('')
+        $('#trabajoApoderado').val('')
+        $('#celularApoderado').val('')
+        $('#rutNuevoAlumno').focus()
+    })
+    $('#guardarNuevoAlumno').on('click', function () {
+        
+        //Variables desde modal
+            let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
+            let nuevoAlumnofecha     = $('#fechaNuevoAlumno').val()
+            let nuevoAlumnoNombre    = $('#nombreNuevoAlumno').val()
+            let nuevoAlumnoApellido1 = $('#apellido1NuevoAlumno').val()
+            let nuevoAlumnoApellido2 = $('#apellido2NuevoAlumno').val()
+            let nuevoAlumnoCorreo    = $('#correoNuevoAlumno').val()
+            let nuevoAlumnoCelular   = $('#celularNuevoAlumno').val()
+            let nuevoAlumnoDireccion = $('#direccionNuevoAlumno').val()
+            let ApoderadoNombre      = $('#nombreApoderado').val()
+            let ApoderadoParentesco  = $('#parentescoApoderado').val()
+            let ApoderadoTrabajo     = $('#trabajoApoderado').val()
+            let ApoderadoCelular     = $('#celularApoderado').val()
+        //fin variables
+            ajax({
+                url: '/api/nuevoalumno',
+                type: 'POST',
+                data: {
+                    
+                    rutalumno:           nuevoAlumnoRut,
+                    fechaAlumno:         nuevoAlumnofecha,
+                    nombreAlumno:        nuevoAlumnoNombre,
+                    apellido1Alumno:     nuevoAlumnoApellido1,
+                    apellido2Alumno:     nuevoAlumnoApellido2,
+                    correoAlumno:        nuevoAlumnoCorreo,
+                    celularAlumno:       nuevoAlumnoCelular,
+                    direccionAlumno:     nuevoAlumnoDireccion,
+                    nombreApoderado:     ApoderadoNombre,
+                    parentescoApoderado: ApoderadoParentesco,
+                    trabajoApoderado:    ApoderadoTrabajo,
+                    celularApoderado:    ApoderadoCelular
+                }
+            }).then(res => {
+                console.log(res)
+               	swal({
+                    title: 'Agregado!',
+                    backdrop: 'static', 
+                    keyboard: false,
+                    text: res.ok,
+                    type: 'success',
+                    timer: 60000
+                })
+            })
+        })
+    };
+</script>
+{{/extend}}
+
