@@ -1,0 +1,256 @@
+{{!< layout/default}}
+
+<style>
+  .card-header{
+    background-color: #22558a;
+    color:white;
+  }
+  .card-header {
+    padding: 0.2rem 1.25rem;
+  }
+</style>
+{{#extend "css"}}
+<div class="col-md-12" style="margin-top: 55px">
+<ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Valor cuotas</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Horarios</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Año actual</a>
+    </li>
+</ul>
+<div class="tab-content" id="pills-tabContent">
+    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+        <div class="card border-dark" style="width: 30rem; margin-left: 350px"> 
+                <div class="card-header"><h5>Selección de estado y nota</h5></div>
+            <div class="card-body row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-calendar"></i> Estado</label>
+                        <div class="col-md-12" style="margin-top:5px;">
+                            <select id="selectEstado">
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
+                </div> <!-- <option selected="true" disabled="disabled">seleccione</option> -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                            <label><i class="far fa-calendar"></i> Nota</label>
+                            <div class="col-md-12" style="margin-top:5px;">
+                                <select id="selectNota">
+                                    <option></option>
+                                </select>
+                            </div>
+                    </div>
+                </div>
+                <div class="col-md-10 offset-md-1" style="margin-top:15px;">
+                    <input id="selectValor" type="text" class="form-control border-input" disabled>
+                </div> 
+            </div>
+            <li class="list-group-item">
+                <div class="col-md-12">
+                    <button id="modValores" class="btn btn-primary btn-block" > <i class="far fa-hdd"></i> Editar valores</button>
+                </div>
+            </li>
+        </div>   
+    </div>
+
+
+    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+        <div class="container-fluid">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+                    <div class="row">
+                        <div class="col-md-2 col-xs-12">
+                            <br>
+                            <button class="btn btn-primary btn-block" id="newHorario" style="margin-top: 20px">
+                                <i class="fa fa-plus" aria-hidden="true" ></i> Agregar
+                            </button>
+                            <br>
+                            <button class="btn btn-success btn-block" id="modHorario" disabled>
+                                    <i class="fas fa-edit"></i> Modificar
+                            </button>
+                        </div>
+                
+                        <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                            <table id="tableHorarios" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Año</th>
+                                        <th>Horario</th>
+                                    </tr>
+                                    <td></td>
+                                    <td>2018</td>
+                                    <td>noche</td>
+                                </thead>
+                            </table>
+                            <div id="loadingStudents">
+                                <center>
+                                    <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                                    <span class="sr-only">Cargando...</span>
+                                </center>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+
+
+<div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+...
+</div>
+</div>
+
+</div>
+
+<!-- Modal formato-->
+<div class="modal fade" id="modalAdmin" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #e8e8e8">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
+        </div>
+    </div>
+</div>
+{{/extend}}
+
+{{#extend "js"}}
+<script>
+    let selects = {
+        graduated: [],
+        notgraduated: [],
+        selectedOptionEg: []
+    }
+    let selectedStatus = ''; //estado seleccionado xd
+
+  ajax({ // cargar valor cuotas
+    url:'/api/quotaValues'
+        }).then(res => {
+            //console.log(res)
+            selects.graduated = res.filter(function(el) {
+                return el.status == 'graduated';
+            })[0].notes
+            
+            selects.notgraduated = res.filter(function(el) {
+                return el.status == 'notGraduated';
+            })[0].notes
+
+            console.log(selects.graduated)
+
+            let s2graduated = selects.graduated.reduce((arr, el, i) => {
+                return arr.concat({
+                    id: i,
+                    text: el.score
+                })   
+            }, []);
+
+            let s2notgraduated = selects.notgraduated.reduce((arr, el, i) => {
+                return arr.concat({
+                    id: i,
+                    text: el.score
+                })   
+            }, []);
+            //console.log(s2graduated,s2notgraduated)
+            $('#selectEstado').select2({
+                placeholder: "Seleccione",
+                width: '100%',
+                data: [{
+                    id:0,
+                    text: 'egresado'
+                },{
+                    id:1,
+                    text: 'no egresado'
+                }]
+            });
+
+            $('#selectEstado').on('change', function (e) {
+                let selectedEstado = $('#selectEstado').select2('data')[0].text;
+                console.log(selectedEstado)
+                $('#selectNota').empty()
+                if (selectedEstado == 'egresado'){
+                    selectedStatus = 'graduated';
+                    $('#selectNota').select2({
+                        width:'100%',
+                        data: s2graduated  
+                    })
+                }else{
+                    selectedStatus = 'notgraduated'
+                    $('#selectNota').select2({
+                        placeholder:'seleccione',
+                        width:'100%',
+                        data: s2notgraduated
+                    })
+                }
+            });
+        })
+        
+        $('#selectNota').on('change', function (e){
+                let selectedScore = $('#selectNota').select2('data')[0].text;
+                let selectedPrice = filterScores(selectedScore).price
+                $('#selectValor').prop('disabled', false);
+                $('#selectValor').val(selectedPrice)
+        })
+        function filterScores (score){
+            return selects[selectedStatus].filter(function(el) {
+                return el.score == score;
+            })[0]
+        }
+
+    /*$('#modValores').on('click', function () {
+        //Variables desde modal
+        let valoresMatricula  = $('#selectValor').val()
+        ajax({
+            url: 'api/modValues',
+            type: 'POST',
+            data: {
+                valores: valoresMatricula
+            }
+        }).then(res => {
+            if (res.error) {
+                toastr.error(res.error)
+            } else {
+                swal({
+                    title: 'Valor modificado correctamente!',
+                    text: res.ok,
+                    backdrop: 'static',
+                    keyboard: false,
+                    type: 'success',
+                    timer: 3000
+                }).then(result => {
+                    //$('#satModal').modal('hide')
+                   // reloadRepairTableClient()
+                })
+            }
+        })
+    });*/
+$('#newHorario').on('click', function () {
+    modalNewHorario();
+})
+function modalNewHorario() { 
+      $('#modalAdmin').modal();
+      $('#modal_title').text('Ingreso de nuevo horario');
+      $('#modal_body').html(`
+      <div style="padding:5px;"> 
+        <div class="row">
+            <div class="col-md-12" style="margin-top:20px;">
+                <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Año</label>
+                <input  id="yearSelect" type="text"  required class="form-control border-input" placeholder="Nombre del cliente">
+            </div>
+      
+`)
+};
+</script>
+{{/extend}}

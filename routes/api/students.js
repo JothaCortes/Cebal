@@ -48,7 +48,7 @@ const Students = [
                 return new Promise(resolve => {
                     db.insert(alumnObject, function (errUpdate, body) {
                         if (errUpdate) throw errUpdate;
-                        resolve({ ok: 'Alumno ' + alumnObject.rut + ' agregado correctamente' });
+                        resolve({ ok: 'Alumno ' + alumnObject.name + ' agregado correctamente' });
                     });
                 })
                 
@@ -70,7 +70,53 @@ const Students = [
                 })
             }
         }
+    },
+
+//API TRAER ALUMNOS A TABLE
+{ 
+    method: 'GET',
+    path: '/api/studentsCebal', 
+    options: {
+        handler: (request, h) => {
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'type': 'alumnos',
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                                status: el.status,
+                                rut: el.rut,
+                                name: el.name,
+                                lastname1: el.lastname1,
+                                lastname2: el.lastname2,
+                                email: el.email,
+                                phone: el.phone,
+                                address: el.address,
+                                nameAp: el.nameAp,
+                                relationshipAp: el.relationshipAp,
+                                workAp: el.workAp,
+                                phoneAp: el.phoneAp
+                            })
+                        }, []) 
+
+                        resolve(res);
+                    } else {
+                        resolve({ err: 'no existen alumnos' });
+                    }
+                });
+            });
+        }
     }
+}, 
 ];
 
 export default Students;

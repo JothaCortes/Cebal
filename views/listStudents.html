@@ -6,21 +6,35 @@
 {{#extend "css"}}
 
 {{/extend}}
-<!--Comenzar desde abajo del nav-->
+<!--Menu de busqueda -->
 <div class="col-md-12" style="margin-top:60px;">
-    <div class="row"> 
-        <div class="col-md-2" >
-           
+        <div class="row"> 
+            <div class="col-md-2" >
+            </div>
+          <br>    
         </div>
-      <br>    
-    </div>
 </div> <hr>
+<!--Menu Botones-->
 <div class="container-fluid">
-    <div class="tab-content">
-            <div class="col-md-12 col-xs-12 box-shadows table-responsive">
-                    <table id="tablaListaAlumnos" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+<div class="tab-content">
+    
+       <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+            <div class="row">
+                <div class="col-md-2 col-xs-12">
+                    <br>
+                    <button class="btn btn-primary btn-block" id="agregarEstudiante">
+                            <i class="fas fa-file-word"></i> Exportar Word
+                    </button>
+                    <br>
+                    <button class="btn btn-success btn-block" id="modificarEstudiante" disabled>
+                            <i class="fas fa-file-excel"></i> Exportar Excel
+                    </button>
+                    <br>
+                </div>
+    
+                <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                    <table id="example" class="display nowrap table table-condensed" cellspacing="0" width="100%">
                         <thead>
-                            <tr>
                                 <th>Rut</th>
                                 <th>Nombre</th>
                                 <th>Horario</th>
@@ -53,19 +67,21 @@
                                       <td>EST D</td>
                                       <td>Intensivo</td>
                                     </tr>
-                                  </tbody>
-                        </thead>
-                    </table>
-                    <div id="loadingStudents">
-                        <center>
-                            <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
-                            <span class="sr-only">Cargando...</span>
-                        </center>
-                    </div>
-                </div>
-    </div>
+                                </tr>
+                            </tbody>
+                  </thead>
+              </table>
+              <div id="loadingStudents">
+                  <center>
+                      <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                      <span class="sr-only">Cargando...</span>
+                  </center>
+              </div>
+          </div>
+      </div>
+  </div>
+</div> 
 </div>
-
 
 
 <!-- Modal formato-->

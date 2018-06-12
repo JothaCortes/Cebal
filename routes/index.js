@@ -7,6 +7,9 @@ import APIStudents   from './api/students';
 
 import listStudents from './listStudents';
 
+import administrationPanel from './administrationPanel';
+import APIadministrationPanel from './api/administrationPanel';
+
 
 
 
@@ -64,6 +67,8 @@ const Routes = [].concat(
 
     Students,
     APIStudents,
-    listStudents
+    listStudents,
+    administrationPanel,
+    APIadministrationPanel
 )
 export default Routes
