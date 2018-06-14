@@ -6,7 +6,7 @@
     color:white;
   }
   .card-header {
-    padding: 0.2rem 1.25rem;
+    padding: 0.2rem 1.25rem; 
   }
 </style>
 {{#extend "css"}}
@@ -24,7 +24,7 @@
 </ul>
 <div class="tab-content" id="pills-tabContent">
     <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-        <div class="card border-dark" style="width: 30rem; margin-left: 350px"> 
+        <div class="card" style="width:30rem; margin-left: 500px;margin-top: 55px"> 
                 <div class="card-header"><h5>Selección de estado y nota</h5></div>
             <div class="card-body row">
                 <div class="col-md-6">
@@ -80,16 +80,12 @@
                             <table id="tableHorarios" class="display nowrap table table-condensed" cellspacing="0" width="100%">
                                 <thead>
                                     <tr>
-                                        <th></th>
                                         <th>Año</th>
                                         <th>Horario</th>
                                     </tr>
-                                    <td></td>
-                                    <td>2018</td>
-                                    <td>noche</td>
                                 </thead>
                             </table>
-                            <div id="loadingStudents">
+                            <div id="loadinghorary">
                                 <center>
                                     <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
                                     <span class="sr-only">Cargando...</span>
@@ -112,7 +108,7 @@
 
 <!-- Modal formato-->
 <div class="modal fade" id="modalAdmin" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog " role="document">
         <div class="modal-content" style="background-color: #e8e8e8">
             <div class="modal-header" style="background:#333333; color:#fff">
                 <h5 class="modal-title" id="modal_title"></h5>
@@ -239,18 +235,192 @@
 $('#newHorario').on('click', function () {
     modalNewHorario();
 })
+$('#modHorario').on('click', function(){
+    modalModHorario();
+})
 function modalNewHorario() { 
       $('#modalAdmin').modal();
       $('#modal_title').text('Ingreso de nuevo horario');
       $('#modal_body').html(`
-      <div style="padding:5px;"> 
         <div class="row">
-            <div class="col-md-12" style="margin-top:20px;">
-                <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Año</label>
-                <input  id="yearSelect" type="text"  required class="form-control border-input" placeholder="Nombre del cliente">
+            <div class="col-md-12" style="margin-top:10px;">
+                <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
+                    <select class="form-control" id="selectYear">
+                        <option selected="true" disabled="disabled">seleccione</option>
+                        <option>2012</option>
+                        <option>2013</option>
+                        <option>2014</option>
+                        <option>2015</option>
+                        <option>2016</option>
+                        <option>2017</option>
+                        <option>2018</option>
+                        <option>2019</option>
+                        <option>2020</option>
+                    </select>
             </div>
-      
+            <div class="col-md-12">
+                <label style="float:left;margin-top:15px;"><i class="far fa-clock"></i> Horario</label>
+                <input id="horario" type="text" class="form-control border-input">
+            </div>
+            <div class="offset-md-5 col-md-3" style="margin-top:10px;">
+                <button id="limpiarHorario" type="button" class="btn btn-danger"><i class="fas fa-ban"></i> Cancelar</button>
+            </div>
+            <div class="col-md-3" style="margin-top:10px">
+                <button id="guardarHorario" type="button" class="btn btn-primary"><i class="fas fa-cloud"></i> Guardar</button>
+            </div>
+        </div>   
 `)
+    $('#limpiarHorario').on('click', function () {
+        $('#horario').val('')
+        $('#selectYear').focus()
+
+    })
+    $('#guardarHorario').on('click', function () {
+        //Variables
+        let año     = $('#selectYear').val()
+        let horario = $('#horario').val()
+        //fin variables
+        ajax({
+                url: '/api/nuevoHorario',
+                type: 'POST',
+                data: {
+                    año    :año,
+                    horario:horario
+                }
+            }).then(res => {
+                console.log(res)
+               	swal({
+                    title: 'Agregado!',
+                    backdrop: 'static', 
+                    keyboard: false,
+                    text: res.ok,
+                    type: 'success',
+                    timer: 60000
+                }).then(result => {
+                        $('#modalAdmin').modal('hide')
+                        reloadTableHorarios()
+                    })
+            })
+    })
+};
+
+//DATATABLE HORARIO
+let datatable;
+let datatableHorarios;
+let horariosRowSelectedData;
+
+jQuery(document).ready(function ($) {
+    chargeTableHorarios();
+});
+    function chargeTableHorarios() {
+        datatableHorarios = $('#tableHorarios')
+        .DataTable({            
+                    "iDisplayLength": 100,
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "responsive": true,
+                    "columns": [
+                        { "data": "year"},
+                        { "data": "horary" },             
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/horariosCebal'
+                    }).then(res => {
+                        if (res.err) {
+                            toastr.warning('No existen horarios')
+                        } else {
+                            datatableHorarios.rows.add(res).draw();
+                            $('#loadinghorary').empty();
+                        }      
+                    })
+            }
+        });   
+     $('#tableHorarios tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            $('#modHorario').prop('disabled', true);
+        } else {
+            datatableHorarios.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            horariosRowSelectedData = datatableHorarios.row($(this)).data();
+            console.log(horariosRowSelectedData)
+            $('#modHorario').prop('disabled', false);
+        }
+    });
+}
+//DATATABLE FINAL recargar
+function reloadTableHorarios() {
+        ajax({
+            url: 'api/horariosCebal'
+        }).then(res => {
+            if (res.err) {
+                toastr.warning('No existen horarios')
+            } else {
+                datatableHorarios.clear().draw();
+                datatableHorarios.rows.add(res).draw();
+            }
+        })
+
+    }
+//FIN DATATABLE HORARIO
+//MODAL MODIFICAR HORARIO
+function modalModHorario() { 
+      $('#modalAdmin').modal();
+      $('#modal_title').text('Modificar horario');
+      $('#modal_body').html(`
+        <div class="row">
+            <div class="col-md-12" style="margin-top:10px;">
+                <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
+                <input id="añoMod" value="${horariosRowSelectedData.year}" type="text" class="form-control border-input">
+            </div>
+            <div class="col-md-12">
+                <label style="float:left;margin-top:15px;"><i class="far fa-clock"></i> Horario</label>
+                <input id="horarioMod" value="${horariosRowSelectedData.horary}" type="text" class="form-control border-input">
+            </div>
+            <div class="offset-md-5 col-md-3" style="margin-top:10px;">
+                <button id="limpiarHorarioMod" type="button" class="btn btn-danger"><i class="fas fa-ban"></i> Cancelar</button>
+            </div>
+            <div class="col-md-3" style="margin-top:10px">
+                <button id="modHorarioCebal" type="button" class="btn btn-primary"><i class="far fa-edit"></i> Modificar</button>
+            </div>
+        </div>   
+`)
+$('#limpiarHorarioMod').on('click', function () {
+    $('#modalAdmin').modal('hide')
+});
+    $('#modHorarioCebal').on('click', function () {
+            let mod_año = $('#añoMod').val();
+            let mod_horario = $('#horarioMod').val();
+
+            ajax({
+                url: 'api/modHorary',
+                type: 'POST',
+                data: {
+                    id: horariosRowSelectedData._id,
+                    year: mod_año,
+                    horary: mod_horario,
+                }
+            }).then(res => {
+                if (res.error) {
+                    toastr.error(res.error)
+                } else {
+                    swal({
+                        title: 'Horario modificado correctamente!',
+                        text: res.ok,
+                        backdrop: 'static',
+                        keyboard: false,
+                        type: 'success',
+                        timer: 3000
+                    }).then(result => {
+                        $('#modHorario').prop('disabled', true);
+                        $('#modalAdmin').modal('hide')
+                        reloadTableHorarios()
+                    })
+                }
+            })
+    });
 };
 </script>
 {{/extend}}

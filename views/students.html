@@ -313,12 +313,12 @@ $('#agregarEstudiante').on('click', function () {
                     </div>
                 </div>   
                 <div class="row"> 
-                     <div class="col-md-3" style="margin-top:15px;">
-                        <button id="limpiarNuevoAlumno" class="btn btn-dark btn-block" >Limpiar</button>
+                     <div class="offset-md-3 col-md-4" style="margin-top:15px;">
+                        <button id="limpiarNuevoAlumno" class="btn btn-danger"><i class="fas fa-ban"></i> Cancelar</button>
                     </div>
 
-                    <div class="col-md-8" style="margin-top:15px;">
-                        <button id="guardarNuevoAlumno" class="btn btn-primary btn-block" > <i class="far fa-hdd"></i> Guardar</button>
+                    <div class="col-md-4" style="margin-top:15px;">
+                        <button id="guardarNuevoAlumno" class="btn btn-primary"><i class="far fa-hdd"></i> Guardar</button>
                     </div>
                 </div>
             
@@ -613,7 +613,7 @@ $('#valorMatricula').on('onChange', function(){
     //xxxxxxxxxxxx
 
     $('#limpiarNuevoAlumno').on('click', function () {
-        $('#rutNuevoAlumno').val('ruuut')
+        $('#rutNuevoAlumno').val('')
         $('#fechaNuevoAlumno').val('')
         $('#nombreNuevoAlumno').val('')
         $('#apellido1NuevoAlumno').val('')
