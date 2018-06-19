@@ -15,7 +15,7 @@ max-width: 1000px;
     padding: 0.6rem;
 }
 .card-header{
-    background-color: #d3d7ea;
+    background-color: #c9cfe8;
     color:#333333;
     padding: 0.2rem 1.25rem;
   }
@@ -69,6 +69,10 @@ h5, .h5 {
                 <button class="btn btn-success btn-block" id="modificarEstudiante" disabled>
                         <i class="fas fa-edit"></i> Modificar
                 </button>
+                <br>
+                <button class="btn btn-danger btn-block" id="opcionesEstudiante" disabled>
+                    <i class="fas fa-clipboard-list"></i> Opciones
+                </button>
             </div>
     
             <div class="col-md-10 col-xs-12 box-shadows table-responsive">
@@ -103,7 +107,7 @@ h5, .h5 {
 <!-- Modal formato-->
 <div class="modal fade" id="modalEstudiantes" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
     <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style="background-color: #e8e8e8">
+        <div class="modal-content" style="background-color: #ffffff">
             <div class="modal-header" style="background:#333333; color:#fff">
                 <h5 class="modal-title" id="modal_title"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -171,12 +175,14 @@ h5, .h5 {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
             $('#modificarEstudiante').prop('disabled', true);
+            $('#opcionesEstudiante').prop('disabled', true);
         } else {
             datatableAlumnos.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
             alumosRowSelectedData = datatableAlumnos.row($(this)).data();
             console.log(alumosRowSelectedData)
             $('#modificarEstudiante').prop('disabled', false);
+            $('#opcionesEstudiante').prop('disabled', false);
         }
     });
 }
@@ -556,7 +562,14 @@ $('#agregarEstudiante').on('click', function () {
                             <input id ="fechaNuevoAlumno" type="date" name="fecha" class="form-control border-input">
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad</label>
+                            <select class="form-control" id="ciudadNuevoAlumno">
+                                <option selected="true" disabled="disabled">seleccione</option>
+                                <option>Curicó</option>
+                                <option>Parral</option>
+                                <option>Linares</option>
+                            </select> 
                         </div>
 
                         <div class="col-md-4" style="margin-top:3px;">
@@ -906,25 +919,34 @@ $('#alumnoDescuento1').on('change', function(){
 });
 //iniciar select de horarios
 let selects = {
+        place:[],
         horario: [],
     }
 
 ajax({ // cargar valores de cuotas
     url:'/api/quotaValuesCebal'
     }).then(res => {
-        console.log(res)
+      //  console.log(res)
     });
 
 ajax({ // cargar horarios
     url:'/api/horariosCebalTraer'
     }).then(res => {
            // falta filtrar por ciudad
-        let horario = res.reduce((arr, el, i) => {
+        console.log(res)
+        selects.place = res.filter(function(el) {
+            return el.place == '{{{credentials.place}}}'
+        })
+
+        console.log(selects.place)
+
+        let horario = selects.place.reduce((arr, el, i) => {
             return arr.concat({
                 id: i,
                 text: el.horary
             })   
         }, []);
+
         $('#selectHorario').select2({
             placeholder:'seleccione',
             width:'100%',
@@ -985,6 +1007,7 @@ ajax({ // cargar horarios
     $('#guardarNuevoAlumno').on('click', function () {
         //Variables desde modal
             let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
+            let nuevoAlumnoCiudad    =$('#ciudadNuevoAlumno').val()
             let nuevoAlumnofecha     = $('#fechaNuevoAlumno').val()
             let nuevoAlumnoNombre    = $('#nombreNuevoAlumno').val()
             let nuevoAlumnoApellido1 = $('#apellido1NuevoAlumno').val()
@@ -1002,6 +1025,7 @@ ajax({ // cargar horarios
                 type: 'POST',
                 data: {
                     rutalumno:           nuevoAlumnoRut,
+                    ciudadAlumno:       nuevoAlumnoCiudad,
                     fechaAlumno:         nuevoAlumnofecha,
                     nombreAlumno:        nuevoAlumnoNombre,
                     apellido1Alumno:     nuevoAlumnoApellido1,
@@ -1023,14 +1047,16 @@ ajax({ // cargar horarios
                     text: res.ok,
                     type: 'success',
                     timer: 60000
-                })
+                 }).then(result => {
+                        reloadRepairTableAlumnos()
+                    })
             })
         })
 
 //Guardar datos académicos del alumno
 $('#guardarNuevoAlumno2').on('click', function () {
         //Variables desde modal
-        let nuevoAlumnoRut2      = $('#rutNuevoAlumno').val()
+        let nuevoAlumnoRut2       = $('#rutNuevoAlumno').val()
         let nuevoAlumnoColegio   = $('#colegioNuevoAlumno').val()
         let nuevoAlumnoEgreso    = $('#egresoAlumno').val()
         let nuevoAlumnoBeca      =$('#becaAlumno').val()
@@ -1039,12 +1065,12 @@ $('#guardarNuevoAlumno2').on('click', function () {
         let nuevoAlumnoPromedio  =$('#promedioAlumno').val()
         let nuevoAlumnoHorario   =$('#selectHorario').val()
         let nuevoAlumnoElectivo  =$('#electivo').val()
-        //fin variables
+
         ajax({
-                url: '/api/nuevoalumnoAcademicos',
+                url: '/api/datosAcademicos',
                 type: 'POST',
                 data: {
-                    rutalumno2     :nuevoAlumnoRut2,
+                    rutalumno      :nuevoAlumnoRut2,
                     alumnoColegio  :nuevoAlumnoColegio,
                     alumnoEgreso   :nuevoAlumnoEgreso,
                     alumnoBeca     :nuevoAlumnoBeca,

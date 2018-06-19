@@ -50,6 +50,7 @@ const login = async (request, h) => {
                 delete account._id
                 delete account._rev
                 delete account.password
+                console.log(account)
                 await request.server.app.cache.set(sid, { account }, 0)
                 request.cookieAuth.set({ sid })
                 return h.redirect('/')                

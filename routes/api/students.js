@@ -7,7 +7,6 @@ let db = cloudant.db.use(configEnv.db)
 
 
 const Students = [
-    
     // agregar Alumno Cebal
     { 
         method: 'POST',
@@ -15,6 +14,7 @@ const Students = [
         options: {
             handler: (request, h) => {
                 let rut          = request.payload.rutalumno;
+                let ciudad       =request.payload.ciudadAlumno;
                 let fechaNac     = request.payload.fechaAlumno;
                 let nombre       = request.payload.nombreAlumno;
                 let apellido1    = request.payload.apellido1Alumno;
@@ -32,6 +32,7 @@ const Students = [
                     date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                     type: 'alumnos',
                     status: 'enabled',
+                    city           :ciudad,
                     birthday       :fechaNac, //fecha en base de datos || fecha variable arriba
                     name           :nombre,
                     lastname1      :apellido1,
@@ -55,6 +56,7 @@ const Students = [
             validate: {
                 payload: Joi.object().keys({
                     rutalumno: Joi.string().allow(''),
+                    ciudadAlumno:Joi.string().allow(''),
                     fechaAlumno: Joi.string().allow(''),
                     nombreAlumno: Joi.string().allow(''),
                     apellido1Alumno: Joi.string().allow(''),
@@ -71,70 +73,20 @@ const Students = [
         }
     },
 
-/*Agregar Datos académicos del alumno
-{ 
-    method: 'POST',
-    path: '/api/nuevoalumnoAcademicos',
-    options: {
-        handler: (request, h) => {
-            let colegio    = request.payload.alumnoColegio;
-            let egreso     = request.payload.alumnoEgreso;
-            let beca       = request.payload.alumnoBeca;
-            let añoEgreso  = request.payload.alumnoAñoEgreso;
-            let curso      = request.payload.alumnoCurso;
-            let promedio   = request.payload.alumnoPromedio;
-            let horario    = request.payload.alumnoHorario;
-            let electivo   = request.payload.alumnoElectivo;
-
-            let alumnObject = {
-                _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
-                type: 'alumnos',
-                status: 'enabled',
-                colegio :colegio,
-                egreso  :egreso,
-                beca    :beca,
-                añoEgres:añoEgreso,
-                curso   :curso,
-                promedio:promedio,
-                hoario  :horario,
-                electivo: electivo
-
-            }
-            return new Promise(resolve => {
-                db.insert(alumnObject, function (errUpdate, body) {
-                    if (errUpdate) throw errUpdate;
-                    resolve({ ok: 'Alumno ' + alumnObject.rut + ' agregado correctamente' });
-                });
-            })
-            
-        },
-        validate: {
-            payload: Joi.object().keys({
-               alumnoColegio: Joi.string().allow(''),
-               alumnoEgreso: Joi.string().allow(''),
-               alumnoBeca: Joi.string().allow(''),
-               alumnoAñoEgreso: Joi.string().allow(''),
-               alumnoCurso: Joi.string().allow(''),
-               alumnoPromedio: Joi.string().allow(''),
-               alumnoHorario: Joi.string().allow(''),
-               alumnoElectivo: Joi.string().allow('')
-
-            })
-        }
-    }
-}, */
 //API TRAER ALUMNOS A TABLE
 { 
     method: 'GET',
     path: '/api/studentsCebal', 
     options: {
         handler: (request, h) => {
+            let credentials = request.auth.credentials;
             return new Promise(resolve => {
                 db.find({
                     'selector': {
                         '_id': {
                             '$gte': null
                         },
+                    // 'place': credentials.place,
                         'type': 'alumnos',
                     }
                 }, (err, result) => {
@@ -192,7 +144,6 @@ const Students = [
                                 year: el.year,
                                 place: el.place,
                                 horary: el.horary
-                            
                             })
                         }, []) 
 

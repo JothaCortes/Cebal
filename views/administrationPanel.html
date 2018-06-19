@@ -2,7 +2,7 @@
 
 <style>
   .card-header{
-    background-color: #d3d7ea;
+    background-color: #c9cfe8;
     color:#333333;
     padding: 0.2rem 1.25rem;
   }
@@ -112,7 +112,29 @@
 
 
 <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-...
+        <div class="card" style="width:30rem; margin-left: 500px;margin-top: 55px"> 
+                <div class="card-header"><h5>Selección de año</h5></div>
+            <div class="card-body row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label><i class="far fa-calendar"></i> Año listados</label>
+                        <div class="col-md-12" style="margin-top:5px;">
+                            <select class="form-control" id="xx">
+                                <option selected="disabled" disabled="disabled">seleccione</option>
+                                <option>2017</option>
+                                <option>2018</option>
+                                <option>2019</option>
+                                <option>2020</option>
+                            </select> 
+                        </div>
+                    </div>
+                </div> 
+               
+                <div class="col-md-8 offset-md-2" style="margin-top:15px;">
+                    <button id="x" class="btn btn-success btn-block" ><i class="fas fa-edit"></i> Modificar</button>
+                </div>
+            </div>
+        </div> 
 </div>
 </div>
 
@@ -191,6 +213,7 @@
                 if (selectedEstado == 'egresado'){
                     selectedStatus = 'graduated';
                     $('#selectNota').select2({
+                        placeholder:'seleccione',
                         width:'100%',
                         data: s2graduated  
                     })
