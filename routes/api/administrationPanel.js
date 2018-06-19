@@ -40,12 +40,14 @@ const administrationPanel = [
     options: {
         handler: (request, h) => {
             let year  = request.payload.año;
+            let place = request.payload.sede;
             let horary= request.payload.horario;
             let horaryObject = {
                 _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                 type  : 'horarios',
                 status: 'enabled',
-                year  :year, 
+                year  :year,
+                place : place,
                 horary:horary
             }
             return new Promise(resolve => {
@@ -58,6 +60,7 @@ const administrationPanel = [
         validate: {
             payload: Joi.object().keys({
                 año: Joi.string().allow(''),
+                sede:Joi.string().allow(''),
                 horario: Joi.string().allow('')
             })
         }
@@ -86,6 +89,7 @@ const administrationPanel = [
                             return arr.concat({
                                 _id: el._id,
                                 year: el.year,
+                                place: el.place,
                                 horary: el.horary
                             })
                         }, []) 
@@ -107,6 +111,7 @@ const administrationPanel = [
         handler: (request, h) => {
             let id = request.payload.id;
             let year = request.payload.year;
+            let place = request.payload.place;
             let horary = request.payload.horary;
             let modHorariosObj = {};
 
@@ -124,6 +129,7 @@ const administrationPanel = [
                     if (result.docs[0]) {
                         modHorariosObj = result.docs[0];
                         modHorariosObj.year = year;
+                        modHorariosObj.place = place;
                         modHorariosObj.horary = horary;
 
                         db.insert(modHorariosObj, function (errUpdate, body) {
@@ -141,13 +147,48 @@ const administrationPanel = [
             payload: Joi.object().keys({
                 id: Joi.string(),
                 year: Joi.string(),
+                place: Joi.string(),
                 horary: Joi.string()
             })
         }
     }
-}
+},
 //fin modificar horarios
-
-
+//Eliminar un horario
+{ 
+    method: 'DELETE',
+    path: '/api/deleteHorario',
+    options: {
+      handler: (request, h) => {
+        let horario = request.payload.horario;
+  
+        return new Promise(resolve => {
+          db.find({
+            selector: {
+              _id: horario
+            },
+            limit: 1
+          }, (err, result) => {
+              if (err) throw err;
+              
+              if(result.docs[0]) {
+  
+                  db.destroy(result.docs[0]._id, result.docs[0]._rev, (err2, body) => {
+                      if (err2) throw err2;
+          
+                      if(body.ok) resolve({ok: 'Horario eliminado correctamente'});
+                  });
+              }
+          });
+        });
+      },
+      validate: {
+        payload: Joi.object().keys({
+          horario: Joi.string()
+        })
+      }
+    }
+  }
+//fin
 ];
 export default administrationPanel;

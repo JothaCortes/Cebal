@@ -28,11 +28,11 @@ const Students = [
                 let celularAp    = request.payload.celularApoderado;
     
                 let alumnObject = {
-                    _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                    _id: rut,
+                    date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                     type: 'alumnos',
                     status: 'enabled',
-                    rut            :rut, //rut en base de datos: rut de la variable
-                    birthday       :fechaNac,
+                    birthday       :fechaNac, //fecha en base de datos || fecha variable arriba
                     name           :nombre,
                     lastname1      :apellido1,
                     lastname2      :apellido2,
@@ -43,7 +43,6 @@ const Students = [
                     relationshipAp :parentescoAp,
                     workAp         :trabajoAp,
                     phoneAp        :celularAp 
-    
                 }
                 return new Promise(resolve => {
                     db.insert(alumnObject, function (errUpdate, body) {
@@ -72,6 +71,58 @@ const Students = [
         }
     },
 
+/*Agregar Datos académicos del alumno
+{ 
+    method: 'POST',
+    path: '/api/nuevoalumnoAcademicos',
+    options: {
+        handler: (request, h) => {
+            let colegio    = request.payload.alumnoColegio;
+            let egreso     = request.payload.alumnoEgreso;
+            let beca       = request.payload.alumnoBeca;
+            let añoEgreso  = request.payload.alumnoAñoEgreso;
+            let curso      = request.payload.alumnoCurso;
+            let promedio   = request.payload.alumnoPromedio;
+            let horario    = request.payload.alumnoHorario;
+            let electivo   = request.payload.alumnoElectivo;
+
+            let alumnObject = {
+                _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                type: 'alumnos',
+                status: 'enabled',
+                colegio :colegio,
+                egreso  :egreso,
+                beca    :beca,
+                añoEgres:añoEgreso,
+                curso   :curso,
+                promedio:promedio,
+                hoario  :horario,
+                electivo: electivo
+
+            }
+            return new Promise(resolve => {
+                db.insert(alumnObject, function (errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ ok: 'Alumno ' + alumnObject.rut + ' agregado correctamente' });
+                });
+            })
+            
+        },
+        validate: {
+            payload: Joi.object().keys({
+               alumnoColegio: Joi.string().allow(''),
+               alumnoEgreso: Joi.string().allow(''),
+               alumnoBeca: Joi.string().allow(''),
+               alumnoAñoEgreso: Joi.string().allow(''),
+               alumnoCurso: Joi.string().allow(''),
+               alumnoPromedio: Joi.string().allow(''),
+               alumnoHorario: Joi.string().allow(''),
+               alumnoElectivo: Joi.string().allow('')
+
+            })
+        }
+    }
+}, */
 //API TRAER ALUMNOS A TABLE
 { 
     method: 'GET',
@@ -94,7 +145,7 @@ const Students = [
                             return arr.concat({
                                 _id: el._id,
                                 status: el.status,
-                                rut: el.rut,
+                                birthday:el.birthday,  
                                 name: el.name,
                                 lastname1: el.lastname1,
                                 lastname2: el.lastname2,
@@ -117,6 +168,66 @@ const Students = [
         }
     }
 }, 
+//Obtener Horarios 
+{ 
+    method: 'GET',
+    path: '/api/horariosCebalTraer', 
+    options: {
+        handler: (request, h) => {
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'type': 'horarios',
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                                year: el.year,
+                                place: el.place,
+                                horary: el.horary
+                            
+                            })
+                        }, []) 
+
+                        resolve(res);
+                    } else {
+                        resolve({ err: 'no existen horarios' });
+                    }
+                });
+            });
+        }
+    }
+},
+//traer valores de cuotas
+{ 
+    method: 'GET',
+    path: '/api/quotaValuesCebal',
+    options: {
+        handler: (request, h) => {
+            return new Promise(resolve => {
+                db.find({
+                    selector: {
+                        _id:'quotaValue'    
+                    } 
+                }, (err, result) => {
+                    if (err) throw err
+                    if (result.docs[0]) {
+                        resolve(result.docs[0].statusList)
+                    } else {
+                        resolve({ err: 'No existen datos' })
+                    }
+                })
+            })
+        }
+    }
+}
 ];
 
 export default Students;

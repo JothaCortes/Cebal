@@ -2,12 +2,17 @@
 
 <style>
   .card-header{
-    background-color: #22558a;
-    color:white;
+    background-color: #d3d7ea;
+    color:#333333;
+    padding: 0.2rem 1.25rem;
   }
-  .card-header {
-    padding: 0.2rem 1.25rem; 
-  }
+  
+  .h5{
+    margin-bottom: 0rem;
+}
+.card{
+    border-color: #9bafe8;
+}
 </style>
 {{#extend "css"}}
 <div class="col-md-12" style="margin-top: 55px">
@@ -50,12 +55,14 @@
                 <div class="col-md-10 offset-md-1" style="margin-top:15px;">
                     <input id="selectValor" type="text" class="form-control border-input" disabled>
                 </div> 
-            </div>
-            <li class="list-group-item">
-                <div class="col-md-12">
-                    <button id="modValores" class="btn btn-primary btn-block" > <i class="far fa-hdd"></i> Editar valores</button>
+                <div class="offset-md-3 col-md-4" style="margin-top:15px;">
+                    <button id="x" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Limpiar</button>
                 </div>
-            </li>
+    
+                <div class="col-md-4" style="margin-top:15px;">
+                    <button id="x" class="btn btn-success btn-block" ><i class="fas fa-edit"></i> Modificar</button>
+                </div>
+            </div>
         </div>   
     </div>
 
@@ -68,11 +75,15 @@
                         <div class="col-md-2 col-xs-12">
                             <br>
                             <button class="btn btn-primary btn-block" id="newHorario" style="margin-top: 20px">
-                                <i class="fa fa-plus" aria-hidden="true" ></i> Agregar
+                                <i class="fa fa-plus"></i> Agregar
                             </button>
                             <br>
                             <button class="btn btn-success btn-block" id="modHorario" disabled>
-                                    <i class="fas fa-edit"></i> Modificar
+                                <i class="fas fa-edit"></i> Modificar
+                            </button>
+                            <br>
+                            <button class="btn btn-danger btn-block" id="deletHorario" disabled>
+                                <i class="fas fa-ban"></i> Eliminar
                             </button>
                         </div>
                 
@@ -80,6 +91,7 @@
                             <table id="tableHorarios" class="display nowrap table table-condensed" cellspacing="0" width="100%">
                                 <thead>
                                     <tr>
+                                        <th>Sede</th>
                                         <th>Año</th>
                                         <th>Horario</th>
                                     </tr>
@@ -238,6 +250,42 @@ $('#newHorario').on('click', function () {
 $('#modHorario').on('click', function(){
     modalModHorario();
 })
+let horario
+$('#deletHorario').on('click', function(){
+    swal({
+      title: '¿Estás seguro de eliminar el horario?',
+      text: '',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'cancelar',
+      confirmButtonClass: 'btn btn-danger',
+      cancelButtonClass: 'btn btn-primary',
+      buttonsStyling: false
+    }).then(function(action) {
+      if (action.value) {
+        ajax({
+          url: '/api/deleteHorario',
+          type: 'DELETE',
+          data: {
+            horario: horariosRowSelectedData._id
+          }  
+        }).then((data) => {
+            console.log(horario)
+            if (data.ok) {
+                toastr.success(data.ok); 
+                horariosRowSelected.remove().draw();
+                $('#modHorario').prop('disabled', false);
+                $('#deletHorario').prop('disabled', false);
+            }
+        });
+      }
+    });
+})
+
+
 function modalNewHorario() { 
       $('#modalAdmin').modal();
       $('#modal_title').text('Ingreso de nuevo horario');
@@ -256,6 +304,16 @@ function modalNewHorario() {
                         <option>2018</option>
                         <option>2019</option>
                         <option>2020</option>
+                        <option>2021</option>
+                    </select>
+            </div>
+            <div class="col-md-12" style="margin-top:10px;">
+                <label style="float:left;"><i class="fas fa-school"></i> Sede</label>
+                    <select class="form-control" id="selectSede">
+                        <option selected="true" disabled="disabled">seleccione</option>
+                        <option>Curicó</option>
+                        <option>Linares</option>
+                        <option>Parral</option>
                     </select>
             </div>
             <div class="col-md-12">
@@ -278,13 +336,16 @@ function modalNewHorario() {
     $('#guardarHorario').on('click', function () {
         //Variables
         let año     = $('#selectYear').val()
+        let sede = $('#selectSede').val()
         let horario = $('#horario').val()
+        
         //fin variables
         ajax({
                 url: '/api/nuevoHorario',
                 type: 'POST',
                 data: {
                     año    :año,
+                    sede   :sede,
                     horario:horario
                 }
             }).then(res => {
@@ -308,6 +369,7 @@ function modalNewHorario() {
 let datatable;
 let datatableHorarios;
 let horariosRowSelectedData;
+let horariosRowSelected;
 
 jQuery(document).ready(function ($) {
     chargeTableHorarios();
@@ -315,12 +377,14 @@ jQuery(document).ready(function ($) {
     function chargeTableHorarios() {
         datatableHorarios = $('#tableHorarios')
         .DataTable({            
-                    "iDisplayLength": 100,
+                    "iDisplayLength": 11,
                     "oLanguage": {
                         "sSearch": "Buscar :"
                     },
+                    "order": [[0, "desc"]],
                     "responsive": true,
                     "columns": [
+                        { "data": "place"},
                         { "data": "year"},
                         { "data": "horary" },             
                     ],
@@ -339,14 +403,18 @@ jQuery(document).ready(function ($) {
         });   
      $('#tableHorarios tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
-            $(this).removeClass('selected');
+            $(this).removeClass('selected'); 
             $('#modHorario').prop('disabled', true);
+            $('#deletHorario').prop('disabled', true);
+
         } else {
             datatableHorarios.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
             horariosRowSelectedData = datatableHorarios.row($(this)).data();
+            horariosRowSelected = datatableHorarios.row($(this));
             console.log(horariosRowSelectedData)
             $('#modHorario').prop('disabled', false);
+            $('#deletHorario').prop('disabled', false);
         }
     });
 }
@@ -362,8 +430,7 @@ function reloadTableHorarios() {
                 datatableHorarios.rows.add(res).draw();
             }
         })
-
-    }
+}
 //FIN DATATABLE HORARIO
 //MODAL MODIFICAR HORARIO
 function modalModHorario() { 
@@ -375,6 +442,11 @@ function modalModHorario() {
                 <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
                 <input id="añoMod" value="${horariosRowSelectedData.year}" type="text" class="form-control border-input">
             </div>
+            <div class="col-md-12" style="margin-top:10px;">
+                <label style="float:left;"><i class="fas fa-school"></i> Sede</label>
+                <input id="sedeMod" value="${horariosRowSelectedData.place}" type="text" class="form-control border-input">
+            </div>
+
             <div class="col-md-12">
                 <label style="float:left;margin-top:15px;"><i class="far fa-clock"></i> Horario</label>
                 <input id="horarioMod" value="${horariosRowSelectedData.horary}" type="text" class="form-control border-input">
@@ -392,6 +464,7 @@ $('#limpiarHorarioMod').on('click', function () {
 });
     $('#modHorarioCebal').on('click', function () {
             let mod_año = $('#añoMod').val();
+            let mod_sede = $('#sedeMod').val();
             let mod_horario = $('#horarioMod').val();
 
             ajax({
@@ -400,6 +473,7 @@ $('#limpiarHorarioMod').on('click', function () {
                 data: {
                     id: horariosRowSelectedData._id,
                     year: mod_año,
+                    place: mod_sede,
                     horary: mod_horario,
                 }
             }).then(res => {
