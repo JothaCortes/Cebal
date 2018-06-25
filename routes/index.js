@@ -6,6 +6,7 @@ import Students      from './students';
 import APIStudents   from './api/students';
 
 import listStudents from './listStudents';
+import APIlistStudents from './api/listStudents';
 
 import administrationPanel from './administrationPanel';
 import APIadministrationPanel from './api/administrationPanel';
@@ -68,6 +69,7 @@ const Routes = [].concat(
     Students,
     APIStudents,
     listStudents,
+    APIlistStudents,
     administrationPanel,
     APIadministrationPanel
 )

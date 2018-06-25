@@ -72,7 +72,97 @@ const Students = [
             }
         }
     },
+ // agregar Matricula
+ { 
+    method: 'POST',
+    path: '/api/nuevaMatricula',
+    options: {
+        handler: (request, h) => {
+            let rutAlumno          = request.payload.rutAlumno;
+            let colegio       =request.payload.colegio;
+            let estadoEgreso     = request.payload.estadoEgreso;
+            let beca       = request.payload.beca ;
+            let añoEgreso    = request.payload.añoEgreso;
+            let curso    = request.payload.curso;
+            let promedio       = request.payload.promedio;
+            let horario      = request.payload.horario;
+            let electivo    = request.payload.electivo;
+            let electivo2     = request.payload.electivo2;
+            let fechaMatricula = request.payload.fechaMatricula;
+            let diaCobro    = request.payload.diaCobro;
+            let tipoCurso    = request.payload.tipoCurso;
 
+            let formaPago    = request.payload.formaPago;
+            let descuento    = request.payload.descuento;
+            let descuento2    = request.payload.descuento2;
+            let valorMatricula   = request.payload.valorMatricula;
+            let numCuotas    = request.payload.numCuotas;
+            let montoCuota    = request.payload.montoCuota;
+            let totalCuotas    = request.payload.totalCuotas;
+            let montoTotal    = request.payload.montoTotal;
+
+            let matriculaObject = {
+                _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+               // date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                type: 'matriculas',
+                status: 'enabled',
+                rut: rutAlumno,
+                colegio        :colegio,
+                estadoEgreso   :estadoEgreso,
+                beca           :beca,
+                añoEgreso      :añoEgreso,
+                curso          :curso,
+                promedio       :promedio,
+                horario        :horario,
+                electivo       :electivo,
+                electivo2      :electivo2,
+                fechaMatricula :fechaMatricula,
+                diaCobro       :diaCobro,
+                tipoCurso      :tipoCurso,
+                formaPago      :formaPago,
+                descuento      :descuento,
+                descuento2     :descuento2,
+                valorMatricula :valorMatricula,
+                numCuotas      :numCuotas,
+                montoCuota     :montoCuota,
+                totalCuotas    :totalCuotas,
+                montoTotal     :montoTotal
+            }
+            return new Promise(resolve => {
+                db.insert(matriculaObject, function (errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ ok: 'Alumno ' + matriculaObject.rut + ' agregado correctamente' });
+                });
+            })
+            
+        },
+        validate: {
+            payload: Joi.object().keys({
+                rutAlumno: Joi.string().allow(''),
+                colegio:Joi.string().allow(''),
+                estadoEgreso: Joi.string().allow(''),
+                beca: Joi.string().allow(''),
+                añoEgreso: Joi.string().allow(''),
+                curso: Joi.string().allow(''),
+                promedio: Joi.string().allow(''),
+                horario: Joi.string().allow(''),
+                electivo: Joi.string().allow(''),
+                electivo2: Joi.string().allow(''),
+                fechaMatricula: Joi.string().allow(''),
+                diaCobro: Joi.string().allow(''),
+                tipoCurso: Joi.string().allow(''), 
+                formaPago: Joi.string().allow(''), 
+                descuento: Joi.string().allow(''), 
+                descuento2: Joi.string().allow(''), 
+                valorMatricula: Joi.string().allow(''), 
+                numCuotas: Joi.string().allow(''), 
+                montoCuota: Joi.string().allow(''), 
+                totalCuotas: Joi.string().allow(''), 
+                montoTotal: Joi.string().allow('')
+            })
+        }
+    }
+},
 //API TRAER ALUMNOS A TABLE
 { 
     method: 'GET',
