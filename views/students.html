@@ -76,9 +76,9 @@ h5, .h5 {
 <div class="tab-content">
     <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
         <div class="row">
-            <div class="col-md-2 col-xs-12">
+            <div class="col-md-2 col-xs-12 col-sm-12 box-shadows">
                 <br>
-                <button class="btn btn-primary btn-block" id="agregarEstudiante" style="margin-top: 20px">
+                <button class="btn btn-primary btn-block" id="agregarEstudiante">
                     <i class="fa fa-plus" aria-hidden="true" ></i> Agregar
                 </button>
                 <br>
@@ -96,6 +96,7 @@ h5, .h5 {
                     <thead>
                         <tr>
                             <th></th>
+                            <th>Sede</th>
                             <th>Rut</th>
                             <th>Nombre</th>
                             <th>Apellidos</th>
@@ -139,6 +140,7 @@ h5, .h5 {
 
 {{#extend "js"}}
 <script>
+    let defaultModalHTML = '';
     let admin = "{{{ credentials.name }}}";
     let datatable;
     let datatableAlumnos;
@@ -158,6 +160,7 @@ h5, .h5 {
                     "responsive": true,
                     "columns": [
                         { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
+                        {"data": "city"},
                         { "data": "_id"},
                         { "data": "name" },
                         { "data": "lastname1"},
@@ -288,7 +291,7 @@ function modalEditarAlumnos() {
                         </div>
                         <div class="col-md-4">
                             <label><i class="fas fa-book"></i> Promedio</label>
-                            <input id="matrPromedio" maxlength="2" max="70" type="text" class="form-control border-input solo-numero"  placeholder="Ej: 60">
+                            <input id="matrPromedio" maxlength="2" type="text" class="form-control border-input solo-numero"  placeholder="Ej: 60">
                         </div>
 
                         <div class="col-md-4">
@@ -336,7 +339,7 @@ function modalEditarAlumnos() {
                     </div>
                     <div class="col-md-3">
                         <label><i class="fas fa-book"></i> Día de cobro</label>
-                        <input id="matrDiaCobro" type="text" class="form-control border-input solo-numero  placeholder="Ej: 5">
+                        <input id="matrDiaCobro" maxlength="2" type="text" class="form-control border-input solo-numero  placeholder="Ej: 5">
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
@@ -446,17 +449,7 @@ function modalEditarAlumnos() {
                         </div>  
                     </div>
 
-                    <div class="col-md-3" style="margin-top: -150px">
-                            <input id="matrDescuento1" type="text" class="form-control border-input" disabled>
-                    </button>
-                    
-                    </div>
-                    <div class="col-md-3" style="margin-top: -150px">
-                        <input id="matrDescuento2" type="text" class="form-control border-input" disabled>
-                    </div>
-
-
-                    <div class="col-md-6" style="margin-top: -90px; margin-left: -493px">
+                    <div class="col-md-6" style="margin-top: 90px; margin-left: -975px">
                         <div class="card">
                             <div class="card-header"><h5>Pago de matrícula</h5></div>
                             <div class="card-body row">
@@ -495,6 +488,44 @@ function modalEditarAlumnos() {
         </div>    
     </div>
       `)
+//calcular el monto de la matricula de un alumno
+
+function calcularMontoMatricula(){
+    alert("hola") 
+        let v_matr = $('#matrValor').val()
+        let c_cuotas = $('#matrNumCuotas').val()
+        let m_couta = $('#matrMontoCuota').val()
+        let t_cuotas = $('#matrTotalCuotas').val()   
+            let totalCuotas = parseFloat(c_cuotas)*parseFloat(m_couta);
+            let total= parseFloat(v_matr) + parseFloat(totalCuotas);
+                 $('#matrMontoTotal').val(total)
+    }
+
+//Habilitar o deshabilitar egresado, no egresado
+$('#matrEgreso').on('change', function(){
+    let egreso = $('#matrEgreso').val()
+    if (egreso == 'Egresado'){
+        $('#matrAñoEgreso').prop('disabled', false);
+    }else{
+        $('#matrAñoEgreso').prop('disabled', true);
+        $('#matrCurso').prop('disabled', false);
+    }
+    })
+
+    $('#alumnoDescuento1').on('change', function(){
+        $('#alumnoDescuento2').prop('disabled', false);
+    });
+
+    //validar solo numeros
+    $(document).ready(function (){
+        $('.solo-numero').keyup(function (){
+        this.value = (this.value + '').replace(/[^0-9]/g, ''); 
+        });
+    });
+    //validar valor maximo y minimo
+
+    //xxxxxxxxxxxx
+
 //GUARDAR MATRICULA
     $('#guardarNuevoAlumno2').on('click', function () {
         //Variables desde modal
@@ -560,16 +591,6 @@ function modalEditarAlumnos() {
                 })
             })
         })
- //calcular el monto de la matricula de un alumno
-    function calcularMontoMatricula(){
-        let v_matr = $('#matrValor').val()
-        let c_cuotas = $('#matrNumCuotas').val()
-        let m_couta = $('#matrMontoCuota').val()
-        let t_cuotas = $('#matrTotalCuotas').val()   
-            let totalCuotas = parseFloat(c_cuotas)*parseFloat(m_couta);
-            let total= parseFloat(v_matr) + parseFloat(totalCuotas);
-                 $('#matrMontoTotal').val(total)
-    }
  //iniciar select de horarios
 let selects = {
         place:[],
@@ -613,13 +634,12 @@ $('#modificarEstudiante').on('click', function () {
 $('#agregarEstudiante').on('click', function () {
        //console.log(data_see1) 
     nuevoEstudiante();
-    administrador();
-    calcularMontoMatricula();
 })
 //Opciones estudiante
 $('#opcionesEstudiante').on('click', function(){
     opcionesModal();
 })
+
 function opcionesModal() { 
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Opciones');
@@ -648,7 +668,8 @@ function opcionesModal() {
                         <span class="info-box-icon bg-info elevation-1" style="background-color: #ef3f3f !important;"><i class="fas fa-sign-out-alt"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Documentos</a></h5></span>
-                        </div>
+                            <button type="submit" id="certificadoMatr" class="btn btn-primary mb-2">matricula</button>
+                            </div>
                     </div>
                 </div>
           
@@ -663,19 +684,193 @@ function opcionesModal() {
           
         </div>
        
-     `)}
-    //acciones especiales por usuario admin
-    function administrador (){
-        if (admin == 'Admin'){
-            $('#descuento1').prop('disabled', false);
-            $('#descuento2').prop('disabled', false);
-            }
-    }
-    //obtener variables formMatricula
-     
+     `)
+    
+     $('#certificadoMatr').on('click', function () {
+         defaultModalHTML = $('#modal_body').html()
+         $('#modal_body').empty()
+      
+        $('#modal_body').html(`
+        <div class="row"> 
+            <div class="col-md-3" style="margin-top:15px;">
+                <button id="Atrás" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Atrás</button>
+            </div>
+
+            <div class="col-md-3" style="margin-top:15px;">
+                <button id="Imprimir" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Imprimir</button>
+            </div>
 
 
-    //xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            <div class="col-md-12" id="matriculaImprimir" style="margin-top:20px">
+
+
+                <div class="row">
+                <div class="offset-md-5 col-md-4">
+                        <label><h5><u>Ficha de Matrícula</u></h5></label><br>
+                        <label> Preuniversitario CEBAL </label>  
+                    </div> 
+                    <div class="col-md-2 col-xs-12">
+                        <img class="card-img-top" src="/public/img/carnet.jpeg" width:"100%">
+                    </div>
+                </div>
+                <hr>
+
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Nombre completo</b></label>
+                    </div>
+                    <div class="col-md-5 col-sm-6">
+                         <label>${alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Rut</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData._id}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Fecha de nacimiento</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.birthday}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Domicilio</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.address}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Celular</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.phone}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Correo</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.email}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Colegio</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Año de egreso</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Promedio</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Horario</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Prueba optativa</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Apoderado</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Parentesco</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Lugar de trabajo</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Celular apoderado</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Fecha de matrícula</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Tipo de curso</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Forma de pago</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>falta</label>
+                    </div>
+                </div>
+               
+            </div>
+           
+        </div>
+            `)
+        $('#Atrás').on('click', function () {
+            $('#modal_body').html(defaultModalHTML)
+        })
+     })
+
+    };
+   
     function nuevoEstudiante() { 
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Ingreso de nuevo alumno');
@@ -696,12 +891,7 @@ function opcionesModal() {
 
                         <div class="col-md-4" style="margin-top:3px;">
                             <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad</label>
-                            <select class="form-control" id="ciudadNuevoAlumno">
-                                <option selected="true" disabled="disabled">seleccione</option>
-                                <option>Curicó</option>
-                                <option>Parral</option>
-                                <option>Linares</option>
-                            </select> 
+                            <input id="ciudadNuevoAlumno" type="text"  required class="form-control border-input" value="{{{ credentials.place }}}" readOnly>
                         </div>
 
                         <div class="col-md-4" style="margin-top:3px;">
@@ -721,7 +911,7 @@ function opcionesModal() {
                     
                         <div class="col-md-4" style="margin-top:3px;">
                             <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                            <input id="correoNuevoAlumno" type="email" name="email" class="form-control border-input"  value="" placeholder="Ingrese correo">
+                            <input id="correoNuevoAlumno" type="email" aria-describedby="emailHelp" class="form-control border-input"  value="" placeholder="Ingrese correo">
                         </div>
 
                         <div class="col-md-4" style="margin-top:3px;">
@@ -733,6 +923,11 @@ function opcionesModal() {
                             <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección</label>
                             <input id="direccionNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección">
                         </div>
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
+                            <input type="file"  accept="image/*" class="form-control-file" id="matrImage">
+                        </div>
+
                     </div>
                 </div>    
                 <div class="card" style="margin-top:3px">
@@ -760,38 +955,39 @@ function opcionesModal() {
                         </div> 
                         <div class="col-md-4" style="margin-top:3px;">
                             <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                            <input id="correoApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese correo apoderado">
+                            <input id="correoApoderado" type="email" aria-describedby="emailHelp" class="form-control border-input" placeholder="Ingrese correo apoderado">
                         </div> 
                     </div>
                 </div>   
                 <div class="row"> 
-                     <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                     <div class="offset-md-3 col-md-3" style="margin-top:15px;">
                         <button id="limpiarNuevoAlumno" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
                     </div>
 
                     <div class="col-md-3" style="margin-top:15px;">
                         <button id="guardarNuevoAlumno" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
                     </div>
+                    <div class="col-md-3" style="margin-top:15px;">
+                        <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar y matricular</button>
+                    </div>
                 </div>
       `)
-
-
-//calcular el valor de las cuotas de un estudiante
-$('#egresoAlumno').on('change', function(){
-    let egreso = $('#egresoAlumno').val()
-    if (egreso == 'Egresado'){
-        $('#añoEgresoAlumno').prop('disabled', false);
-        c
-    }else{
-        $('#añoEgresoAlumno').prop('disabled', true);
-        $('#cursoAlumno').prop('disabled', false);
-    }
+ 
+    //validar archivos de imagen solamente
+    $('INPUT[type="file"]').change(function () {
+        var ext = this.value.match(/\.(.+)$/)[1];
+        switch (ext) {
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                $('#uploadButton').attr('disabled', false);
+                break;
+            default:
+                alert('El archivo seleccionado no tiene un formato compatible');
+                this.value = '';
+        }
     })
-$('#alumnoDescuento1').on('change', function(){
-    $('#alumnoDescuento2').prop('disabled', false);
-});
-
-//validar rut   
+    //validar rut  
     $(document).ready(function(){
         $('#rutNuevoAlumno').focus
         $('#rutNuevoAlumno').on('keyup', function(){
@@ -815,17 +1011,6 @@ $('#alumnoDescuento1').on('change', function(){
             console.log("Ingrese un rut válido");
         }
     })
-
-    //validar solo numeros
-    $(document).ready(function (){
-      $('.solo-numero').keyup(function (){
-        this.value = (this.value + '').replace(/[^0-9]/g, ''); 
-      });
-    });
-    //validar valor maximo y minimo
-   
-    //xxxxxxxxxxxx
-
     $('#limpiarNuevoAlumno').on('click', function () {
         $('#rutNuevoAlumno').val('')
         $('#fechaNuevoAlumno').val('')
@@ -841,7 +1026,8 @@ $('#alumnoDescuento1').on('change', function(){
         $('#celularApoderado').val('')
         $('#rutNuevoAlumno').focus()
     })
-    $('#guardarNuevoAlumno').on('click', function () {
+
+    $('#guardarNuevoAlumno2').on('click', function () {
         //Variables desde modal
             let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
             let nuevoAlumnoCiudad    =$('#ciudadNuevoAlumno').val()
@@ -852,10 +1038,11 @@ $('#alumnoDescuento1').on('change', function(){
             let nuevoAlumnoCorreo    = $('#correoNuevoAlumno').val()
             let nuevoAlumnoCelular   = $('#celularNuevoAlumno').val()
             let nuevoAlumnoDireccion = $('#direccionNuevoAlumno').val()
-            let ApoderadoNombre      = $('#nombreApoderado').val()
-            let ApoderadoParentesco  = $('#parentescoApoderado').val()
-            let ApoderadoTrabajo     = $('#trabajoApoderado').val()
-            let ApoderadoCelular     = $('#celularApoderado').val()
+            let apoderadoNombre      = $('#nombreApoderado').val()
+            let apoderadoParentesco  = $('#parentescoApoderado').val()
+            let apoderadoTrabajo     = $('#trabajoApoderado').val()
+            let apoderadoCelular     = $('#celularApoderado').val()
+            let apoderadoCorreo      =$('#correoApoderado').val()
         //fin variables
             ajax({
                 url: '/api/nuevoalumno',
@@ -870,10 +1057,11 @@ $('#alumnoDescuento1').on('change', function(){
                     correoAlumno:        nuevoAlumnoCorreo,
                     celularAlumno:       nuevoAlumnoCelular,
                     direccionAlumno:     nuevoAlumnoDireccion,
-                    nombreApoderado:     ApoderadoNombre,
-                    parentescoApoderado: ApoderadoParentesco,
-                    trabajoApoderado:    ApoderadoTrabajo,
-                    celularApoderado:    ApoderadoCelular
+                    nombreApoderado:     apoderadoNombre,
+                    parentescoApoderado: apoderadoParentesco,
+                    trabajoApoderado:    apoderadoTrabajo,
+                    celularApoderado:    apoderadoCelular,
+                    correoApoderado:     apoderadoCorreo
                 }
             }).then(res => {
                 console.log(res)
@@ -886,6 +1074,7 @@ $('#alumnoDescuento1').on('change', function(){
                     timer: 60000
                  }).then(result => {
                         reloadRepairTableAlumnos()
+
                     })
             })
         })

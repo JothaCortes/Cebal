@@ -88,7 +88,7 @@
                     </li>
                     <li class="nav-item dropdown">
                             <li class="nav-item">
-                                <a class="nav-link active" href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
+                                <a class="nav-link active" id="administration"  href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
                             </li>
                     </li>
                 </div>
@@ -109,7 +109,7 @@
 
         {{{ content }}}
     <!--Aqui van todos los scripts-->
-<script>
+<script> 
         const ajax = ({type, url, data}) => {
             
             return new Promise((resolve, reject)=>{
