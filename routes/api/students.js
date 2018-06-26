@@ -32,7 +32,7 @@ const Students = [
                     _id: rut,
                     date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                     type: 'alumnos',
-                    status: 'enabled',
+                    status: 'joined',
                     city           :ciudad,
                     birthday       :fechaNac, //fecha en base de datos || fecha variable arriba
                     name           :nombre,
