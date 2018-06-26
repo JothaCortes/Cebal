@@ -1,13 +1,32 @@
 {{!< layout/default}}
 
+
+{{#extend "css"}}
 <style>
 </style>
-{{#extend "css"}}
-
 {{/extend}}
 
 {{#if admin}}
+    <div class="widget">
+        <h1>Checkbox and radio button widgets</h1>
 
+        <h2>Checkbox nested in label</h2>
+        <fieldset>
+            <legend>Bed Type: </legend>
+            <label for="checkbox-nested-1">2 Double
+                <input type="checkbox" name="checkbox-nested-1" id="checkbox-nested-1">
+            </label>
+            <label for="checkbox-nested-2">2 Queen
+                <input type="checkbox" name="checkbox-nested-2" id="checkbox-nested-2">
+            </label>
+            <label for="checkbox-nested-3">1 Queen
+                <input type="checkbox" name="checkbox-nested-3" id="checkbox-nested-3">
+            </label>
+            <label for="checkbox-nested-4">1 King
+                <input type="checkbox" name="checkbox-nested-4" id="checkbox-nested-4">
+            </label>
+        </fieldset>
+    </div>
 {{else}}
 <script>
     document.location.href="/";
@@ -16,6 +35,9 @@
 
 {{#extend "js"}}
 <script>
+    $(function() {
+        $( "input" ).checkboxradio();
+    });
 </script>
 {{/extend}}
 
