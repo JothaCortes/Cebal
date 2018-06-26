@@ -2,8 +2,8 @@
 import loginHandler  from './handlers/loginHandler';
 import logoutHandler from './handlers/logoutHandler';
 
-import Students      from './students';
-import APIStudents   from './api/students';
+import Joined      from './joined';
+import APIJoined   from './api/joined';
 
 import listStudents from './listStudents';
 import APIlistStudents from './api/listStudents';
@@ -69,9 +69,8 @@ const Routes = [].concat(
     Logout,
     Public,
     Home,
-
-    Students,
-    APIStudents,
+    Joined,
+    APIJoined,
     listStudents,
     APIlistStudents,
     administrationPanel,

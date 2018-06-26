@@ -6,7 +6,7 @@ import configEnv from '../../config/env_status.js';
 let db = cloudant.db.use(configEnv.db)
 
 
-const Students = [
+const Joined = [
     // agregar Alumno Cebal
     { 
         method: 'POST',
@@ -108,7 +108,7 @@ const Students = [
                 _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                // date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                 type: 'matriculas',
-                status: 'enabled',
+                status: 'enrolled',
                 rut: rutAlumno,
                 colegio        :colegio,
                 estadoEgreso   :estadoEgreso,
@@ -181,6 +181,7 @@ const Students = [
                         },
                         'city': credentials.place,
                         'type': 'alumnos',
+                        'status': 'joined'
                     }
                 }, (err, result) => {
                     if (err) throw err;
@@ -275,7 +276,7 @@ const Students = [
 }
 ];
 
-export default Students;
+export default Joined;
 
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 

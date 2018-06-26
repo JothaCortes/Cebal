@@ -8,15 +8,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Cebal</title>
     <link rel="stylesheet" href="/public/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/public/jquery-ui-1.12.1/jquery-ui.min.css">
     <link rel="stylesheet" href="/public/fontawesome/css/fontawesome-all.min.css">
     <link rel="stylesheet" href="/public/css/datatables.min.css">
     <link rel="stylesheet" href="/public/css/sweetalert2.css">
     <link rel="stylesheet" href="/public/DataTables/datatables.min.css">
     <link rel="stylesheet" href="/public/css/select2.min.css">
     <link rel="stylesheet" href="/public/css/toastr.min.css">
-    
-    
-    
     
     <!--Aqui van todos los css-->
     <style>
@@ -52,7 +50,7 @@
     {{/block}}
 </head>
 <body >
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin-bottom:60px;">
         <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -65,8 +63,13 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="/"><i class="fas fa-home"></i> Home</a>
                         </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/students"><i class="fas fa-user"></i> Ficha alumno</a>
+                  
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-users"></i> Alumnos</a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="/students"><i class="fas fa-user"></i> Ingreso alumnos</a>
+                            <a class="dropdown-item" href="/enrolled"><i class="fas fa-clipboard-list"></i> Alumnos matriculados</a>
+                        </div>
                     </li>
                     <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-money-check-alt"></i> Finanzas</a>
@@ -114,9 +117,10 @@
     </div>
 
 
-        {{{ content }}}
+    {{{ content }}}
 
-<script src="/public/js/jquery.min.js"></script>
+<script src="/public/js/jquery-1.12.4.min.js"></script>
+<script src="/public/jquery-ui-1.12.1/jquery-ui.min.js"></script>
 <script src="/public/js/bootstrap.min.js"></script>
 <script src="/public/js/datatables.min.js"></script>
 <script src="/public/js/sweetalert2.js"></script>
