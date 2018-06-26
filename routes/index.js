@@ -11,10 +11,8 @@ import APIlistStudents from './api/listStudents';
 import administrationPanel from './administrationPanel';
 import APIadministrationPanel from './api/administrationPanel';
 
-
-
-
-
+import logs from './logs';
+import APIlogs from './api/logs';
 
 const Login = {
     method: ['GET', 'POST'],
@@ -48,14 +46,20 @@ const Public = {
         }
     }
 }
+
 const Home = {
     method:['get'],
     path: '/',
     options: {
-        //auth: false,
         handler: (request, h) => {
             let credentials = request.auth.credentials
-            return h.view('home', {credentials: credentials})
+            let admin = ''
+
+            if (credentials.role == 'sa') {
+                admin = 'ok'
+            }  
+
+            return h.view('home', {credentials: credentials, admin})
         }
     }
 }
@@ -71,6 +75,8 @@ const Routes = [].concat(
     listStudents,
     APIlistStudents,
     administrationPanel,
-    APIadministrationPanel
+    APIadministrationPanel,
+    logs,
+    APIlogs
 )
 export default Routes

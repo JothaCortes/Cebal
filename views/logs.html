@@ -1,0 +1,21 @@
+{{!< layout/default}}
+
+<style>
+</style>
+{{#extend "css"}}
+
+{{/extend}}
+
+{{#if admin}}
+
+{{else}}
+<script>
+    document.location.href="/";
+</script>
+{{/if}}
+
+{{#extend "js"}}
+<script>
+</script>
+{{/extend}}
+

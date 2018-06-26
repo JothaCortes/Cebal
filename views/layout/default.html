@@ -86,20 +86,27 @@
                               <a class="dropdown-item" href="#">Asistencia</a>
                             </div>
                     </li>
-                    <li class="nav-item dropdown">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
-                            </li>
-                    </li>
                 </div>
-                <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">    
+                <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+                    {{#if admin}}
+                        <li class="nav-item dropdown">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
+                            </li>
+                        </li>
+                    
+                        <li class="nav-item">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/logs"><i class="fas fa-list-ul"></i> Logs</a>
+                            </li>
+                        </li>  
+                    {{/if}}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-user"></i> {{{ credentials.name }}} {{{credentials.lastname }}}
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#"><i class="fa fa-wrench"></i> Configuración</a>
-                            <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
+                            <a class="dropdown-item" href="/logout"><i style="color:#e74c3c;" class="fas fa-sign-out-alt"></i> Cerrar sesión</a>
                         </div>   
                     </li>
                 </ul>         
@@ -109,31 +116,7 @@
 
         {{{ content }}}
     <!--Aqui van todos los scripts-->
-<script>
-        const ajax = ({type, url, data}) => {
-            
-            return new Promise((resolve, reject)=>{
-                let options = {
-                    url
-                };
-                if(!type){
-                    options.type = 'GET';
-                } else {
-                    options.type = type;
-                }
-    
-                if(data) options.data = data;
-    
-                $.ajax(options)
-                .done((result) => {
-                    resolve(result);
-                })
-                .fail(() => {
-                    reject({error: 'ERROR IN --> '+url+' <--'});
-                });
-            });
-        };
-</script>
+
 <script src="/public/js/jquery.min.js"></script>
 <script src="/public/js/bootstrap.min.js"></script>
 <script src="/public/js/datatables.min.js"></script>
@@ -143,8 +126,60 @@
 <script src="/public/js/select2.min.js"></script>
 <script src="/public/js/toastr.min.js"></script>
 
-    {{#block "js"}}
-    {{/block}}
+<script>
+    let idleTimer = 0;
+
+    $(document).ready(function() {
+        let idleInterval = setInterval(timerIncrement, 60000);
+
+        $(this).mousemove(function(e) {
+            idleTimer = 0;
+        });
+
+        $(this).keypress(function(e) {
+            idleTimer = 0;
+        });
+
+    });
+
+    const timerIncrement = () => {
+        idleTimer++;
+        if (idleTimer == 10) { // 10 minutos
+            ajax({
+                url: 'logout'
+            })
+            setTimeout(function() {
+                location.reload();
+            },1000)
+        } 
+    }
+
+    const ajax = ({type, url, data}) => {
+        return new Promise((resolve, reject)=>{
+            let options = {
+                url
+            };
+            if(!type){
+                options.type = 'GET';
+            } else {
+                options.type = type;
+            }
+
+            if(data) options.data = data;
+
+            $.ajax(options)
+            .done((result) => {
+                resolve(result);
+            })
+            .fail(() => {
+                reject({error: 'ERROR IN --> '+url+' <--'});
+            });
+        });
+    };
+</script>
+
+{{#block "js"}}
+{{/block}}
     
 </body>
 </html>

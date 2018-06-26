@@ -19,7 +19,7 @@ const start = async () => {
         hapiAuthCookie
     ])
 
-    const cache = server.cache({ segment: 'sessions', expiresIn: Moment.duration(1, 'day').asMilliseconds() })
+    const cache = server.cache({ segment: 'sessions', expiresIn: Moment.duration(365, 'day').asMilliseconds() })
     server.app.cache = cache
 
     await server.auth.strategy('session', 'cookie', {
