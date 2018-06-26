@@ -26,6 +26,7 @@ const Students = [
                 let parentescoAp = request.payload.parentescoApoderado;
                 let trabajoAp    = request.payload.trabajoApoderado;
                 let celularAp    = request.payload.celularApoderado;
+                let correoAp     = request.payload.correoApoderado;
     
                 let alumnObject = {
                     _id: rut,
@@ -43,7 +44,8 @@ const Students = [
                     nameAp         :nombreAp,
                     relationshipAp :parentescoAp,
                     workAp         :trabajoAp,
-                    phoneAp        :celularAp 
+                    phoneAp        :celularAp, 
+                    emailAp        :correoAp
                 }
                 return new Promise(resolve => {
                     db.insert(alumnObject, function (errUpdate, body) {
@@ -67,7 +69,8 @@ const Students = [
                     nombreApoderado: Joi.string().allow(''),
                     parentescoApoderado: Joi.string().allow(''),
                     trabajoApoderado: Joi.string().allow(''),
-                    celularApoderado: Joi.string().allow('') 
+                    celularApoderado: Joi.string().allow(''), 
+                    correoApoderado: Joi.string().allow('')
                 })
             }
         }
@@ -176,7 +179,7 @@ const Students = [
                         '_id': {
                             '$gte': null
                         },
-                    // 'place': credentials.place,
+                        'city': credentials.place,
                         'type': 'alumnos',
                     }
                 }, (err, result) => {
@@ -197,7 +200,8 @@ const Students = [
                                 nameAp: el.nameAp,
                                 relationshipAp: el.relationshipAp,
                                 workAp: el.workAp,
-                                phoneAp: el.phoneAp
+                                phoneAp: el.phoneAp,
+                                city: el.city
                             })
                         }, []) 
 

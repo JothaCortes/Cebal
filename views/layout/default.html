@@ -91,7 +91,7 @@
                     {{#if admin}}
                         <li class="nav-item dropdown">
                             <li class="nav-item">
-                                <a class="nav-link" href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
+                                <a class="nav-link active" id="administration"  href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
                             </li>
                         </li>
                     
@@ -116,7 +116,31 @@
 
         {{{ content }}}
     <!--Aqui van todos los scripts-->
-
+<script> 
+        const ajax = ({type, url, data}) => {
+            
+            return new Promise((resolve, reject)=>{
+                let options = {
+                    url
+                };
+                if(!type){
+                    options.type = 'GET';
+                } else {
+                    options.type = type;
+                }
+    
+                if(data) options.data = data;
+    
+                $.ajax(options)
+                .done((result) => {
+                    resolve(result);
+                })
+                .fail(() => {
+                    reject({error: 'ERROR IN --> '+url+' <--'});
+                });
+            });
+        };
+</script>
 <script src="/public/js/jquery.min.js"></script>
 <script src="/public/js/bootstrap.min.js"></script>
 <script src="/public/js/datatables.min.js"></script>
