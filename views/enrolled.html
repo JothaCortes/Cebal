@@ -2,13 +2,570 @@
 
 {{#extend "css"}}
 <style>
+.info-box {
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    border-radius: .25rem;
+    padding: .5rem;
+    min-height: 80px;
+    background: #fff;
+    display: flex!important; 
+    margin-top:10px;
+    font-size: 20px;
+}
+.info-box-icon {
+    border-radius: .25rem;
+    display: block;
+    width: 90px;
+    text-align: center;
+    font-size: 40px;
+    color: #fff!important;
+}
+.btn-warning:disabled {
+    color: #fff;
+    background-color: #FF7518;
+    border-color: #FF7518;
+}
+.btn-warning {
+    color: #fff;
+    background-color: #FF7518;
+    border-color: #FF7518;
+}
 </style>
 {{/extend}}
+<div class="col-md-12">
+        <ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Matriculados</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Retirados</a>
+            </li>
+        </ul>
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <div class="row">
+                    <div class="col-md-2 col-xs-12">
+                        <br>
+                        <button class="btn btn-primary btn-block" id="x" style="margin-top: 20px">
+                            <i class="fa fa-plus"></i> Pagos
+                        </button>
+                        <button class="btn btn-warning btn-block" id="modStudentEnrolled" disabled>
+                            <i class="fas fa-edit"></i> Modificar
+                        </button>
+                        <button class="btn btn-success btn-block" id="optionStudentEnrolled" disabled>
+                            <i class="fas fa-ban"></i> Opciones
+                        </button>
+                        <button class="btn btn-danger btn-block" id="closeMatrStudentEnrolled" disabled>
+                                <i class="fas fa-ban"></i> Cerrar Matrícula
+                        </button>
+                    </div>
+                
+                    <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                        <table id="tableEnrolledAlumns" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Sede</th>
+                                    <th>Rut</th>
+                                    <th>Nombre</th>
+                                    <th>Apellidos</th>
+                                    <th></th>
+                                    <th>Domicilio</th>
+                                    <th>E-mail</th>
+                                    <th>Celular</th>
+                                    <th>Apoderado</th>
+                                    <th>Parentesco</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div id="loadingEnrolled">
+                            <center>
+                                <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                                <span class="sr-only">Cargando...</span>
+                            </center>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    
+    
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div class="container-fluid">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+                        testing
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
 
-
-
+<!-- Modal formato-->
+<div class="modal fade" id="modalEstudiantes" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="background-color: #ffffff">
+                <div class="modal-header" style="background:#333333; color:#fff">
+                    <h5 class="modal-title" id="modal_title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal_body"></div>
+                <div class="modal-footer" id="modal_footer"></div>
+            </div>
+        </div>
+    </div>
 {{#extend "js"}}
 <script>
+    
+let defaultModalHTML = '';
+let datatable;
+let datatableAlumnosEnrolled;
+let alumosRowSelectedData;
+
+    jQuery(document).ready(function ($) {
+        chargeTableAlumnos();
+    });
+       
+    function chargeTableAlumnos() {
+        datatableAlumnosEnrolled = $('#tableEnrolledAlumns')
+        .DataTable({            
+                    "iDisplayLength": 100,
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "responsive": true,
+                    "columns": [
+                        { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
+                        {"data": "city"},
+                        { "data": "_id"},
+                        { "data": "name" },
+                        { "data": "lastname1"},
+                        { "data": "lastname2"},
+                        { "data": "address"},
+                        { "data": "email"},
+                        { "data": "phone"},
+                        { "data": "nameAp"},
+                        { "data": "relationshipAp"}               
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/studentsEnrolled'
+                    }).then(res => {
+                        if (res.err) {
+                            toastr.warning('No existen Alumnos')
+                        } else {
+                            datatableAlumnosEnrolled.rows.add(res).draw();
+                            $('#loadingEnrolled').empty();
+                        }      
+                    })
+                }
+        });   
+        
+    $('#tableEnrolledAlumns tbody').on('click', 'button.see1', function (){
+        //var data_see1 = datatableAlumnos.row($(this).parents("tr")).data();
+        alert("Ver puntajes")
+    } );
+
+     $('#tableEnrolledAlumns tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            $('#optionStudentEnrolled').prop('disabled', true);
+            $('#modStudentEnrolled').prop('disabled', true);
+            $('#closeMatrStudentEnrolled').prop('disabled', true);
+        } else {
+            datatableAlumnosEnrolled.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
+            console.log(alumosRowSelectedData)
+            $('#optionStudentEnrolled').prop('disabled', false);
+            $('#modStudentEnrolled').prop('disabled', false);
+            $('#closeMatrStudentEnrolled').prop('disabled', false);
+        }
+    });
+}
+//DATATABLE FINAL recargar
+function reloadTableAlumnosEnrolled() {
+        ajax({
+            url: 'api/studentsEnrolled'
+        }).then(res => {
+            if (res.err) {
+                toastr.warning('No existen alumnos matriculados')
+            } else {
+                datatableAlumnosEnrolled.clear().draw();
+                datatableAlumnosEnrolled.rows.add(res).draw();
+            }
+        })
+
+    }
+//Opciones estudiante
+$('#optionStudentEnrolled').on('click', function(){
+    opcionesModal();
+})
+function opcionesModal() { 
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Opciones');
+      $('#modal_body').html(`
+        <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-align-justify"></i></span>
+                    <div class="info-box-content">
+                    <span class="info-box-text"><h5><a class="dropdown-item" href="#">Asistencia</a></h5></span>
+                    <p style="margin-left: 25px"> 1024</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info elevation-1" style="background-color: #23ad67 !important;"><i class="fas fa-book"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Puntajes</a></h5></span>
+                        <p style="margin-left: 25px"> 845</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info elevation-1" style="background-color: #ef3f3f !important;"><i class="fas fa-book"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Documentos</a></h5></span>
+                        <div class="row">
+                            <div class="offset-md-1 col-md-3">
+                                <label id="certificadoMatr">Matrícula</label>
+                            </div>
+                            <div class="offset-md-3 col-md-4">
+                                <label id="certificadoRegular">Alumno regular</label>
+                            </div>
+                        </div>    
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+     `)
+    
+     $('#certificadoMatr').on('click', function () {
+         defaultModalHTML = $('#modal_body').html()
+         $('#modal_body').empty()
+      
+        $('#modal_body').html(`
+        <div class="row"> 
+            <div class="col-md-3" style="margin-top:15px;">
+                <button id="Atrás" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Atrás</button>
+            </div>
+
+            <div class="col-md-3" style="margin-top:15px;">
+                <button id="printPDF" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Imprimir</button>
+            </div>
+
+            <div class="col-md-12" id="matriculaImprimir" style="margin-top:20px">
+                <div class="row">
+                <div class="offset-md-5 col-md-4">
+                        <label><h5><u>Ficha de Matrícula</u></h5></label><br>
+                        <label> Preuniversitario CEBAL </label>  
+                    </div> 
+                    <div class="col-md-2 col-xs-12">
+                        <img class="card-img-top" src="/public/img/carnet.jpeg" width:"100%">
+                    </div>
+                </div>
+                <hr>
+
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Nombre completo</b></label>
+                    </div>
+                    <div class="col-md-5 col-sm-6">
+                         <label>${alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Rut</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData._id}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Fecha de nacimiento</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.birthday}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Domicilio</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.address}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Celular</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.phone}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Correo</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.email}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Colegio</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.colegio}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Año de egreso</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.añoEgreso}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                        <label><b> Promedio</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.promedio}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Horario</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.horario}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Prueba optativa</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.electivo}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Apoderado</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.apoderado}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Parentesco</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.parentesco}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Lugar de trabajo</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.workAp}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Celular apoderado</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.phoneAp}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Fecha de matrícula</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.date}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Tipo de curso</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.tipoCurso}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-2 col-md-3 col-sm-6">
+                            <label><b> Forma de pago</b></label>
+                    </div>
+                    <div class="col-md-6 col-sm-6">
+                         <label>${alumosRowSelectedData.formaP}</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="offset-md-1 col-md-11 col-sm-11">
+                        <label>Preuniversitario CEBAL - Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+            `)
+        $('#Atrás').on('click', function () {
+            $('#modal_body').html(defaultModalHTML)
+        })
+        $('#printPDF').on('click', function () {
+            var doc = new jsPDF();
+
+            doc.setFontSize(14);
+            doc.setFontType("bold")
+            doc.text(85,35,"Ficha de Matrícula");
+            doc.line(85, 37, 128, 37);
+            doc.setFontSize(10);
+            doc.setFontType("normal");
+            doc.text(88,49,"Preuniversitario CEBAL");
+
+            doc.setFontType("bold");
+            doc.text(40,70,"N° Matrícula");
+            doc.setFontType("normal");
+            doc.text(85,70,alumosRowSelectedData._id);
+
+             doc.setFontType("bold");
+            doc.text(40,77,"Año");
+            doc.setFontType("normal");
+            doc.text(85,77,alumosRowSelectedData._id);
+
+            doc.setFontSize(11);
+            doc.setFontType("bold");
+            doc.text(40,87,"Nombre Completo");
+            doc.setFontType("normal");
+            doc.text(85,87,alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2);
+
+            doc.setFontType("bold");
+            doc.text(40,94,"Rut");
+            doc.setFontType("normal");
+            doc.text(85,94,alumosRowSelectedData._id);
+
+            doc.setFontType("bold");
+            doc.text(40,101,"Fecha de nacimiento");
+            doc.setFontType("normal");
+            doc.text(85,101,alumosRowSelectedData.birthday);
+
+            doc.setFontType("bold");
+            doc.text(40,108,"Domicilio");
+            doc.setFontType("normal");
+            doc.text(85,108,alumosRowSelectedData.address);
+
+            doc.setFontType("bold");
+            doc.text(40,115,"Celular");
+            doc.setFontType("normal");
+            doc.text(85,115,alumosRowSelectedData.phone);
+
+            doc.setFontType("bold");
+            doc.text(40,122,"Correo");
+            doc.setFontType("normal");
+            doc.text(85,122,alumosRowSelectedData.email);
+
+            doc.setFontType("bold");
+            doc.text(40,129,"Colegio");
+            doc.setFontType("normal");
+            doc.text(85,129,alumosRowSelectedData.colegio);
+
+            doc.setFontType("bold");
+            doc.text(40,136,"Año de egreso");
+            doc.setFontType("normal");
+            doc.text(85,136,alumosRowSelectedData.añoEgreso);
+
+            doc.setFontType("bold");
+            doc.text(40,143,"Promedio");
+            doc.setFontType("normal");
+            doc.text(85,143,alumosRowSelectedData.promedio);
+
+            doc.setFontType("bold");
+            doc.text(40,150,"Horario");
+            doc.setFontType("normal");
+            doc.text(85,150,alumosRowSelectedData.horario);
+
+            doc.setFontType("bold");
+            doc.text(40,157,"Prueba optativa");
+            doc.setFontType("normal");
+            doc.text(85,157,alumosRowSelectedData.electivo);
+
+            doc.setFontType("bold");
+            doc.text(40,164,"Apoderado");
+            doc.setFontType("normal");
+            doc.text(85,164,alumosRowSelectedData.apoderado);
+
+            doc.setFontType("bold");
+            doc.text(40,171,"Parentesco");
+            doc.setFontType("normal");
+            doc.text(85,171,alumosRowSelectedData.parentesco);
+
+            doc.setFontType("bold");
+            doc.text(40,178,"Lugar de trabajo");
+            doc.setFontType("normal");
+            doc.text(85,178,alumosRowSelectedData.workAp);
+            
+            doc.setFontType("bold");
+            doc.text(40,185,"Celular apoderado");
+            doc.setFontType("normal");
+            doc.text(85,185,alumosRowSelectedData.phoneAp);
+
+            doc.setFontType("bold");
+            doc.text(40,192,"Fecha matrícula");
+            doc.setFontType("normal");
+            doc.text(85,192,alumosRowSelectedData.date);
+
+            doc.setFontType("bold");
+            doc.text(40,199,"Tipo de curso");
+            doc.setFontType("normal");
+            doc.text(85,199,alumosRowSelectedData.tipoCurso);
+
+            doc.setFontType("bold");
+            doc.text(40,206,"Forma de pago");
+            doc.setFontType("normal");
+            doc.text(85,206,alumosRowSelectedData.formaP);
+
+            doc.setFontType("bold");
+            doc.setFontSize(9);
+            doc.text(11,270,"Preuniversitario CEBAL - Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+            
+            doc.save('mipdf.pdf');
+        })
+
+     })
+
+    };
 </script>
 {{/extend}}
 

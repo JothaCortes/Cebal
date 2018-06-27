@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-const Students = {
+const Enrolled = {
     method: ['GET'],
     path: '/enrolled',
     options: {
@@ -18,7 +18,7 @@ const Students = {
     }
 };
 
-export default Students;
+export default Enrolled;
 
 
 
