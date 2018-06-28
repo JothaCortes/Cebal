@@ -15,7 +15,8 @@
     <link rel="stylesheet" href="/public/DataTables/datatables.min.css">
     <link rel="stylesheet" href="/public/css/select2.min.css">
     <link rel="stylesheet" href="/public/css/toastr.min.css">
-    
+    <link rel="stylesheet" href="/public/css/daterangepicker.css">
+
     <!--Aqui van todos los css-->
     <style>
     body {
@@ -131,8 +132,10 @@
 <script src="/public/js/jspdf.min.js"> </script>
 <script src="/public/js/moment.js"></script>
 <script src="/public/js/html2canvas.min.js"></script>
+<script src="/public/js/daterangepicker.js"></script>
 
 <script>
+    moment.locale('es');
     let idleTimer = 0;
 
     $(document).ready(function() {
@@ -145,7 +148,7 @@
         $(this).keypress(function(e) {
             idleTimer = 0;
         });
-
+        
     });
 
     const timerIncrement = () => {

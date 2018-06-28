@@ -105,6 +105,62 @@ const Logs = [
         })
       }
     }
+},
+{ // ver logs personalizados
+  method: 'POST',
+  path: '/api/getLogs',
+  options: {
+    handler: (request, h) => {
+      let user = request.payload.user
+      let startDate = request.payload.startDate
+      let endDate = request.payload.endDate
+
+      return new Promise(resolve => {
+        let query = {
+          selector: {
+            _id: {
+              $gte: null
+            },
+            type: 'log'
+          },
+          sort: [{
+            _id: 'desc'
+          }]
+        }
+
+        if (user) {
+          query.selector.userEmail = user
+        }
+
+        if (startDate && endDate) {
+          query.selector._id.$gte = startDate
+          query.selector._id.$lte = endDate
+        }
+
+        db.find(query, (err, result) => {
+          if (err) throw err
+
+          let filterLogs = result.docs.map(function(log) {
+            if (log.img) {
+              log.img = log._id.replace(/:/g, 'Q');
+              return log; 
+            } else {
+              log.img = '';
+              return log;
+            }
+          });
+          resolve(filterLogs)
+        })
+      })
+    },
+    validate: {
+      payload: Joi.object().keys({
+        user: Joi.string().allow(''),
+        startDate: Joi.string().allow(''),
+        endDate: Joi.string().allow('')
+      })
+    }
+  }
 }
 ];
 

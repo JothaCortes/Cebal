@@ -239,11 +239,12 @@
         })
         
         $('#selectNota').on('change', function (e){
-                let selectedScore = $('#selectNota').select2('data')[0].text;
-                let selectedPrice = filterScores(selectedScore).price
-                $('#selectValor').prop('disabled', false);
-                $('#selectValor').val(selectedPrice)
+            let selectedScore = $('#selectNota').select2('data')[0].text;
+            let selectedPrice = filterScores(selectedScore).price
+            $('#selectValor').prop('disabled', false);
+            $('#selectValor').val(selectedPrice)
         })
+        
         function filterScores (score){
             return selects[selectedStatus].filter(function(el) {
                 return el.score == score;

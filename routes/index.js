@@ -20,6 +20,8 @@ import APIlogs from './api/logs';
 
 import APITools from './api/tools';
 
+import APIUsers from './api/users';
+
 const Login = {
     method: ['GET', 'POST'],
     path: '/login',
@@ -65,7 +67,7 @@ const imgLogs = {
         }
       }
     }
-  };
+};
 
 const Home = {
     method:['get'],
@@ -99,6 +101,7 @@ const Routes = [].concat(
     administrationPanel,
     APIadministrationPanel,
     logs,
+    APIUsers,
     APIlogs,
     APITools
 )
