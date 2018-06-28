@@ -431,7 +431,7 @@ function opcionesModal() {
         $('#printPDF').on('click', function () {
             var doc = new jsPDF();
 
-            doc.setFontSize(14);
+            doc.setFontSize(15);
             doc.setFontType("bold")
             doc.text(85,35,"Ficha de Matrícula");
             doc.line(85, 37, 128, 37);
@@ -439,15 +439,18 @@ function opcionesModal() {
             doc.setFontType("normal");
             doc.text(88,49,"Preuniversitario CEBAL");
 
+            doc.addImage(logoCebal, 'JPEG', 20, 30, 30, 10);
+
             doc.setFontType("bold");
             doc.text(40,70,"N° Matrícula");
             doc.setFontType("normal");
-            doc.text(85,70,alumosRowSelectedData._id);
+            doc.text(85,70,"2");
 
              doc.setFontType("bold");
             doc.text(40,77,"Año");
             doc.setFontType("normal");
-            doc.text(85,77,alumosRowSelectedData._id);
+            
+            doc.text(85,77,moment(alumosRowSelectedData.date).format('YYYY'));
 
             doc.setFontSize(11);
             doc.setFontType("bold");
@@ -539,29 +542,14 @@ function opcionesModal() {
             doc.text(40,206,"Forma de pago");
             doc.setFontType("normal");
             doc.text(85,206,alumosRowSelectedData.formaP);
-            doc.addImage(logoCebal, 'JPEG', 50, finalY + 250, 300, 100);
-            doc.setFontType("bold");
+            
+            doc.setFontType("italic");
             doc.setFontSize(9);
-            doc.text(11,270,"Preuniversitario CEBAL - Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
+            doc.text(16,270,"Preuniversitario CEBAL - Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
             
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
             
-            
-            doc.save('mipdf.pdf');
+            doc.save('FichaMatriculaCebal.pdf');
         })
 
      })

@@ -53,6 +53,11 @@ h5, .h5 {
     background-color: #FF7518;
     border-color: #FF7518;
 }
+.btn-warning:hover{
+    color: #fff;
+    background-color: #e46814;
+    border-color: #e46814;
+}
    
 </style>
 
@@ -726,12 +731,8 @@ $('#agregarEstudiante').on('click', function () {
                      <div class="offset-md-3 col-md-3" style="margin-top:15px;">
                         <button id="limpiarNuevoAlumno" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
                     </div>
-
                     <div class="col-md-3" style="margin-top:15px;">
-                        <button id="guardarNuevoAlumno" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
-                    </div>
-                    <div class="col-md-3" style="margin-top:15px;">
-                        <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar y matricular</button>
+                        <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
                     </div>
                 </div>
       `)
@@ -754,7 +755,9 @@ $('#agregarEstudiante').on('click', function () {
     $(document).ready(function(){
         $('#rutNuevoAlumno').focus
         $('#rutNuevoAlumno').on('keyup', function(){
-            this.value = rutFunc (this.value)  
+            this.value = rutFunc (this.value)
+            $('#guardarNuevoAlumno2').prop('disabled', false);
+
         })
     });
         function rutFunc (rut){
@@ -981,20 +984,20 @@ function modEstudiante() {
     $('#modCancel').on('click', function () {
         $('#modalEstudiantes').modal('hide')
     });
-   /* $('#modAcept').on('click', function () {
-            let mod_date = $('#modDate').val();
-            let mod_name = $('#modName').val();
+    $('#modAcept').on('click', function () {
+            let mod_date      = $('#modDate').val();
+            let mod_name      = $('#modName').val();
             let mod_Lastname1 = $('#modLastname1').val();
             let mod_Lastname2 = $('#modLastname2').val();
-            let mod_correo = $('#modCorreo').val();
-            let mod_phone = $('#modPhone').val();
-            let mod_address = $('#modAddress').val();
+            let mod_correo    = $('#modCorreo').val();
+            let mod_phone     = $('#modPhone').val();
+            let mod_address   = $('#modAddress').val();
 
-            let mod_nameAp = $('#modNameAp').val();
-            let mod_relationAp = $('#modRelationAp').val();
-            let mod_workAp = $('#modWork').val();
-            let mod_phoneAp = $('#modPhoneAp').val();
-            let mod_correoAp = $('#modCorreoAp').val();
+            let mod_nameAp    = $('#modNameAp').val();
+            let mod_relationAp= $('#modRelationAp').val();
+            let mod_workAp    = $('#modWork').val();
+            let mod_phoneAp   = $('#modPhoneAp').val();
+            let mod_correoAp  = $('#modCorreoAp').val();
 
             ajax({
                 url: 'api/modStudent',
@@ -1012,8 +1015,7 @@ function modEstudiante() {
                     relationshipAp: mod_relationAp,
                     workAp: mod_workAp,
                     phoneAp: mod_phoneAp,
-                    correoAp: mod_correoAp
-
+                    emailAp: mod_correoAp
                 }
             }).then(res => {
                 if (res.error) {
@@ -1028,12 +1030,12 @@ function modEstudiante() {
                         timer: 3000
                     }).then(result => {
                        // $('#modHorario').prop('disabled', true);
-                        //$('#modalAdmin').modal('hide')
-                        //reloadTableHorarios()
+                        $('#modalEstudiantes').modal('hide')
+                        reloadRepairTableAlumnos()
                     })
                 }
             })
-    }); */
+    }); 
 
 };
 

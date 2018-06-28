@@ -324,68 +324,84 @@ const Joined = [
     }
   },
   //Modificar los horarios
-/*{
+{
     method: 'POST',
     path: '/api/modStudent',
     options: {
         handler: (request, h) => {
             let id = request.payload.id;
             let birthday = request.payload.birthday;
-            let id = request.payload.name;
-            let id = request.payload.lastname1;
-            let id = request.payload.lastname2;
-            let id = request.payload.email;
-            let id = request.payload.phone;
-            let id = request.payload.address;
-            let id = request.payload.nameAp;
-            let id = request.payload.relationshipAp;
-            let id = request.payload.workAp;
-            let id = request.payload.phoneAp;
-            let id = request.payload. correoAp;
-           
-
-
-            let modHorariosObj = {};
+            let name = request.payload.name;
+            let lastname1 = request.payload.lastname1;
+            let lastname2 = request.payload.lastname2;
+            let email = request.payload.email;
+            let phone = request.payload.phone;
+            let address = request.payload.address;
+            let nameAp = request.payload.nameAp;
+            let relationshipAp = request.payload.relationshipAp;
+            let workAp = request.payload.workAp;
+            let phoneAp = request.payload.phoneAp;
+            let emailAp = request.payload.emailAp;
+            let modJoinedObj = {};
+            
 
             return new Promise(resolve => {
                 db.find({
                     "selector": {
                         "_id": id,
-                        'city': credentials.place,
-                        'type': 'alumnos',
-                        'status': 'joined'
+                        "type": "alumnos",
+                        "status": "joined"
                     },
                     "limit": 1
                 }, function (err, result) {
                     if (err) throw err;
 
                     if (result.docs[0]) {
-                        modHorariosObj = result.docs[0];
-                        modHorariosObj.year = year;
-                        modHorariosObj.place = place;
-                        modHorariosObj.horary = horary;
+                      
+                        modJoinedObj = result.docs[0];
+                        modJoinedObj.birthday = birthday;
+                        modJoinedObj.name = name;
+                        modJoinedObj.lastname1 = lastname1;
+                        modJoinedObj.lastname2 = lastname2;
+                        modJoinedObj.email = email;
+                        modJoinedObj.phone = phone;
+                        modJoinedObj.address = address;
+                        modJoinedObj.nameAp = nameAp;
+                        modJoinedObj.relationshipAp = relationshipAp;
+                        modJoinedObj.workAp = workAp;
+                        modJoinedObj.phoneAp = phoneAp;
+                        modJoinedObj.emailAp = emailAp;
 
-                        db.insert(modHorariosObj, function (errUpdate, body) {
+                        db.insert(modJoinedObj, function (errUpdate, body) {
                             if (errUpdate) throw errUpdate;
 
-                            resolve({ ok: 'Horario ' + modHorariosObj.horary + ' modificado correctamente' });
+                            resolve({ ok: 'Alumno ' + modJoinedObj.name + ' modificado correctamente' });
                         });
                     } else {
-                        resolve({ error: 'El horario ' + horary + ' no existe' });
+                        resolve({ error: 'El alumno ' + name + ' no existe' });
                     }
                 });
             });
         },
         validate: {
             payload: Joi.object().keys({
-                id: Joi.string(),
-                year: Joi.string(),
-                place: Joi.string(),
-                horary: Joi.string()
+                id: Joi.string().allow(''),
+                birthday: Joi.string().allow(''),
+                name: Joi.string().allow(''),
+                lastname1: Joi.string().allow(''),
+                lastname2: Joi.string().allow(''),
+                email:Joi.string().allow(''),
+                phone:Joi.string().allow(''),
+                address: Joi.string().allow(''),
+                nameAp: Joi.string().allow(''),
+                relationshipAp: Joi.string().allow(''),
+                workAp: Joi.string().allow(''),
+                phoneAp: Joi.string().allow(''),
+                emailAp: Joi.string().allow('')
             })
         }
     }
-} */
+}
 ];
 
 export default Joined;
