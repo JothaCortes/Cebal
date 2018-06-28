@@ -36,9 +36,6 @@ max-width: 1000px;
     color:#333333;
     padding: 0.2rem 1.25rem;
   }
-  .col-md-2 {
-    max-width: 14%;
-}
 h5, .h5 {
     font-size: 1.25rem;
     margin-bottom: 0rem;
@@ -67,7 +64,8 @@ h5, .h5 {
 <!--Menu de busqueda -->
 <div class="col-md-12" >
         <div class="row"> 
-            <div class="col-md-2" >  
+            <div class="offset-md-10 col-md-2" >  
+                <label><h5>Sede: {{{ credentials.place }}}</h5></label>
             </div>
           <br>    
         </div>
@@ -77,18 +75,18 @@ h5, .h5 {
 <div class="tab-content">
     <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
         <div class="row">
-            <div class="col-md-2 col-xs-12 col-sm-12 box-shadows">
-                <br>
+                <div class="col-md-2 col-xs-12">
                 <button class="btn btn-primary btn-block" id="agregarEstudiante">
                     <i class="fa fa-plus" aria-hidden="true" ></i> Agregar
                 </button>
-                <br>
-                <button class="btn btn-success btn-block" id="modificarEstudiante" disabled>
-                        <i class="fas fa-edit"></i> Matricular
+                <button class="btn btn-success btn-block" id="enrolledEstudiante" disabled>
+                    <i class="fas fa-book"></i> Matricular
                 </button>
-                <br>
-                <button class="btn btn-danger btn-block" id="opcionesEstudiante" disabled>
-                    <i class="fas fa-clipboard-list"></i> Opciones
+                <button class="btn btn-warning btn-block" id="modEstudiante" disabled>
+                    <i class="fas fa-edit"></i> Modificar
+                </button>
+                <button class="btn btn-danger btn-block" id="EliminarEstudiante" disabled>
+                    <i class="fas fa-trash-alt"></i> Eliminar
                 </button>
             </div>
     
@@ -97,7 +95,6 @@ h5, .h5 {
                     <thead>
                         <tr>
                             <th></th>
-                            <th>Sede</th>
                             <th>Rut</th>
                             <th>Nombre</th>
                             <th>Apellidos</th>
@@ -107,7 +104,6 @@ h5, .h5 {
                             <th>Celular</th>
                             <th>Apoderado</th>
                             <th>Parentesco</th>
-                            
                         </tr>
                     </thead>
                 </table>
@@ -141,14 +137,15 @@ h5, .h5 {
 
 {{#extend "js"}}
 <script>
+    let estudianteDelete;
     let defaultModalHTML = '';
     let admin = "{{{ credentials.name }}}";
     let datatable;
     let datatableAlumnos;
     let alumosRowSelectedData;
+    let alumnosRowSelected;
     jQuery(document).ready(function ($) {
         chargeTableAlumnos();
-        //NProgress.done();
     });
        
     function chargeTableAlumnos() {
@@ -160,8 +157,7 @@ h5, .h5 {
                     },
                     "responsive": true,
                     "columns": [
-                        { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
-                        {"data": "city"},
+                        {"defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
                         { "data": "_id"},
                         { "data": "name" },
                         { "data": "lastname1"},
@@ -194,15 +190,18 @@ h5, .h5 {
      $('#table tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
-            $('#modificarEstudiante').prop('disabled', true);
-            $('#opcionesEstudiante').prop('disabled', true);
+            $('#enrolledEstudiante').prop('disabled', true);
+            $('#modEstudiante').prop('disabled', true);
+            $('#EliminarEstudiante').prop('disabled', true);
         } else {
             datatableAlumnos.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
             alumosRowSelectedData = datatableAlumnos.row($(this)).data();
+            alumnosRowSelected = datatableAlumnos.row($(this));
             console.log(alumosRowSelectedData)
-            $('#modificarEstudiante').prop('disabled', false);
-            $('#opcionesEstudiante').prop('disabled', false);
+            $('#enrolledEstudiante').prop('disabled', false);
+            $('#modEstudiante').prop('disabled', false);
+            $('#EliminarEstudiante').prop('disabled', false);
         }
     });
 }
@@ -220,9 +219,8 @@ function reloadRepairTableAlumnos() {
         })
 
     }
-//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-//EDITAR DATOS DEL DATATABLE AL HACER DOBLE CLICK
-function modalEditarAlumnos() { 
+//MATRICULAR UN ALUMNO
+function modalMatrAlumnos() { 
     console.log(alumosRowSelectedData)
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Ingresar matrícula');
@@ -624,253 +622,17 @@ ajax({ // cargar horarios
             width:'100%',
             data: horario
         });
-    });
-//xxxxx   
+    });  
     };
-//BOTON MODIFICAR ESTUDIANTE
-$('#modificarEstudiante').on('click', function () {
-    modalEditarAlumnos();
+//BOTON MATRICULAR ESTUDIANTE
+$('#enrolledEstudiante').on('click', function () {
+    modalMatrAlumnos();
 })
 //AGREGAR UN NUEVO ESTUDIANTE CON SU APODERADO
 $('#agregarEstudiante').on('click', function () {
        //console.log(data_see1) 
     nuevoEstudiante();
 })
-//Opciones estudiante
-$('#opcionesEstudiante').on('click', function(){
-    opcionesModal();
-})
-
-function opcionesModal() { 
-      $('#modalEstudiantes').modal();
-      $('#modal_title').text('Opciones');
-      $('#modal_body').html(`
-     
-        <div class="row">
-            <div class="col-12 col-sm-6 col-md-4">
-                <div class="info-box">
-                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-align-justify"></i></span>
-                    <div class="info-box-content">
-                    <span class="info-box-text"><h5><a class="dropdown-item" href="#">Puntajes</a></h5></span>
-                    <p style="margin-left: 25px"> 1024</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-info elevation-1" style="background-color: #23ad67 !important;"><i class="fas fa-user"></i></span>
-                        <div class="info-box-content"><h5>Asistencia</a></h5></span>
-                           
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-info elevation-1" style="background-color: #ef3f3f !important;"><i class="fas fa-sign-out-alt"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Documentos</a></h5></span>
-                            <button type="submit" id="certificadoMatr" class="btn btn-primary mb-2">matricula</button>
-                            </div>
-                    </div>
-                </div>
-          
-                <div class="col-12 col-sm-6 col-md-4" style="margin-top:15px">
-                    <div class="info-box">
-                        <span class="info-box-icon bg-info elevation-1" style="background-color: #ef3f3f !important;"><i class="far fa-eye"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Observaciones</a></h5></span>
-                        </div>
-                    </div>
-                </div>
-          
-        </div>
-       
-     `)
-    
-     $('#certificadoMatr').on('click', function () {
-         defaultModalHTML = $('#modal_body').html()
-         $('#modal_body').empty()
-      
-        $('#modal_body').html(`
-        <div class="row"> 
-            <div class="col-md-3" style="margin-top:15px;">
-                <button id="Atrás" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Atrás</button>
-            </div>
-
-            <div class="col-md-3" style="margin-top:15px;">
-                <button id="Imprimir" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Imprimir</button>
-            </div>
-
-
-            <div class="col-md-12" id="matriculaImprimir" style="margin-top:20px">
-
-
-                <div class="row">
-                <div class="offset-md-5 col-md-4">
-                        <label><h5><u>Ficha de Matrícula</u></h5></label><br>
-                        <label> Preuniversitario CEBAL </label>  
-                    </div> 
-                    <div class="col-md-2 col-xs-12">
-                        <img class="card-img-top" src="/public/img/carnet.jpeg" width:"100%">
-                    </div>
-                </div>
-                <hr>
-
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Nombre completo</b></label>
-                    </div>
-                    <div class="col-md-5 col-sm-6">
-                         <label>${alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Rut</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData._id}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Fecha de nacimiento</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.birthday}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Domicilio</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.address}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Celular</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.phone}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Correo</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.email}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Colegio</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Año de egreso</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Promedio</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Horario</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Prueba optativa</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Apoderado</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Parentesco</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Lugar de trabajo</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Celular apoderado</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Fecha de matrícula</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Tipo de curso</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Forma de pago</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>falta</label>
-                    </div>
-                </div>
-               
-            </div>
-           
-        </div>
-            `)
-        $('#Atrás').on('click', function () {
-            $('#modal_body').html(defaultModalHTML)
-        })
-     })
-
-    };
    
     function nuevoEstudiante() { 
       $('#modalEstudiantes').modal();
@@ -1075,11 +837,207 @@ function opcionesModal() {
                     timer: 60000
                  }).then(result => {
                         reloadRepairTableAlumnos()
+                        $('#modalEstudiantes').modal('hide')
 
                     })
             })
         })
     };
+//BOTON ELIMINAR ESTUDIANTE
+$('#EliminarEstudiante').on('click', function () {
+    swal({
+      title: '¿Estás seguro de eliminar el registro?',
+      text: '',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'cancelar',
+      confirmButtonClass: 'btn btn-danger',
+      cancelButtonClass: 'btn btn-primary',
+      buttonsStyling: false
+    }).then(function(action) {
+      if (action.value) {
+        ajax({
+          url: '/api/deleteAlumno',
+          type: 'DELETE',
+          data: {
+            estudianteDelete: alumosRowSelectedData._id
+          }  
+        }).then((data) => {
+            
+            if (data.ok) {
+                toastr.success(data.ok); 
+                alumnosRowSelected.remove().draw();
+                $('#enrolledEstudiante').prop('disabled', true);
+                $('#modEstudiante').prop('disabled', true);
+                $('#EliminarEstudiante').prop('disabled', true);
+            }
+        });
+      }
+    });
+})
+$('#modEstudiante').on('click', function () {
+    modEstudiante();
+})
+function modEstudiante() { 
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Modificar alumno');
+      $('#modal_body').html(`
+                <div class="card">
+                        <div class="card-header"><h5>Datos alumno</h5></div>
+                    <div class="card-body row">
+        
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut</label>
+                        <input id="modRut" maxlength="12" type="text" value="${alumosRowSelectedData._id}" required class="form-control border-input" readOnly>
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento</label>
+                            <input id ="modDate" value="${alumosRowSelectedData.birthday}" class="form-control border-input">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad</label>
+                            <input id="ciudadNuevoAlumno" type="text"  required class="form-control border-input" value="{{{ credentials.place }}}" readOnly>
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre</label>
+                            <input id="modName" type="text" value="${alumosRowSelectedData.name}"  required class="form-control border-input">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"> Apellido paterno</label>
+                            <input id="modLastname1" type="text" value="${alumosRowSelectedData.lastname1}" class="form-control border-input" >
+                        </div>
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;">Apellido materno</label>
+                            <input id="modLastname2" type="text" value="${alumosRowSelectedData.lastname2}"  class="form-control border-input">
+                        </div>
+
+                    
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
+                            <input id="modCorreo" type="email" aria-describedby="emailHelp" value="${alumosRowSelectedData.email}" class="form-control border-input">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                            <input id="modPhone" type="text" value="${alumosRowSelectedData.phone}"  class="form-control border-input" >
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección</label>
+                            <input id="modAddress" type="text" value="${alumosRowSelectedData.address}" class="form-control border-input">
+                        </div>
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
+                            <input type="file"  accept="image/*" class="form-control-file" id="matrImage">
+                        </div>
+
+                    </div>
+                </div>    
+                <div class="card" style="margin-top:3px">
+                        <div class="card-header"><h5>Datos apoderado</h5></div>
+                    <div class="card-body row">        
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
+                            <input id="modNameAp" type="text" value="${alumosRowSelectedData.nameAp}" class="form-control border-input">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;">Parentesco</label>
+                            <input id="modRelationAp" type="text" value="${alumosRowSelectedData.relationshipAp}" class="form-control border-input">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
+                            <input id="modWork" type="text" value="${alumosRowSelectedData.workAp}" class="form-control border-input">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                            <input id="modPhoneAp" type="text" value="${alumosRowSelectedData.phoneAp}" class="form-control border-input">
+                        </div> 
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
+                            <input id="modCorreoAp" type="email"  value="${alumosRowSelectedData.correoAp}" class="form-control border-input">
+                        </div> 
+                    </div>
+                </div>   
+                <div class="row"> 
+                     <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                        <button id="modCancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                    </div>
+                    <div class="col-md-3" style="margin-top:15px;">
+                        <button id="modAcept" class="btn btn-primary btn-block"><i class="fas fa-edit"></i> Modificar</button>
+                    </div>
+                </div>
+      `)
+    $('#modCancel').on('click', function () {
+        $('#modalEstudiantes').modal('hide')
+    });
+   /* $('#modAcept').on('click', function () {
+            let mod_date = $('#modDate').val();
+            let mod_name = $('#modName').val();
+            let mod_Lastname1 = $('#modLastname1').val();
+            let mod_Lastname2 = $('#modLastname2').val();
+            let mod_correo = $('#modCorreo').val();
+            let mod_phone = $('#modPhone').val();
+            let mod_address = $('#modAddress').val();
+
+            let mod_nameAp = $('#modNameAp').val();
+            let mod_relationAp = $('#modRelationAp').val();
+            let mod_workAp = $('#modWork').val();
+            let mod_phoneAp = $('#modPhoneAp').val();
+            let mod_correoAp = $('#modCorreoAp').val();
+
+            ajax({
+                url: 'api/modStudent',
+                type: 'POST',
+                data: {
+                    id: alumosRowSelectedData._id,
+                    birthday: mod_date,
+                    name: mod_name,
+                    lastname1: mod_Lastname1,
+                    lastname2: mod_Lastname2,
+                    email: mod_correo,
+                    phone: mod_phone,
+                    address: mod_address,
+                    nameAp: mod_nameAp,
+                    relationshipAp: mod_relationAp,
+                    workAp: mod_workAp,
+                    phoneAp: mod_phoneAp,
+                    correoAp: mod_correoAp
+
+                }
+            }).then(res => {
+                if (res.error) {
+                    toastr.error(res.error)
+                } else {
+                    swal({
+                        title: 'Registro modificado correctamente!',
+                        text: res.ok,
+                        backdrop: 'static',
+                        keyboard: false,
+                        type: 'success',
+                        timer: 3000
+                    }).then(result => {
+                       // $('#modHorario').prop('disabled', true);
+                        //$('#modalAdmin').modal('hide')
+                        //reloadTableHorarios()
+                    })
+                }
+            })
+    }); */
+
+};
+
+
 </script>
 {{/extend}}
 

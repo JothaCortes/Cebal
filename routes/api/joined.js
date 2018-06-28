@@ -52,8 +52,7 @@ const Joined = [
                         if (errUpdate) throw errUpdate;
                         resolve({ ok: 'Alumno ' + alumnObject.name + ' agregado correctamente' });
                     });
-                })
-                
+                })   
             },
             validate: {
                 payload: Joi.object().keys({
@@ -75,7 +74,7 @@ const Joined = [
             }
         }
     },
- // agregar Matricula
+ // agregar Matricula al alumno
  { 
     method: 'POST',
     path: '/api/nuevaMatricula',
@@ -103,42 +102,57 @@ const Joined = [
             let montoCuota    = request.payload.montoCuota;
             let totalCuotas    = request.payload.totalCuotas;
             let montoTotal    = request.payload.montoTotal;
-
-            let matriculaObject = {
-                _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
-               // date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
-                type: 'matriculas',
-                status: 'enrolled',
-                rut: rutAlumno,
-                colegio        :colegio,
-                estadoEgreso   :estadoEgreso,
-                beca           :beca,
-                añoEgreso      :añoEgreso,
-                curso          :curso,
-                promedio       :promedio,
-                horario        :horario,
-                electivo       :electivo,
-                electivo2      :electivo2,
-                fechaMatricula :fechaMatricula,
-                diaCobro       :diaCobro,
-                tipoCurso      :tipoCurso,
-                formaPago      :formaPago,
-                descuento      :descuento,
-                descuento2     :descuento2,
-                valorMatricula :valorMatricula,
-                numCuotas      :numCuotas,
-                montoCuota     :montoCuota,
-                totalCuotas    :totalCuotas,
-                montoTotal     :montoTotal
-            }
+            
             return new Promise(resolve => {
-                db.insert(matriculaObject, function (errUpdate, body) {
-                    if (errUpdate) throw errUpdate;
-                    resolve({ ok: 'Alumno ' + matriculaObject.rut + ' agregado correctamente' });
+                db.find({
+                    'selector': {
+                        '_id': rutAlumno,
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+                    if (result.docs[0]) {
+                        let student = result.docs[0];
+                        let matriculaObject = {
+                            date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                            colegio        :colegio,
+                            estadoEgreso   :estadoEgreso,
+                            beca           :beca,
+                            añoEgreso      :añoEgreso,
+                            curso          :curso,
+                            promedio       :promedio,
+                            horario        :horario,
+                            electivo       :electivo,
+                            electivo2      :electivo2,
+                            fechaMatricula :fechaMatricula,
+                            diaCobro       :diaCobro,
+                            tipoCurso      :tipoCurso,
+                            finance: {
+                                formaPago      :formaPago,
+                                descuento      :descuento,
+                                descuento2     :descuento2,
+                                valorMatricula :valorMatricula,
+                                numCuotas      :numCuotas,
+                                montoCuota     :montoCuota,
+                                totalCuotas    :totalCuotas,
+                                montoTotal     :montoTotal
+                            }
+                        }
+                        student.matricula = matriculaObject;
+                        student.status = 'enrolled'
+                        db.insert(student, function (errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+                            resolve({ ok: student });
+                        });
+                    } else {
+                       resolve({ err: 'no se encuentra el alumno' });
+                    }
                 });
+
+
             })
             
-        },
+            
+        }, 
         validate: {
             payload: Joi.object().keys({
                 rutAlumno: Joi.string().allow(''),
@@ -202,10 +216,10 @@ const Joined = [
                                 relationshipAp: el.relationshipAp,
                                 workAp: el.workAp,
                                 phoneAp: el.phoneAp,
+                                correoAp: el.emailAp,
                                 city: el.city
                             })
                         }, []) 
-
                         resolve(res);
                     } else {
                         resolve({ err: 'no existen alumnos' });
@@ -273,7 +287,105 @@ const Joined = [
             })
         }
     }
-}
+},
+//Eliminar un alumno
+{ 
+    method: 'DELETE',
+    path: '/api/deleteAlumno',
+    options: {
+      handler: (request, h) => {
+        let estudianteDelete = request.payload.estudianteDelete;
+  
+        return new Promise(resolve => {
+          db.find({
+            selector: {
+              _id: estudianteDelete
+            },
+            limit: 1
+          }, (err, result) => {
+              if (err) throw err;
+              
+              if(result.docs[0]) {
+  
+                  db.destroy(result.docs[0]._id, result.docs[0]._rev, (err2, body) => {
+                      if (err2) throw err2;
+          
+                      if(body.ok) resolve({ok: 'Registro eliminado correctamente'});
+                  });
+              }
+          });
+        });
+      },
+      validate: {
+        payload: Joi.object().keys({
+            estudianteDelete: Joi.string()
+        })
+      }
+    }
+  },
+  //Modificar los horarios
+/*{
+    method: 'POST',
+    path: '/api/modStudent',
+    options: {
+        handler: (request, h) => {
+            let id = request.payload.id;
+            let birthday = request.payload.birthday;
+            let id = request.payload.name;
+            let id = request.payload.lastname1;
+            let id = request.payload.lastname2;
+            let id = request.payload.email;
+            let id = request.payload.phone;
+            let id = request.payload.address;
+            let id = request.payload.nameAp;
+            let id = request.payload.relationshipAp;
+            let id = request.payload.workAp;
+            let id = request.payload.phoneAp;
+            let id = request.payload. correoAp;
+           
+
+
+            let modHorariosObj = {};
+
+            return new Promise(resolve => {
+                db.find({
+                    "selector": {
+                        "_id": id,
+                        'city': credentials.place,
+                        'type': 'alumnos',
+                        'status': 'joined'
+                    },
+                    "limit": 1
+                }, function (err, result) {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        modHorariosObj = result.docs[0];
+                        modHorariosObj.year = year;
+                        modHorariosObj.place = place;
+                        modHorariosObj.horary = horary;
+
+                        db.insert(modHorariosObj, function (errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+
+                            resolve({ ok: 'Horario ' + modHorariosObj.horary + ' modificado correctamente' });
+                        });
+                    } else {
+                        resolve({ error: 'El horario ' + horary + ' no existe' });
+                    }
+                });
+            });
+        },
+        validate: {
+            payload: Joi.object().keys({
+                id: Joi.string(),
+                year: Joi.string(),
+                place: Joi.string(),
+                horary: Joi.string()
+            })
+        }
+    }
+} */
 ];
 
 export default Joined;
