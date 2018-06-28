@@ -24,6 +24,25 @@
             </label>
         </fieldset>
     </div>
+
+    <div style="margin-top: 10px;" class="col-md-12 box-shadows table-responsive">
+        <table id="table" class="display table table-condensed" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                <th>Fecha:</th>
+                <th>Usuario:</th>
+                <th>Email de usuario:</th>
+                <th>Rol</th>
+                <th>Formulario</th>
+                <th>Descripción</th>
+                <th>Imagen</th>
+                </tr>
+            </thead>		 
+        </table>
+        <div id="loadingLogs">
+            <center><i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><span class="sr-only">Loading...</span></center> 
+        </div>
+    </div>
 {{else}}
 <script>
     document.location.href="/";
@@ -32,9 +51,93 @@
 
 {{#extend "js"}}
 <script>
-    $(function() {
-        $( "input" ).checkboxradio();
+    let datatable;
+    let logsData = [];
+
+    
+    $(document).ready(function() {
+        $('input').checkboxradio();
+
+        chargeTable() 
     });
+
+    function chargeTable() {
+        datatable = $('#table')
+        .DataTable( {
+            "ordering": false,
+            "iDisplayLength": 100,
+            "oLanguage": {
+                "sSearch": ""
+            },
+            "responsive": true,
+            "columns" : [ 
+                {"data" : "date"}, 
+                {"data" : "userName"},
+                {"data" : "email"},
+                {"data" : "role"}, 
+                {"data" : "form"}, 
+                {"data" : "description"},
+                {"data" : "img"}
+            ],
+            createdRow: function( row, data, dataIndex){
+                if(data.img != '') {
+                    $('td', row).eq(6).html(`<a onclick="showImg('/img_logs/${data.img}')" class="btn btn-secondary" style="color:white;"><i class="fa fa-eye" aria-hidden="true"></i></a>`);
+                }
+            },
+            initComplete: function(settings, json) {
+                reloadAllLogs()
+            }
+        
+
+        });
+    }
+
+    function reloadAllLogs() {
+        ajax({
+           url: 'api/logs' 
+        }).then(res=> {
+
+            if(res != 'err') {
+                console.log(res)
+                datatable.clear().draw();
+                
+                logsData = res.reduce((arr, el, i) => {
+                    return arr.concat({
+                        date: moment(el._id).format('DD/MM/YYYY hh:mm'),
+                        userName: el.userName,
+                        email: el.userEmail,
+                        role: el.role,
+                        form: el.form,
+                        description: el.description,
+                        img: el.img
+                    })   
+                }, []);
+
+                datatable.rows.add(logsData).draw();
+                $('#loadingLogs').empty()
+            } else {
+                toastr.warning('SIN LOGS PARA MOSTRAR')
+                $('#loadingLogs').empty()
+            }
+            
+        });
+    }
+        
+    function cb(start, end) {
+		startDate = start.format('YYYY-MM-DDT00:00:00');
+		endDate = end.format('YYYY-MM-DDT23:59:59');
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    function showImg(url) {
+		console.log(url);
+		swal({
+    		title: '',
+			html: `<img style="max-width:100%; max-height:600px;" src="${url}.jpeg">`,
+			width: '80%',
+			height: '600px'
+		})
+	}
 </script>
 {{/extend}}
 

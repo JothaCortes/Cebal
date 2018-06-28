@@ -180,13 +180,13 @@
         });
     };
 
-    const createLog = ({form, desc, extra, type}) => {
+    const createLog = ({form, action, extra, type}) => {
         //console.log(desc,form,String(extra))
         return new Promise(resolve=>{
             ajax({ 
                 url:'/api/log',
                 type: 'POST', 
-                data: {description: desc, form: form, extra: String(extra), type:type} 
+                data: {action: action, form: form, extra: String(extra), type: type} 
             }).then(data=>{
                 resolve(data);
             })
