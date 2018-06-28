@@ -18,6 +18,8 @@ import APIadministrationPanel from './api/administrationPanel';
 import logs from './logs';
 import APIlogs from './api/logs';
 
+import APITools from './api/tools';
+
 const Login = {
     method: ['GET', 'POST'],
     path: '/login',
@@ -51,6 +53,20 @@ const Public = {
     }
 }
 
+const imgLogs = {
+    method: 'GET',
+    path: '/img_logs/{path*}',
+    options: {
+      handler: {
+        directory: {
+          path: './img_logs',
+          listing: false,
+          index: false
+        }
+      }
+    }
+  };
+
 const Home = {
     method:['get'],
     path: '/',
@@ -72,6 +88,7 @@ const Routes = [].concat(
     Login,
     Logout,
     Public,
+    imgLogs,
     Home,
     Joined,
     APIJoined,
@@ -82,6 +99,7 @@ const Routes = [].concat(
     administrationPanel,
     APIadministrationPanel,
     logs,
-    APIlogs
+    APIlogs,
+    APITools
 )
 export default Routes

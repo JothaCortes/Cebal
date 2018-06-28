@@ -29,9 +29,9 @@
         <table id="table" class="display table table-condensed" cellspacing="0" width="100%">
             <thead>
                 <tr>
-                <th>Fecha:</th>
-                <th>Usuario:</th>
-                <th>Email de usuario:</th>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Email de usuario</th>
                 <th>Rol</th>
                 <th>Formulario</th>
                 <th>Descripción</th>
@@ -76,7 +76,7 @@
                 {"data" : "email"},
                 {"data" : "role"}, 
                 {"data" : "form"}, 
-                {"data" : "description"},
+                {"data" : "action"},
                 {"data" : "img"}
             ],
             createdRow: function( row, data, dataIndex){
@@ -108,7 +108,7 @@
                         email: el.userEmail,
                         role: el.role,
                         form: el.form,
-                        description: el.description,
+                        action: el.action,
                         img: el.img
                     })   
                 }, []);
@@ -133,11 +133,19 @@
 		console.log(url);
 		swal({
     		title: '',
-			html: `<img style="max-width:100%; max-height:600px;" src="${url}.jpeg">`,
+			html: `<div id="imglog"><img style="max-width:100%; max-height:600px;" src="${url}.jpeg" onerror="onerrorimg()"></div>`,
 			width: '80%',
 			height: '600px'
 		})
-	}
+    }
+    
+    function onerrorimg() {
+        $('#imglog').html(`
+        <div class="alert alert-dismissible alert-danger">
+            <strong>No se ha encontrado el archivo de imagen.</strong>
+        </div>
+        `)
+    }
 </script>
 {{/extend}}
 

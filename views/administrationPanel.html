@@ -368,33 +368,41 @@ function modalNewHorario() {
     })
     $('#guardarHorario').on('click', function () {
         //Variables
-        let año     = $('#selectYear').val()
+        let year    = $('#selectYear').val()
         let sede = $('#selectSede').val()
         let horario = $('#horario').val()
         
         //fin variables
         ajax({
-                url: '/api/nuevoHorario',
-                type: 'POST',
-                data: {
-                    año    :año,
-                    sede   :sede,
-                    horario:horario
-                }
-            }).then(res => {
-                console.log(res)
-               	swal({
-                    title: 'Agregado!',
-                    backdrop: 'static', 
-                    keyboard: false,
-                    text: res.ok,
-                    type: 'success',
-                    timer: 60000
-                }).then(result => {
-                        $('#modalAdmin').modal('hide')
-                        reloadTableHorarios()
-                    })
+            url: '/api/nuevoHorario',
+            type: 'POST',
+            data: {
+                año    :year,
+                sede   :sede,
+                horario:horario
+            }
+        }).then(res => {
+            console.log(res)
+
+            screenLog({
+                id: 'modal_body',
+                form: 'ingreso de nuevo horario',
+                action: `Se ha agregado el horario ${horario} el año ${year} en la sede ${sede}`,
+                type: 'createSchedule'
             })
+
+            swal({
+                title: 'Agregado!',
+                backdrop: 'static', 
+                keyboard: false,
+                text: res.ok,
+                type: 'success',
+                timer: 60000
+            }).then(result => {
+                $('#modalAdmin').modal('hide')
+                reloadTableHorarios()
+            })
+        })
     })
 };
 
@@ -525,6 +533,8 @@ $('#limpiarHorarioMod').on('click', function () {
                         $('#modalAdmin').modal('hide')
                         reloadTableHorarios()
                     })
+
+
                 }
             })
     });

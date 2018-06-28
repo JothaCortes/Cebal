@@ -55,14 +55,16 @@ const Logs = [
         let session = request.auth.credentials;
         let action = request.payload.action;
         let form = request.payload.form;
-        let extra = request.paload.extra;
-        let type = request.paload.type;
+        let extra = request.payload.extra;
+        let type = request.payload.type;
         let img;
 
         switch (type) {
           case type == 'createJoined':
             img = true;
             break;
+          case type = 'createSchedule':
+            img = true
           default:
             break;
         }
@@ -77,6 +79,7 @@ const Logs = [
         return new Promise(resolve => {
           let logData = {
             _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+            type: 'log',
             userEmail: credentials.email,
             userName: credentials.name + ' ' + credentials.lastname,
             role: credentials.role,
@@ -95,7 +98,7 @@ const Logs = [
       },
       validate: {
         payload: Joi.object().keys({
-          description: Joi.string(),
+          action: Joi.string(),
           form: Joi.string(),
           extra: Joi.string().allow(''),
           type: Joi.string().allow('')

@@ -130,6 +130,7 @@
 <script src="/public/js/toastr.min.js"></script>
 <script src="/public/js/jspdf.min.js"> </script>
 <script src="/public/js/moment.js"></script>
+<script src="/public/js/html2canvas.min.js"></script>
 
 <script>
     let idleTimer = 0;
@@ -194,6 +195,28 @@
             })
         })
         
+    }
+
+    const screenLog = ({id, form, action, extra, type}) => {
+        html2canvas(document.querySelector("#"+id)).then(function(canvas) {
+            createLog({
+                form: form,
+                action: action,
+                extra: extra,
+                type: type
+            }).then(data=>{
+                let canvasToImg = canvas.toDataURL('image/jpeg');
+                let formatId1 = data.id.replace(/:/g, 'Q');
+                
+                ajax({
+                    url: "/api/tools/uploadImgLog", // Url to which the request is send
+                    type: "POST",             // Type of request to be send, called as method
+                    data: {id: formatId1, img:canvasToImg}
+                }).then(res=>{
+                    console.log(res)  
+                })
+            });
+        });
     }
 </script>
 
