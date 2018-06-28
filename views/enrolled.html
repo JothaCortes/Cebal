@@ -117,6 +117,7 @@
         </div>
     </div>
 {{#extend "js"}}
+<script src="/public/logoCebalB64/logoCebal.js"></script>
 <script>
     
 let defaultModalHTML = '';
@@ -527,7 +528,7 @@ function opcionesModal() {
             doc.setFontType("bold");
             doc.text(40,192,"Fecha matrícula");
             doc.setFontType("normal");
-            doc.text(85,192,alumosRowSelectedData.date);
+            doc.text(85,192,moment(alumosRowSelectedData.date).format('DD/MM/YYYY'));
 
             doc.setFontType("bold");
             doc.text(40,199,"Tipo de curso");
@@ -538,7 +539,7 @@ function opcionesModal() {
             doc.text(40,206,"Forma de pago");
             doc.setFontType("normal");
             doc.text(85,206,alumosRowSelectedData.formaP);
-
+            doc.addImage(logoCebal, 'JPEG', 50, finalY + 250, 300, 100);
             doc.setFontType("bold");
             doc.setFontSize(9);
             doc.text(11,270,"Preuniversitario CEBAL - Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
