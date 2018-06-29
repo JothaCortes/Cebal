@@ -339,7 +339,7 @@ function modalMatrAlumnos() {
         
                     <div class="col-md-3" style="margin-top:3px;">
                         <label style="float:left;"><i class="far fa-calendar"></i> Fecha de matrícula</label>
-                        <input id ="matrFecha" type="date" name="fecha" class="form-control border-input">
+                        <input  id="matrFecha" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
                     </div>
                     <div class="col-md-3">
                         <label><i class="fas fa-book"></i> Día de cobro</label>
@@ -492,6 +492,43 @@ function modalMatrAlumnos() {
         </div>    
     </div>
       `)
+//activar descuento2
+$('#matrDescuento').on('change', function (e){
+    $('#matrDescuento2').prop('disabled', false)
+});
+//fecha matricula
+$('#matrFecha').daterangepicker({
+        "locale": {
+            "format": "DD/MM/YYYY",
+            "daysOfWeek": [
+            "Dom",
+            "Lun",
+            "Mar",
+            "Mie",
+            "Jue",
+            "Vie",
+            "Sab"
+            ],
+            "monthNames": [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+            ],
+            "firstDay": 1
+        },
+        drops: "up",
+        singleDatePicker: true,
+        showDropdowns: true
+    });
 //calcular el monto de la matricula de un alumno
 
 function calcularMontoMatricula(){
@@ -515,11 +552,6 @@ $('#matrEgreso').on('change', function(){
         $('#matrCurso').prop('disabled', false);
     }
     })
-
-    $('#alumnoDescuento1').on('change', function(){
-        $('#alumnoDescuento2').prop('disabled', false);
-    });
-
     //validar solo numeros
     $(document).ready(function (){
         $('.solo-numero').keyup(function (){
@@ -633,12 +665,10 @@ ajax({ // cargar horarios
 $('#enrolledEstudiante').on('click', function () {
     modalMatrAlumnos();
 })
-//AGREGAR UN NUEVO ESTUDIANTE CON SU APODERADO
+//AGREGAR UN NUEVO ESTUDIANTE 
 $('#agregarEstudiante').on('click', function () {
-       //console.log(data_see1) 
     nuevoEstudiante();
 })
-   
     function nuevoEstudiante() { 
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Ingreso de nuevo alumno');
@@ -654,8 +684,9 @@ $('#agregarEstudiante').on('click', function () {
 
                         <div class="col-md-4" style="margin-top:3px;">
                             <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento</label>
-                            <input id ="fechaNuevoAlumno" type="date" name="fecha" class="form-control border-input">
-                        </div>
+                           
+                            <input  id="fechaNuevoAlumno" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
+                       </div>
 
                         <div class="col-md-4" style="margin-top:3px;">
                             <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad</label>
@@ -736,7 +767,39 @@ $('#agregarEstudiante').on('click', function () {
                     </div>
                 </div>
       `)
- 
+ //fecha nacimiento Alumno
+$('#fechaNuevoAlumno').daterangepicker({
+        "locale": {
+            "format": "DD/MM/YYYY",
+            "daysOfWeek": [
+            "Dom",
+            "Lun",
+            "Mar",
+            "Mie",
+            "Jue",
+            "Vie",
+            "Sab"
+            ],
+            "monthNames": [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+            ],
+            "firstDay": 1
+        },
+        drops: "down",
+        singleDatePicker: true,
+        showDropdowns: true
+    });
     //validar archivos de imagen solamente
     $('INPUT[type="file"]').change(function () {
         var ext = this.value.match(/\.(.+)$/)[1];
