@@ -57,8 +57,12 @@ const Enrolled = [
                                 phoneAp:el.phoneAp,
                                 date: el.matricula.date,
                                 tipoCurso: el.matricula.tipoCurso,
-                                formaP: el.matricula.finance.formaPago
+                                formaP: el.matricula.finance.formaPago,
 
+                                numCuotas:el.matricula.finance.numCuotas,
+                                montoCuota:el.matricula.finance.montoCuota,
+                                totalCuotas:el.matricula.finance.totalCuotas,
+                                montoTotal: el.matricula.finance.montoTotal
 
 
 

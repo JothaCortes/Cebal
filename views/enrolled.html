@@ -30,6 +30,18 @@
     background-color: #FF7518;
     border-color: #FF7518;
 }
+.card-header{
+        background-color: #c9cfe8;
+        color:#333333;
+        padding: 0.2rem 1.25rem;
+    }
+    
+.h5{
+    margin-bottom: 0rem;
+}
+.card{
+    border-color: #9bafe8;
+}
 </style>
 {{/extend}}
 <div class="col-md-12" >
@@ -73,7 +85,6 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th>Sede</th>
                                     <th>Rut</th>
                                     <th>Nombre</th>
                                     <th>Apellidos</th>
@@ -153,21 +164,22 @@
 
 <!-- Modal formato-->
 <div class="modal fade" id="modalEstudiantes" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content" style="background-color: #ffffff">
-                <div class="modal-header" style="background:#333333; color:#fff">
-                    <h5 class="modal-title" id="modal_title"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modal_body"></div>
-                <div class="modal-footer" id="modal_footer"></div>
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #ffffff">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
         </div>
     </div>
+</div>
 {{#extend "js"}}
 <script src="/public/logoCebalB64/logoCebal.js"></script>
+<script src="/public/logoCebalB64/perfilAlumno.js"></script>
 <script>
     
 let defaultModalHTML = '';
@@ -190,7 +202,6 @@ let alumosRowSelectedData;
                     "responsive": true,
                     "columns": [
                         { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
-                        {"data": "city"},
                         { "data": "_id"},
                         { "data": "name" },
                         { "data": "lastname1"},
@@ -457,7 +468,7 @@ function opcionesModal() {
                         <label> Preuniversitario CEBAL </label>  
                     </div> 
                     <div class="col-md-2 col-xs-12">
-                        <img class="card-img-top" src="/public/img/carnet.jpeg" width:"100%">
+                        <img class="card-img-top" src="/public/img/carnet2.jpg" width:"100%">
                     </div>
                 </div>
                 <hr>
@@ -620,128 +631,270 @@ function opcionesModal() {
         $('#printPDF').on('click', function () {
             var doc = new jsPDF();
 
-            doc.setFontSize(15);
+            doc.setFontSize(16);
             doc.setFontType("bold")
-            doc.text(85,35,"Ficha de Matrícula");
-            doc.line(85, 37, 128, 37);
+            doc.text(85,50,"Ficha de Matrícula");
+            doc.line(85, 52, 134, 52);
             doc.setFontSize(10);
             doc.setFontType("normal");
-            doc.text(88,49,"Preuniversitario CEBAL");
+            doc.text(90,58,"Preuniversitario CEBAL");
 
             doc.addImage(logoCebal, 'JPEG', 20, 30, 30, 10);
+            doc.addImage(perfil, 'JPEG', 150, 52, 35, 45);
 
             doc.setFontType("bold");
-            doc.text(40,70,"N° Matrícula");
+            doc.text(40,78,"N° Matrícula");
             doc.setFontType("normal");
-            doc.text(85,70,"2");
+            doc.text(85,78,"2");
 
-             doc.setFontType("bold");
-            doc.text(40,77,"Año");
+            doc.setFontType("bold");
+            doc.text(40,85,"Año");
             doc.setFontType("normal");
+            doc.text(85,85,moment(alumosRowSelectedData.date).format('YYYY'));
             
-            doc.text(85,77,moment(alumosRowSelectedData.date).format('YYYY'));
-
+            doc.line(40, 88, 134, 88);
             doc.setFontSize(11);
             doc.setFontType("bold");
-            doc.text(40,87,"Nombre Completo");
+            doc.text(40,94,"Nombre Completo");
             doc.setFontType("normal");
-            doc.text(85,87,alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2);
+            doc.text(85,94,alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2);
 
             doc.setFontType("bold");
-            doc.text(40,94,"Rut");
+            doc.text(40,101,"Rut");
             doc.setFontType("normal");
-            doc.text(85,94,alumosRowSelectedData._id);
+            doc.text(85,101,alumosRowSelectedData._id);
 
             doc.setFontType("bold");
-            doc.text(40,101,"Fecha de nacimiento");
+            doc.text(40,108,"Fecha de nacimiento");
             doc.setFontType("normal");
-            doc.text(85,101,alumosRowSelectedData.birthday);
+            doc.text(85,108,alumosRowSelectedData.birthday);
 
             doc.setFontType("bold");
-            doc.text(40,108,"Domicilio");
+            doc.text(40,115,"Domicilio");
             doc.setFontType("normal");
-            doc.text(85,108,alumosRowSelectedData.address);
+            doc.text(85,115,alumosRowSelectedData.address);
 
             doc.setFontType("bold");
-            doc.text(40,115,"Celular");
+            doc.text(40,122,"Celular");
             doc.setFontType("normal");
-            doc.text(85,115,alumosRowSelectedData.phone);
+            doc.text(85,122,alumosRowSelectedData.phone);
 
             doc.setFontType("bold");
-            doc.text(40,122,"Correo");
+            doc.text(40,129,"Correo");
             doc.setFontType("normal");
-            doc.text(85,122,alumosRowSelectedData.email);
+            doc.text(85,129,alumosRowSelectedData.email);
 
             doc.setFontType("bold");
-            doc.text(40,129,"Colegio");
+            doc.text(40,136,"Colegio");
             doc.setFontType("normal");
-            doc.text(85,129,alumosRowSelectedData.colegio);
+            doc.text(85,136,alumosRowSelectedData.colegio);
 
             doc.setFontType("bold");
-            doc.text(40,136,"Año de egreso");
+            doc.text(40,143,"Año de egreso");
             doc.setFontType("normal");
-            doc.text(85,136,alumosRowSelectedData.añoEgreso);
+            doc.text(85,143,alumosRowSelectedData.añoEgreso);
 
             doc.setFontType("bold");
-            doc.text(40,143,"Promedio");
+            doc.text(40,150,"Promedio");
             doc.setFontType("normal");
-            doc.text(85,143,alumosRowSelectedData.promedio);
+            doc.text(85,150,alumosRowSelectedData.promedio);
 
             doc.setFontType("bold");
-            doc.text(40,150,"Horario");
+            doc.text(40,157,"Horario");
             doc.setFontType("normal");
-            doc.text(85,150,alumosRowSelectedData.horario);
+            doc.text(85,157,alumosRowSelectedData.horario);
 
             doc.setFontType("bold");
-            doc.text(40,157,"Prueba optativa");
+            doc.text(40,164,"Prueba optativa");
             doc.setFontType("normal");
-            doc.text(85,157,alumosRowSelectedData.electivo);
+            doc.text(85,164,alumosRowSelectedData.electivo);
+
+            doc.line(40, 168, 134, 168);
+            doc.setFontType("bold");
+            doc.text(40,174,"Apoderado");
+            doc.setFontType("normal");
+            doc.text(85,174,alumosRowSelectedData.apoderado);
 
             doc.setFontType("bold");
-            doc.text(40,164,"Apoderado");
+            doc.text(40,181,"Parentesco");
             doc.setFontType("normal");
-            doc.text(85,164,alumosRowSelectedData.apoderado);
+            doc.text(85,181,alumosRowSelectedData.parentesco);
 
             doc.setFontType("bold");
-            doc.text(40,171,"Parentesco");
+            doc.text(40,188,"Lugar de trabajo");
             doc.setFontType("normal");
-            doc.text(85,171,alumosRowSelectedData.parentesco);
-
-            doc.setFontType("bold");
-            doc.text(40,178,"Lugar de trabajo");
-            doc.setFontType("normal");
-            doc.text(85,178,alumosRowSelectedData.workAp);
+            doc.text(85,188,alumosRowSelectedData.workAp);
             
             doc.setFontType("bold");
-            doc.text(40,185,"Celular apoderado");
+            doc.text(40,195,"Celular apoderado");
             doc.setFontType("normal");
-            doc.text(85,185,alumosRowSelectedData.phoneAp);
+            doc.text(85,195,alumosRowSelectedData.phoneAp);
+
+            doc.setFontType("normal");
+            doc.line(40, 198, 134, 198);
+            doc.setFontType("bold");
+            doc.text(40,204,"Fecha matrícula");
+            doc.setFontType("normal");
+            doc.text(85,204,moment(alumosRowSelectedData.date).format('DD/MM/YYYY'));
 
             doc.setFontType("bold");
-            doc.text(40,192,"Fecha matrícula");
+            doc.text(40,211,"Tipo de curso");
             doc.setFontType("normal");
-            doc.text(85,192,moment(alumosRowSelectedData.date).format('DD/MM/YYYY'));
+            doc.text(85,211,alumosRowSelectedData.tipoCurso);
 
             doc.setFontType("bold");
-            doc.text(40,199,"Tipo de curso");
+            doc.text(40,218,"Forma de pago");
             doc.setFontType("normal");
-            doc.text(85,199,alumosRowSelectedData.tipoCurso);
-
-            doc.setFontType("bold");
-            doc.text(40,206,"Forma de pago");
-            doc.setFontType("normal");
-            doc.text(85,206,alumosRowSelectedData.formaP);
+            doc.text(85,218,alumosRowSelectedData.formaP);
             
             doc.setFontType("italic");
             doc.setFontSize(9);
-            doc.text(16,270,"Preuniversitario CEBAL - Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
-            
-
-            
-            doc.save('FichaMatriculaCebal.pdf');
+            doc.text(35,270,"Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
+            doc.text(70,275,"Preuniversitario CEBAL - Sólido en P.S.U");
+            doc.save(`FichaMatricula`+ `${alumosRowSelectedData.name}.pdf`);
         })
 
      })
+    };
+    $('#pagosEnrolled').on('click', function(){
+        pagosModal();
+    })
+    function pagosModal() { 
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Pago de cuotas');
+      $('#modal_body').html(`
+        <div class="card border-primary mb-12" style="max-width: 50rem;">
+            <div class="card-header"><h5>Datos estudiante</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-user"></i> Nombre</label>
+                        <input id="modName" type="text" value="${alumosRowSelectedData.name}"  required class="form-control border-input" readOnly>
+                    </div>
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-key"></i> Cuotas</label>
+                        <input id="modRut" type="text" value="${alumosRowSelectedData.numCuotas}"  required class="form-control border-input" readOnly>
+                    </div>
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-key"></i> Valor cuota</label>
+                        <input id="modRut" type="text" value="${alumosRowSelectedData.montoCuota}"  required class="form-control border-input" readOnly>
+                    </div>
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-key"></i> Total restante</label>
+                        <input id="modRut" type="text" value="${alumosRowSelectedData.montoTotal}"  required class="form-control border-input" readOnly>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+                
+
+        <div class="card border-primary mb-12" style="max-width: 50rem;margin-top:10px" >
+            <div class="card-header"><h5>Cancelación de cuotas</h5></div>
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-md-4">
+                        <label><i class="fas fa-hand-holding-usd"></i> Tipo de Pago</label>
+                        <select class="form-control" id="payment">
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Cuotas</option>
+                            <option>Monto</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label><i class="fas fa-list-ol"></i> N° Cuotas</label>
+                        <select class="form-control" id="dues" disabled>
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>1</option>
+                            <option>2</option>
+                            <option>3</option>
+                            <option>4</option>
+                            <option>5</option>
+                            <option>6</option>
+                            <option>7</option>
+                            <option>8</option>
+                            <option>9</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4"> 
+                        <label><i class="fas fa-money-check-alt"></i> Monto</label>
+                        <input class="form-control" id="amount" type="text" placeholder="ej: 50000" disabled>
+                    </div>
+                    <div class="col-md-4"> 
+                        <label><i class="fas fa-ticket-alt"></i> N° Boleta</label>
+                        <input class="form-control" id="ticket" type="number" placeholder="ej: 1234">
+                    </div>
+                    <div class="col-md-4">
+                        <label><i class="fas fa-calendar-alt"></i> fecha </label>
+                        <input  id="initDate" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row"> 
+            <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+            </div>
+
+            <div class="col-md-3" style="margin-top:15px;">
+                <button id="save" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
+            </div>
+        </div>
+        </div>
+      `)
+      //habilitar y deshabilitar input
+        $('#payment').on('change', function (e){
+            let TypePayment  = $('#payment').val();
+            if (TypePayment == 'Cuotas'){
+                $('#dues').prop('disabled', false)
+                $('#amount').prop('disabled', true)
+                $('#amount').val("")
+            }else{
+                $('#amount').prop('disabled', false)
+                $('#dues').prop('disabled', true)
+                $('#dues').val("")
+            }
+        });
+
+        
+        $('#cancel').on('click', function () {
+            $('#modalEstudiantes').modal('hide')
+        })
+        //fecha
+        $('#initDate').daterangepicker({
+        "locale": {
+            "format": "DD/MM/YYYY",
+            "daysOfWeek": [
+            "Dom",
+            "Lun",
+            "Mar",
+            "Mie",
+            "Jue",
+            "Vie",
+            "Sab"
+            ],
+            "monthNames": [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+            ],
+            "firstDay": 1
+        },
+        drops: "up",
+        singleDatePicker: true,
+        showDropdowns: true
+    });
 
     };
 </script>
