@@ -8,6 +8,9 @@ import APIJoined   from './api/joined';
 import Enrolled    from './enrolled';
 import APIEnrolled from './api/enrolled';
 
+import Courses     from './courses';
+import APICourses  from './api/courses';
+
 
 import listStudents from './listStudents';
 import APIlistStudents from './api/listStudents';
@@ -96,6 +99,8 @@ const Routes = [].concat(
     APIJoined,
     Enrolled,
     APIEnrolled,
+    Courses,
+    APICourses,
     listStudents,
     APIlistStudents,
     administrationPanel,
