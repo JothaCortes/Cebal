@@ -5,10 +5,230 @@
 
 </style>
 {{/extend}}
+<div class="col-md-12" >
+    <div class="row"> 
+        <div class="offset-md-10 col-md-2" >  
+            <label><h5>Sede: {{{ credentials.place }}}</h5></label>
+        </div>
+      <br>    
+    </div>
+</div> <hr>
+<div class="col-md-12">
+        <ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Crear curso</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Asignar curso</a>
+            </li>
+        </ul>
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                <div class="row">
+                    <div class="col-md-2 col-xs-12">
+                        <br>
+                        <button class="btn btn-primary btn-block" id="newCourse" style="margin-top: 20px">
+                            <i class="fa fa-plus"></i> Agregar
+                        </button>
+                        <br>
+                        <button class="btn btn-success btn-block" id="modCourse" disabled>
+                            <i class="fas fa-edit"></i> Modificar
+                        </button>
+                        <br>
+                        <button class="btn btn-danger btn-block" id="deletCourse" disabled>
+                            <i class="fas fa-ban"></i> Eliminar
+                        </button>
+                    </div>
+                    <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                        <table id="tableCourses" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Año</th>
+                                    <th>Horario</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div id="loadingCourse">
+                            <center>
+                                <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                                <span class="sr-only">Cargando...</span>
+                            </center>
+                        </div>
+                    </div>    
+                </div>
+        </div>
+    
+    
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div class="container-fluid">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+                        <div class="row">
+                            PRUEBA     
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Modal formato-->
+<div class="modal fade" id="modalCourses" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #ffffff">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
+        </div>
+    </div>
+</div>
 {{#extend "js"}}
 <script>
+//DATATABLE CURSOS
+let datatable;
+let datatableCourse;
+let cursosRowSelectedData;
+let coursesRowSelected;
 
+jQuery(document).ready(function ($) {
+    chargeTableCourses();
+});
+    function chargeTableCourses() {
+        datatableCourse = $('#tableCourses')
+        .DataTable({            
+                    "iDisplayLength": 11,
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "order": [[0, "desc"]],
+                    "responsive": true,
+                    "columns": [
+                        { "data": "name"},
+                        { "data": "year"},
+                        { "data": "horary" },             
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/cursosCebal'
+                    }).then(res => {
+                        if (res.err) {
+                            toastr.warning('No existen cursos')
+                        } else {
+                            datatableCourse.rows.add(res).draw();
+                            $('#loadingCourse').empty();
+                        }      
+                    })
+            }
+        });   
+     $('#tableCourses tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected'); 
+            //$('#modHorario').prop('disabled', true);
+            //$('#deletHorario').prop('disabled', true);
+
+        } else {
+            datatableCourse.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            cursosRowSelectedData = datatableCourse.row($(this)).data();
+            coursesRowSelected = datatableCourse.row($(this));
+            console.log(cursosRowSelectedData)
+           // $('#modHorario').prop('disabled', false);
+            //$('#deletHorario').prop('disabled', false);
+        }
+    });
+}
+//DATATABLE FINAL recargar
+function reloadTableCourse() {
+        ajax({
+            url: 'api/cursosCebal'
+        }).then(res => {
+            if (res.err) {
+                toastr.warning('No existen cursos')
+            } else {
+                datatableCourse.clear().draw();
+                datatableCourse.rows.add(res).draw();
+            }
+        })
+}
+//FIN DATATABLE 
+
+$('#newCourse').on('click', function () {
+    modalNewCourse();
+})
+
+function modalNewCourse() { 
+    $('#modalCourses').modal();
+    $('#modal_title').text('Crear nuevo curso');
+    $('#modal_body').html(`
+    <div class="row">
+        <div class="offset-md-2 col-md-8">
+            <label><i class="fas fa-users"></i> Nombre</label>
+            <input id="nameCourse" type="text" class="form-control border-input">
+        </div>
+            <div class="offset-md-2 col-md-8" style="margin-top:10px;">
+                <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
+                    <select class="form-control" id="yearCourse">
+                        <option selected="true" disabled="disabled">seleccione</option>
+                        <option>2018</option>
+                        <option>2019</option>
+                        <option>2020</option>
+                        <option>2021</option>
+                    </select>
+            </div>
+            <div class="offset-md-2 col-md-8" style="margin-top:10px;">
+                <label style="float:left;"><i class="fas fa-clock"></i> Horario</label>
+                    <select class="form-control" id="horaryCourse">
+                        <option selected="true" disabled="disabled">seleccione</option>
+                        <option>INT DIA</option>
+                        <option>INT MAÑANA</option>
+                        <option>11:45</option>
+                    </select>
+            </div>
+           
+            <div class="offset-md-5 col-md-3" style="margin-top:10px;">
+                <button id="cancelCourse" type="button" class="btn btn-danger"><i class="fas fa-ban"></i> Cancelar</button>
+            </div>
+            <div class="col-md-3" style="margin-top:10px">
+                <button id="saveCourse" type="button" class="btn btn-primary"><i class="fas fa-cloud"></i> Guardar</button>
+            </div>
+        </div>       
+    `)
+    $('#saveCourse').on('click', function () {
+        let nameCourse   = $('#nameCourse').val()
+        let yearCourse   = $('#yearCourse').val()
+        let horaryCourse = $('#horaryCourse').val()
+        ajax({
+            url: '/api/newCourse',
+            type: 'POST',
+            data: {
+                nameCourse   :nameCourse,
+                yearCourse   :yearCourse,
+                horaryCourse :horaryCourse
+            }
+        }).then(res => {
+            console.log(res)
+            swal({
+                title: 'Agregado!',
+                backdrop: 'static', 
+                keyboard: false,
+                text: res.ok,
+                type: 'success',
+                timer: 60000
+                }).then(result => {
+                    //reloadRepairTableAlumnos()
+                })
+            })
+    })
+
+
+};
     
 </script>
 {{/extend}}

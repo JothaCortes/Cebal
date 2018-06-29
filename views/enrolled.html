@@ -456,14 +456,16 @@ function opcionesModal() {
             <div class="col-md-3" style="margin-top:15px;">
                 <button id="Atrás" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Atrás</button>
             </div>
-
             <div class="col-md-3" style="margin-top:15px;">
                 <button id="printPDF" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Imprimir</button>
             </div>
 
             <div class="col-md-12" id="matriculaImprimir" style="margin-top:20px">
                 <div class="row">
-                <div class="offset-md-5 col-md-4">
+                    <div class="col-md-2 col-xs-12">
+                        <img class="card-img-top" src="/public/img/logo.png" width:"100%">
+                    </div>
+                <div class="offset-md-2 col-md-4">
                         <label><h5><u>Ficha de Matrícula</u></h5></label><br>
                         <label> Preuniversitario CEBAL </label>  
                     </div> 
@@ -471,19 +473,17 @@ function opcionesModal() {
                         <img class="card-img-top" src="/public/img/carnet2.jpg" width:"100%">
                     </div>
                 </div>
-                <hr>
-
-                <div class="row">
+                <div class="row" style="margin-top:-35px;">
                     <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Nombre completo</b></label>
+                        <label><b> Nombre completo</b></label>
                     </div>
                     <div class="col-md-5 col-sm-6">
-                         <label>${alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2}</label>
+                        <label>${alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2}</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Rut</b></label>
+                        <label><b> Rut</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
                          <label>${alumosRowSelectedData._id}</label>
@@ -491,15 +491,15 @@ function opcionesModal() {
                 </div>
                 <div class="row">
                     <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Fecha de nacimiento</b></label>
+                        <label><b> Fecha de nacimiento</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.birthday}</label>
+                        <label>${alumosRowSelectedData.birthday}</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Domicilio</b></label>
+                        <label><b> Domicilio</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
                          <label>${alumosRowSelectedData.address}</label>
@@ -507,15 +507,15 @@ function opcionesModal() {
                 </div>
                 <div class="row">
                     <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Celular</b></label>
+                        <label><b> Celular</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.phone}</label>
+                        <label>${alumosRowSelectedData.phone}</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Correo</b></label>
+                        <label><b> Correo</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
                          <label>${alumosRowSelectedData.email}</label>
@@ -616,11 +616,12 @@ function opcionesModal() {
                     <div class="col-md-6 col-sm-6">
                          <label>${alumosRowSelectedData.formaP}</label>
                     </div>
-                </div>
+                </div><br><br>
                 <div class="row">
                     <div class="offset-md-1 col-md-11 col-sm-11">
-                        <label>Preuniversitario CEBAL - Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl</label>
-                    </div>
+                        <center><label>Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl</label>
+                        <label>CEBAL Sólido eN P.S.U</label></center>
+                        </div>
                 </div>
             </div>
         </div>
