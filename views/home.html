@@ -11,6 +11,7 @@
         margin-top:10px;
         font-size: 20px;
     }
+
     .info-box-icon {
         border-radius: .25rem;
         display: block;
@@ -19,6 +20,7 @@
         font-size: 40px;
         color: #fff!important;
     }
+
 
     #firstSearcher {
         width: 100%;
@@ -129,6 +131,8 @@ $('#searchbtn').on('click', function() {
     } else if ($.validateRut(searchval)) {
         searchtype  = 'rut';
         $('#firstSearcher').val($.formatRut(searchval));
+    } else if (searchval.includes("-") || searchval.includes(".")) {
+        searchtype  = 'rut';
     } else if (searchval.length == 0){
         toastr.warning('El campo de busqueda está vacío');
     } else {
@@ -138,7 +142,7 @@ $('#searchbtn').on('click', function() {
     if(searchtype) {
         console.log(searchtype)
         console.log(searchval)
-
+        $('#searchresults').html(`<center><i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><span class="sr-only">Loading...</span></center>`)
         ajax({
             url: '/api/tools/firstsearch',
             type: 'POST',
@@ -146,18 +150,63 @@ $('#searchbtn').on('click', function() {
         }).then(res=> {
             console.log(res)
             $('#searchresults').html(`
-                <div class="jumbotron">
-                    test
+                <div class="jumbotron table-responsive">
+                    <a href="#" id="closeresults" style="float:right;"><i class="fas fa-times"></i></a>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Rut</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Historial</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablebody">
+                        </tbody>
+                    </table>
                 </div>
             `)
+
+            let tableBodyHTML = res.ok.reduce((html, el, i) => {
+                console.log(el)
+                let statusicon = '';
+
+                switch (el.status) {
+                    case 'joined':
+                        statusicon = '<i class="fas fa-sign-in-alt"></i>'
+                        break;
+                    case 'enrolled':
+                        statusicon = '<i class="fas fa-address-book"></i>'
+                        break;
+                    default:
+                        break;
+                }
+
+                return html += `
+                    <tr>
+                        <th scope="row">${el._id}</th>
+                        <td>${el.name} ${el.lastname1}</td>
+                        <td>${el.email}</td>
+                        <td><button class="btn btn-primary statusbtn">${statusicon}</button></td>
+                        <td><button class="btn btn-dark"><i class="fas fa-book"></i></button></td>
+                    </tr>
+                `   
+            }, '');
+
+            $('#tablebody').html(tableBodyHTML)
         })
-    }
-    
+    } 
 })
 
 $('#verListaMatriculas').on('click', function () {
     ModalMatriculas();
 })
+
+$('#searchresults').on('click', '#closeresults', function() {
+    $('#searchresults').empty();
+    $('#firstsearcher').val('');
+});
 
 function ModalMatriculas() { 
     $('#modalmatriculas').modal();

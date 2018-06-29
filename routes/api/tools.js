@@ -1,6 +1,10 @@
 import Joi from 'joi'
 import moment from 'moment-timezone'
 import fs from 'fs';
+import cloudant from '../../config/db.js';
+import configEnv from '../../config/env_status.js';
+
+let db = cloudant.db.use(configEnv.db)
 
 const Tools = [{ // todos los clientes habilitados
   method: 'GET',
@@ -46,6 +50,8 @@ const Tools = [{ // todos los clientes habilitados
         let val = request.payload.val;
         let query;
 
+        console.log(type, val)
+
         return new Promise(resolve=> {
             if (type == 'email') {
                 query = {
@@ -64,11 +70,11 @@ const Tools = [{ // todos los clientes habilitados
             } else if (type == 'rut') {
                 query = {
                     selector: {
-                        _id: val
-                    },
-                    type: 'alumnos',
-                    $not: {
-                        status: 'disabled'
+                        _id: val,
+                        type: 'alumnos',
+                        $not: {
+                            status: 'disabled'
+                        }
                     }
                 }
             } else {
@@ -76,28 +82,39 @@ const Tools = [{ // todos los clientes habilitados
     
                 let name = splitval[0];
                 let lastname = val.substr(val.indexOf(' ') + 1);
-    
+                
+                //TODO: agregar busqueda de apellido en primer parámetro
                 query = {
-                    _id: {
-                        $gte: null
-                    },
-                    type: 'alumnos',
-                    $or: {
-                        name: {
-                            $regex: `(?i)${name}`
+                    selector: {
+                        _id: {
+                            $gte: null
                         },
-                        lastname: {
-                            $regex: `(?i)${lastname}`
-                        }  
-                    }     
+                        type: 'alumnos',
+                        $or: [
+                            {
+                                name: {
+                                    $regex: `(?i)${name}`
+                                }
+                            },
+                            {
+                                lastname: {
+                                    $regex: `(?i)${lastname}`,
+                                }  
+                            },
+                        ] 
+                    }    
                 }  
             }
 
             db.find(query, (err, result) => {
                 if (err) throw err
-      
+                
                 console.log(result)
-                resolve(results)
+                if(result.docs[0]) {
+                    resolve({ok:result.docs});
+                } else {
+                    resolve({err:'No se encontraron alumnos'});
+                }
             })
         })
 
