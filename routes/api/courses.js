@@ -83,5 +83,40 @@ const Courses = [
         }
     }
 },
+//ELIMINAR CURSO
+{ 
+    method: 'DELETE',
+    path: '/api/deleteCourse',
+    options: {
+      handler: (request, h) => {
+        let curso = request.payload.curso;
+  
+        return new Promise(resolve => {
+          db.find({
+            selector: {
+              _id: curso
+            },
+            limit: 1
+          }, (err, result) => {
+              if (err) throw err;
+              
+              if(result.docs[0]) {
+  
+                  db.destroy(result.docs[0]._id, result.docs[0]._rev, (err2, body) => {
+                      if (err2) throw err2;
+          
+                      if(body.ok) resolve({ok: 'Curso eliminado correctamente'});
+                  });
+              }
+          });
+        });
+      },
+      validate: {
+        payload: Joi.object().keys({
+            curso: Joi.string()
+        })
+      }
+    }
+  }
 ];
 export default Courses;

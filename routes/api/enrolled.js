@@ -63,9 +63,6 @@ const Enrolled = [
                                 montoCuota:el.matricula.finance.montoCuota,
                                 totalCuotas:el.matricula.finance.totalCuotas,
                                 montoTotal: el.matricula.finance.montoTotal
-
-
-
                             })
                         }, []) 
 
@@ -77,7 +74,7 @@ const Enrolled = [
             });
         }
     }
-},    //API TRAER ALUMNOS DISABLED A TABLE
+},    //API TRAER ALUMNOS RETIRED A TABLE
 { 
     method: 'GET',
     path: '/api/studentsDisabled', 
@@ -92,7 +89,7 @@ const Enrolled = [
                         },
                         'city': credentials.place,
                         'type': 'alumnos',
-                        'status': 'disabled'
+                        'status': 'retired'
                     }
                 }, (err, result) => {
                     if (err) throw err;
@@ -161,7 +158,7 @@ const Enrolled = [
   
                 studentData = result.docs[0];
   
-                studentData.status = 'disabled';
+                studentData.status = 'retired';
   
                 db.insert(studentData, function(errUpdate, body) {
                     if (errUpdate) throw errUpdate;

@@ -130,8 +130,8 @@ jQuery(document).ready(function ($) {
      $('#tableCourses tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected'); 
-            //$('#modHorario').prop('disabled', true);
-            //$('#deletHorario').prop('disabled', true);
+            $('#modCourse').prop('disabled', true);
+            $('#deletCourse').prop('disabled', true);
 
         } else {
             datatableCourse.$('tr.selected').removeClass('selected');
@@ -139,8 +139,8 @@ jQuery(document).ready(function ($) {
             cursosRowSelectedData = datatableCourse.row($(this)).data();
             coursesRowSelected = datatableCourse.row($(this));
             console.log(cursosRowSelectedData)
-           // $('#modHorario').prop('disabled', false);
-            //$('#deletHorario').prop('disabled', false);
+            $('#modCourse').prop('disabled', false);
+            $('#deletCourse').prop('disabled', false);
         }
     });
 }
@@ -226,9 +226,42 @@ function modalNewCourse() {
                 })
             })
     })
-
-
 };
+//Eliminar Curso
+let curso
+$('#deletCourse').on('click', function(){
+    swal({
+      title: '¿Estás seguro de eliminar el curso?',
+      text: '',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Eliminar',
+      cancelButtonText: 'cancelar',
+      confirmButtonClass: 'btn btn-danger',
+      cancelButtonClass: 'btn btn-primary',
+      buttonsStyling: false
+    }).then(function(action) {
+      if (action.value) {
+        ajax({
+          url: '/api/deleteCourse',
+          type: 'DELETE',
+          data: {
+            curso: cursosRowSelectedData._id
+          }  
+        }).then((data) => {
+            console.log(curso)
+            if (data.ok) {
+                toastr.success(data.ok); 
+                coursesRowSelected.remove().draw();
+                //$('#modHorario').prop('disabled', false);
+                //$('#deletHorario').prop('disabled', false);
+            }
+        });
+      }
+    });
+})
     
 </script>
 {{/extend}}
