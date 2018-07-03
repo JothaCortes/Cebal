@@ -288,6 +288,28 @@ const Joined = [
         }
     }
 },
+{ 
+    method: 'GET',
+    path: '/api/quotaNumbers',
+    options: {
+        handler: (request, h) => {
+            return new Promise(resolve => {
+                db.find({
+                    selector: {
+                        _id:'quotaValue'    
+                    } 
+                }, (err, result) => {
+                    if (err) throw err
+                    if (result.docs[0]) {
+                        resolve(result.docs[0].typeCourse)
+                    } else {
+                        resolve({ err: 'No existen datos' })
+                    }
+                })
+            })
+        }
+    }
+},
 //Eliminar un alumno
 { 
     method: 'DELETE',

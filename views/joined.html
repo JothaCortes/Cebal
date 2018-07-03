@@ -142,9 +142,13 @@ h5, .h5 {
 
 {{#extend "js"}}
 <script>
+    let graduatedStatus = 1;
+    let typeCourseStatus = 1;
+    let numberQuotes1 ={};
+    let valores = {};
+
     let estudianteDelete;
     let defaultModalHTML = '';
-    let admin = "{{{ credentials.name }}}";
     let datatable;
     let datatableAlumnos;
     let alumosRowSelectedData;
@@ -253,7 +257,6 @@ function modalMatrAlumnos() {
                             <div class="form-group">
                                 <label><i class="far fa-calendar"></i> Egreso</label>
                                 <select class="form-control" id="matrEgreso">
-                                    <option selected="true" disabled="disabled">seleccione</option>
                                     <option>Egresado</option>
                                     <option>No egresado</option>
                                 </select> 
@@ -349,7 +352,6 @@ function modalMatrAlumnos() {
                         <div class="form-group">
                             <label><i class="fas fa-graduation-cap"></i> Tipo de curso</label>
                             <select class="form-control" id="matrTipoCurso">
-                                <option selected="true" disabled="disabled">seleccione</option>
                                 <option>Anual</option>
                                 <option>Intensivo</option>
                             </select> 
@@ -359,7 +361,6 @@ function modalMatrAlumnos() {
                         <div class="form-group">
                             <label><i class="fas fa-graduation-cap"></i> Forma de pago</label>
                             <select class="form-control" id="matrFormaPago">
-                                <option selected="true" disabled="disabled">seleccione</option>
                                 <option>Cuotas</option>
                                 <option>Contado</option>
                             </select> 
@@ -419,35 +420,35 @@ function modalMatrAlumnos() {
                                 <label style="float:left;"> Valor matrícula :</label>
                             </div>
                             <div class"col-md-2" style="margin-top: -10px">
-                                <input id="matrValor" type="text" class="form-control border-input"  value="45000" readOnly>
+                                <input id="matrValor" type="text" class="form-control border-input"  readOnly>
                             </div>
 
                             <div class="col-md-4">
                                 <label style="float:left;"> Cantidad cuotas :</label>
                             </div>
                             <div class"col-md-2" style="margin-top: 2px">
-                                <input id="matrNumCuotas" type="text" class="form-control border-input"  value="9">
+                                <input id="matrNumCuotas" type="text" class="form-control border-input"  value="9" readOnly>
                             </div>
 
                             <div class="col-md-4">
                                 <label style="float:left;"> Monto por cuota :</label>
                             </div>
                             <div class"col-md-2" style="margin-top: 2px">
-                                <input id="matrMontoCuota" type="text" class="form-control border-input"  value="65000">
+                                <input id="matrMontoCuota" type="text" class="form-control border-input"  value="65000" readOnly>
                             </div>
 
                             <div class="col-md-4">
                                 <label style="float:left;"> Total cuotas :</label>
                             </div>
                             <div class"col-md-2" style="margin-top: 2px">
-                                <input id="matrTotalCuotas" type="text" class="form-control border-input"  value="585000">
+                                <input id="matrTotalCuotas" type="text" class="form-control border-input"  readOnly>
                             </div>
 
                             <div class="col-md-4">
                                 <label style="float:left;"><b> Monto total :</b></label>
                             </div>
                             <div class"col-md-2" style="margin-top: 2px">
-                                <input id="matrMontoTotal" type="text" class="form-control border-input"  value="">
+                                <input id="matrMontoTotal" type="text" class="form-control border-input"  readOnly>
                             </div>
                         </div>
                         </div>  
@@ -492,6 +493,94 @@ function modalMatrAlumnos() {
         </div>    
     </div>
       `)
+quotaValues ()
+
+$('#matrTipoCurso').on('change', function (e){
+    let selectedTypeCourse = $('#matrTipoCurso').val();
+    if (selectedTypeCourse == 'Anual'){
+        typeCourseStatus = 1;
+        numberQuotes ()
+      
+    }else{
+        typeCourseStatus = 0;
+        numberQuotes ()
+    }
+})
+
+function numberQuotes (){
+    ajax({ 
+    url:'/api/quotaNumbers'
+}).then(res => {
+    //TODO: SEGUIR CON ESTO
+    numberQuotes1.anual = res.filter(function(el) {
+        return el.type == 'yearly';
+    })[0].quotaNumber
+    
+
+    numberQuotes1.intensive = res.filter(function(el) {
+        return el.type == 'intensive';
+    })[0].quotaNumber
+    
+});
+}
+
+//EGRESADO O NO EGRESADO 
+$('#matrEgreso').on('change', function (e){
+    let selectedStatus = $('#matrEgreso').val();
+    if (selectedStatus == 'Egresado'){
+        graduatedStatus = 1;
+        quotaValues ()
+      
+    }else{
+        graduatedStatus = 0;
+        quotaValues ()
+    }
+})
+
+function quotaValues (){
+    ajax({ 
+    url:'/api/quotaValuesCebal'
+}).then(res => {
+        console.log(res)
+        valores.graduated = res.filter(function(el) {
+            return el.status == 'graduated';
+        })[0].notes
+
+        valores.notgraduated = res.filter(function(el) {
+            return el.status == 'notGraduated';
+        })[0].notes
+
+
+        if (graduatedStatus == 1){
+
+            let matrScore = valores.graduated.filter(function(el) {
+                return el.score == 'matricula';
+            })[0].price
+
+            $('#matrValor').val(matrScore) 
+            
+            let valNormal = valores.graduated.filter(function(el) {
+                return el.score == 'normal';
+            })[0].price
+
+            $('#matrMontoCuota').val(valNormal) 
+
+
+        }else{
+            let matrScore = valores.notgraduated.filter(function(el) {
+                return el.score == 'matricula';
+            })[0].price
+            $('#matrValor').val(matrScore) 
+
+            let valNormal = valores.notgraduated.filter(function(el) {
+                return el.score == 'normal';
+            })[0].price
+
+            $('#matrMontoCuota').val(valNormal) 
+        } 
+    });
+}
+
 //activar descuento2
 $('#matrDescuento').on('change', function (e){
     $('#matrDescuento2').prop('disabled', false)
@@ -532,14 +621,15 @@ $('#matrFecha').daterangepicker({
 //calcular el monto de la matricula de un alumno
 
 function calcularMontoMatricula(){
-    alert("hola") 
         let v_matr = $('#matrValor').val()
         let c_cuotas = $('#matrNumCuotas').val()
         let m_couta = $('#matrMontoCuota').val()
         let t_cuotas = $('#matrTotalCuotas').val()   
-            let totalCuotas = parseFloat(c_cuotas)*parseFloat(m_couta);
-            let total= parseFloat(v_matr) + parseFloat(totalCuotas);
-                 $('#matrMontoTotal').val(total)
+        let totalCuotas = parseFloat(c_cuotas)*parseFloat(m_couta);
+           // $('#matrTotalCuotas').val(totalCuotas)
+           alert(totalCuotas)
+        let total = parseFloat(v_matr)+parseFloat(totalCuotas);
+        $('#matrMontoTotal').val(total)
     }
 
 //Habilitar o deshabilitar egresado, no egresado
@@ -547,11 +637,30 @@ $('#matrEgreso').on('change', function(){
     let egreso = $('#matrEgreso').val()
     if (egreso == 'Egresado'){
         $('#matrAñoEgreso').prop('disabled', false);
+        $('#matrCurso').prop('disabled', true);
+        $('#matrCurso').val('')
     }else{
         $('#matrAñoEgreso').prop('disabled', true);
         $('#matrCurso').prop('disabled', false);
+        $('#matrAñoEgreso').val('')
     }
     })
+  //BECA = SOLO SE PAGA MATRICULA
+  $('#matrBeca').on('change', function(){
+        let Matr = $('#matrBeca').val()
+    if (Matr == 'Si'){
+        $('#matrNumCuotas').val('0')
+        $('#matrMontoCuota').val('0')
+        $('#matrTotalCuotas').val('0')
+        $('#matrMontoTotal').val('0')
+        let valorMatr = $('#matrValor').val()
+        $('#matrMontoTotal').val(valorMatr)
+        $('#matrFormaPago').prop('disabled', true);
+    }else{
+       // $('#matrAñoEgreso').val("false");
+    }
+    }) 
+
     //validar solo numeros
     $(document).ready(function (){
         $('.solo-numero').keyup(function (){
@@ -560,18 +669,7 @@ $('#matrEgreso').on('change', function(){
     });
     //validar valor maximo y minimo
 
-    /*
-    $('#matrBeca').on('change', function(){
-    let Matr = $('#matrBeca').val()
-    if (Matr == 'Si'){
-        alert("si") 
-       let beca = $('#matrAñoEgreso').val("true");
-        console.log(beca.val("s"))
-    }else{
-        $('#matrAñoEgreso').val("false");
-    }
-    }) */
-
+  
 //GUARDAR MATRICULA
     $('#guardarNuevoAlumno2').on('click', function () {
         //Variables desde modal
@@ -582,7 +680,7 @@ $('#matrEgreso').on('change', function(){
         let añoEgreso      = $('#matrAñoEgreso').val()
         let curso          = $('#matrCurso').val()
         let promedio       = $('#matrPromedio').val()
-        let horario        = $('#selectHorario').val()
+        let horario        = $('#selectHorario').select2('data')[0].text;
         let electivo       = $('#matrElectivo').val()
         let electivo2      = $('#matrElectivo2').val()
         let fechaMatricula = $('#matrFecha').val()
@@ -642,13 +740,6 @@ let selects = {
         place:[],
         horario: [],
     }
-
-ajax({ // cargar valores de cuotas
-    url:'/api/quotaValuesCebal'
-    }).then(res => {
-      //  console.log(res)
-    });
-
 ajax({ // cargar horarios
     url:'/api/horariosCebalTraer'
     }).then(res => {
@@ -674,6 +765,7 @@ ajax({ // cargar horarios
 //BOTON MATRICULAR ESTUDIANTE
 $('#enrolledEstudiante').on('click', function () {
     modalMatrAlumnos();
+   
 })
 //AGREGAR UN NUEVO ESTUDIANTE 
 $('#agregarEstudiante').on('click', function () {
@@ -830,7 +922,6 @@ $('#fechaNuevoAlumno').daterangepicker({
         $('#rutNuevoAlumno').on('keyup', function(){
             this.value = rutFunc (this.value)
             $('#guardarNuevoAlumno2').prop('disabled', false);
-
         })
     });
         function rutFunc (rut){
@@ -914,7 +1005,6 @@ $('#fechaNuevoAlumno').daterangepicker({
                  }).then(result => {
                         reloadRepairTableAlumnos()
                         $('#modalEstudiantes').modal('hide')
-
                     })
             })
         })
