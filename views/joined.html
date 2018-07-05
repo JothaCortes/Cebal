@@ -148,7 +148,10 @@ h5, .h5 {
         cantidadCuotas:0,
         montoPorCuota:0,
         totalCuotas:0,
-        montoTotal:0
+        montoTotal:0,
+        montoPorCuota2:0,
+        descuentoCuota1:0,
+        descuentoCuota2:0
     }
    
     let numberQuotes ={};
@@ -506,7 +509,7 @@ generalFunction()
 function generalFunction(){
     quotaValues().then(res => {
         numberQuotesCebal ().then(res => {
-            calcularValoresPromedio().then(res => {
+            //calcularValoresPromedio().then(res => {
                 wayToPay().then(res => {
                     calcularDescuento1().then(res => {
                         calcularDescuento2().then(res => {
@@ -515,7 +518,7 @@ function generalFunction(){
                         })
                     })
                 })
-            })
+           // })
         })
     })
 }
@@ -584,21 +587,34 @@ function calcularDescuento1(){
     return new Promise(resolve =>{
         let descuento = $('#matrDescuento').val()
         if(descuento ==='Hijo de profesor (15%)' ||descuento === 'Hermano (15%)' || descuento === '15%'){
-            valorDescuento = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.15;
-            allValues.totalCuotas= valorDescuento
+            allValues.descuentoCuota1= allValues.montoPorCuota * 0.15;
+            montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
+            allValues.montoPorCuota = Math.floor(montoxCuota)
+            totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
+            allValues.totalCuotas= Math.floor(totalAllCuotas)
+          
             resolve()
         }else if(descuento ==='Ex alumno (5%)'){
-            valorDescuento = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.05;//o 0.5
-            allValues.totalCuotas= valorDescuento
+            allValues.descuentoCuota1= allValues.montoPorCuota * 0.05;
+            montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
+            allValues.montoPorCuota = Math.floor(montoxCuota)
+            totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
+            allValues.totalCuotas= Math.floor(totalAllCuotas)
             resolve()
         
         }else if(descuento ==='Director (10%)' || descuento === '10%'){
-            valorDescuento = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.10;
-            allValues.totalCuotas= valorDescuento
+            allValues.descuentoCuota1= allValues.montoPorCuota * 0.10;
+            montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
+            allValues.montoPorCuota = Math.floor(montoxCuota)
+            totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
+            allValues.totalCuotas= Math.floor(totalAllCuotas)
             resolve()
         }else if(descuento ==='20%'){
-            valorDescuento = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.20;
-            allValues.totalCuotas= valorDescuento
+            allValues.descuentoCuota1= allValues.montoPorCuota * 0.20;
+            montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
+            allValues.montoPorCuota = Math.floor(montoxCuota)
+            totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
+            allValues.totalCuotas= Math.floor(totalAllCuotas)
             resolve()
         }else{
             resolve()
@@ -609,21 +625,35 @@ function calcularDescuento2(){
     return new Promise(resolve =>{
         let descuento2 = $('#matrDescuento2').val()
         if(descuento2 ==='Hijo de profesor (15%)' ||descuento2 === 'Hermano (15%)' || descuento2 === '15%'){
-            valorDescuento2 = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.15;
-            allValues.totalCuotas= valorDescuento2
+            
+            montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.15
+            allValues.montoPorCuota = Math.floor(montoxCuotas)
+            totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
+            allValues.totalCuotas= Math.floor(totalAllCuota)
+
+           /* allValues.montoPorCuota = (allValues.montoPorCuota - allValues.descuentoCuota2)
+            allValues.totalCuotas = (allValues.cantidadCuotas * allValues.montoPorCuota )
+            console.log('monto total',allValues.totalCuotas) */
+           
             resolve()
         }else if(descuento2 ==='Ex alumno (5%)'){
-            valorDescuento2 = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.05;//o 0.5
-            allValues.totalCuotas= valorDescuento2
+            montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.05
+            allValues.montoPorCuota = Math.floor(montoxCuotas)
+            totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
+            allValues.totalCuotas= Math.floor(totalAllCuota)
             resolve()
         
         }else if(descuento2 ==='Director (10%)' || descuento2 === '10%'){
-            valorDescuento2 = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.10;
-            allValues.totalCuotas= valorDescuento2
+            montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.10
+            allValues.montoPorCuota = Math.floor(montoxCuotas)
+            totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
+            allValues.totalCuotas= Math.floor(totalAllCuota)
             resolve()
         }else if(descuento2 ==='20%'){
-            valorDescuento2 = (allValues.totalCuotas)-(allValues.totalCuotas)* 0.20;
-            allValues.totalCuotas= valorDescuento2
+            montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.20
+            allValues.montoPorCuota = Math.floor(montoxCuotas)
+            totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
+            allValues.totalCuotas= Math.floor(totalAllCuota)
             resolve()
         }else{
             resolve()
@@ -634,7 +664,7 @@ function calcularDescuento2(){
 function calcularMontoTotal(){
     $('#matrValor').val(allValues.valorMatricula)
     $('#matrNumCuotas').val(allValues.cantidadCuotas)
-    $('#matrMontoCuota').val(allValues.montoPorCuota)
+    $('#matrMontoCuota').val(Math.floor(allValues.montoPorCuota))
     $('#matrTotalCuotas').val(Math.floor(allValues.totalCuotas))
     let montoTotalFinish =  (allValues.totalCuotas+allValues.valorMatricula)
     $('#matrMontoTotal').val(Math.floor(montoTotalFinish))
@@ -648,7 +678,6 @@ function wayToPay(){
         if (selectedTypePay === 'Contado') {
             typePayStatus = 1;
 
-          
            allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.20;
            allValues.montoPorCuota = allValues.totalCuotas;
            allValues.cantidadCuotas = 1
@@ -711,7 +740,8 @@ function quotaValues (){
 
 
                 allValues.valorMatricula = matrScore;
-                allValues.montoPorCuota= valNormal;
+                allValues.montoPorCuota = valNormal;
+              
                 
                 resolve()
             }else{
@@ -728,7 +758,7 @@ function quotaValues (){
 
                 allValues.valorMatricula = matrScore;
                 allValues.montoPorCuota= valNormal;
-
+               
                 resolve()
             }
         });
@@ -810,7 +840,7 @@ $('#matrEgreso').on('change', function(){
         this.value = (this.value + '').replace(/[^0-9]/g, ''); 
         });
     });
-    //validar valor maximo y minimo
+   
 
   
 //GUARDAR MATRICULA
