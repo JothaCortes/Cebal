@@ -904,7 +904,9 @@ $('#matrEgreso').on('change', function(){
                 type: 'success',
                 timer: 60000
                 }).then(result => {
+                    $('#modalEstudiantes').modal('hide')
                     reloadRepairTableAlumnos()
+
                 })
             })
         })
@@ -1001,7 +1003,6 @@ $('#agregarEstudiante').on('click', function () {
                             <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
                             <input type="file"  accept="image/*" class="form-control-file" id="matrImage">
                         </div>
-
                     </div>
                 </div>    
                 <div class="card" style="margin-top:3px">
@@ -1089,29 +1090,22 @@ $('#fechaNuevoAlumno').daterangepicker({
                 this.value = '';
         }
     })
-    //validar rut  
-    $(document).ready(function(){
-        $('#rutNuevoAlumno').focus
-        $('#rutNuevoAlumno').on('keyup', function(){
-            this.value = rutFunc (this.value)
-            $('#guardarNuevoAlumno2').prop('disabled', false);
-        })
-    });
-        function rutFunc (rut){
-            return $.formatRut(rut)
-        }
-        function cleanRut(rut){
-            var replace1 = rut.split('.').join('');
-            var replace2 = replace1.replace('-', '');
-            return replace2;
-        }
+
+    function rutFunc (rut){
+        return $.formatRut(rut)
+    }
+    function cleanRut(rut){
+        var replace1 = rut.split('.').join('');
+        var replace2 = replace1.replace('-', '');
+        return replace2;
+    }
     //validar rut 
     $('#rutNuevoAlumno').on('keyup', function(){
         let rut  = $('#rutNuevoAlumno').val()
-        if($.validateRut(rut)) {
-            console.log("rut valido")
+        if($.validateRut(rut) && rut.length>5) {
+            $('#guardarNuevoAlumno2').prop('disabled', false);
         }else{
-            console.log("Ingrese un rut válido");
+            $('#guardarNuevoAlumno2').prop('disabled', true);
         }
     })
     $('#limpiarNuevoAlumno').on('click', function () {
@@ -1127,13 +1121,14 @@ $('#fechaNuevoAlumno').daterangepicker({
         $('#parentescoApoderado').val('')
         $('#trabajoApoderado').val('')
         $('#celularApoderado').val('')
+        $('#correoApoderado').val('')
         $('#rutNuevoAlumno').focus()
     })
 
     $('#guardarNuevoAlumno2').on('click', function () {
         //Variables desde modal
             let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
-            let nuevoAlumnoCiudad    =$('#ciudadNuevoAlumno').val()
+            let nuevoAlumnoCiudad    = $('#ciudadNuevoAlumno').val()
             let nuevoAlumnofecha     = $('#fechaNuevoAlumno').val()
             let nuevoAlumnoNombre    = $('#nombreNuevoAlumno').val()
             let nuevoAlumnoApellido1 = $('#apellido1NuevoAlumno').val()
@@ -1145,7 +1140,7 @@ $('#fechaNuevoAlumno').daterangepicker({
             let apoderadoParentesco  = $('#parentescoApoderado').val()
             let apoderadoTrabajo     = $('#trabajoApoderado').val()
             let apoderadoCelular     = $('#celularApoderado').val()
-            let apoderadoCorreo      =$('#correoApoderado').val()
+            let apoderadoCorreo      = $('#correoApoderado').val()
         //fin variables
             ajax({
                 url: '/api/nuevoalumno',

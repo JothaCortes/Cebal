@@ -31,17 +31,16 @@
     border-color: #FF7518;
 }
 .card-header{
-        background-color: #c9cfe8;
-        color:#333333;
-        padding: 0.2rem 1.25rem;
-    }
+    background-color: #9dacea;
+    color:#333333;
+    padding: 0.2rem 1.25rem;
+  }
+  
     
 .h5{
     margin-bottom: 0rem;
 }
-.card{
-    border-color: #9bafe8;
-}
+
 </style>
 {{/extend}}
 <div class="col-md-12" >
@@ -366,25 +365,16 @@ $('#closeMatrStudentEnrolled').on('click', function(){
           }    
         }).done(function(data) {
 		if (data.ok) {
-               /* createLog({
-                    form: 'Clientes',
-                    desc: 'Se cambió el estado del cliente '+ selectedClientRut +' ('+selectedClientData.name+') de habilitado a deshabilitado'
-                }); */
-
                 alumosRowSelectedData.remove().draw();
-
                 var newRowAdded = datatable2.row.add( {
                     "name": selectedClientData.name,
                     "rut": selectedClientData.rut
                 }).draw().node();
-
-
                 $( newRowAdded ).css( 'color', '#f1c40f' );
 
                 setTimeout(function() {
                     $( newRowAdded ).css( 'color', 'black' );
                 }, 6000);
-
                 $('#modButton').prop('disabled', true);
                 $('#desButton').prop('disabled', true);
                 swal(
@@ -631,7 +621,7 @@ function opcionesModal() {
         })
         $('#printPDF').on('click', function () {
             var doc = new jsPDF();
-
+            doc.setDrawColor(0, 0, 0);
             doc.setFontSize(16);
             doc.setFontType("bold")
             doc.text(85,50,"Ficha de Matrícula");
@@ -765,10 +755,11 @@ function opcionesModal() {
     })
     function pagosModal() { 
     let maxCuotas = alumosRowSelectedData.numCuotas
+    let montoTotal = 0
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Pago de cuotas');
       $('#modal_body').html(`
-        <div class="card border-primary mb-12" style="max-width: 50rem;">
+        <div class="card  mb-12" style="max-width: 50rem;">
             <div class="card-header"><h5>Datos estudiante</h5></div>
             <div class="card-body">
                 <div class="row">
@@ -794,7 +785,7 @@ function opcionesModal() {
         </div>
                 
 
-        <div class="card border-primary mb-12" style="max-width: 50rem;margin-top:10px" >
+        <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
             <div class="card-header"><h5>Cancelación de cuotas</h5></div>
             <div class="card-body">
                 <div class="row">
@@ -838,7 +829,15 @@ function opcionesModal() {
         </div>
         </div>
       `)
+      pags()
+      function pagos (){
 
+      }
+       let tipoPago = $('#payment').val()
+       let nCuotas  = $('#numCuotas').val()
+       let Monto    = $('#amount').val()
+       let nBoleta  = $('#ticket').val()
+       let datePago = $('#initDate').val()
       //habilitar y deshabilitar input
         $('#payment').on('change', function (e){
             let TypePayment  = $('#payment').val();

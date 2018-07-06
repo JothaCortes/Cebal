@@ -80,28 +80,28 @@ const Joined = [
     path: '/api/nuevaMatricula',
     options: {
         handler: (request, h) => {
-            let rutAlumno          = request.payload.rutAlumno;
-            let colegio       =request.payload.colegio;
-            let estadoEgreso     = request.payload.estadoEgreso;
-            let beca       = request.payload.beca ;
-            let añoEgreso    = request.payload.añoEgreso;
-            let curso    = request.payload.curso;
+            let rutAlumno      = request.payload.rutAlumno;
+            let colegio        =request.payload.colegio;
+            let estadoEgreso   = request.payload.estadoEgreso;
+            let beca           = request.payload.beca ;
+            let añoEgreso      = request.payload.añoEgreso;
+            let curso          = request.payload.curso;
             let promedio       = request.payload.promedio;
-            let horario      = request.payload.horario;
-            let electivo    = request.payload.electivo;
-            let electivo2     = request.payload.electivo2;
+            let horario        = request.payload.horario;
+            let electivo       = request.payload.electivo;
+            let electivo2      = request.payload.electivo2;
             let fechaMatricula = request.payload.fechaMatricula;
-            let diaCobro    = request.payload.diaCobro;
-            let tipoCurso    = request.payload.tipoCurso;
+            let diaCobro       = request.payload.diaCobro;
+            let tipoCurso      = request.payload.tipoCurso;
 
-            let formaPago    = request.payload.formaPago;
-            let descuento    = request.payload.descuento;
-            let descuento2    = request.payload.descuento2;
-            let valorMatricula   = request.payload.valorMatricula;
-            let numCuotas    = request.payload.numCuotas;
-            let montoCuota    = request.payload.montoCuota;
+            let formaPago      = request.payload.formaPago;
+            let descuento      = request.payload.descuento;
+            let descuento2     = request.payload.descuento2;
+            let valorMatricula = request.payload.valorMatricula;
+            let numCuotas      = request.payload.numCuotas;
+            let montoCuota     = request.payload.montoCuota;
             let totalCuotas    = request.payload.totalCuotas;
-            let montoTotal    = request.payload.montoTotal;
+            let montoTotal     = request.payload.montoTotal;
             
             return new Promise(resolve => {
                 db.find({
@@ -141,7 +141,7 @@ const Joined = [
                         student.status = 'enrolled'
                         db.insert(student, function (errUpdate, body) {
                             if (errUpdate) throw errUpdate;
-                            resolve({ ok: student });
+                            resolve({ ok: 'Estudiante Matriculado Correctamente' });
                         });
                     } else {
                        resolve({ err: 'no se encuentra el alumno' });
