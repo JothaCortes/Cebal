@@ -170,7 +170,7 @@ function modalNewCourse() {
     <div class="row">
         <div class="offset-md-2 col-md-8">
             <label><i class="fas fa-users"></i> Nombre</label>
-            <input id="nameCourse" type="text" class="form-control border-input">
+            <input id="nameCourse" type="text" class="form-control border-input" placeholder="Ingrese nombre del curso">
         </div>
             <div class="offset-md-2 col-md-8" style="margin-top:10px;">
                 <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
@@ -184,11 +184,8 @@ function modalNewCourse() {
             </div>
             <div class="offset-md-2 col-md-8" style="margin-top:10px;">
                 <label style="float:left;"><i class="fas fa-clock"></i> Horario</label>
-                    <select class="form-control" id="horaryCourse">
-                        <option selected="true" disabled="disabled">seleccione</option>
-                        <option>INT DIA</option>
-                        <option>INT MAÑANA</option>
-                        <option>11:45</option>
+                    <select id="selectHorario">
+                        <option></option>
                     </select>
             </div>
            
@@ -200,10 +197,40 @@ function modalNewCourse() {
             </div>
         </div>       
     `)
+    let selects = {
+        horario: [],
+    }
+    ajax({ // cargar horarios
+    url:'/api/horariosCoursesTraer'
+    }).then(res => {
+        console.log(res)
+        selects.place = res.filter(function(el) {
+            return el.place == '{{{credentials.place}}}'
+        })
+        console.log(selects.place)
+        let horario = selects.place.reduce((arr, el, i) => {
+            return arr.concat({
+                id: i,
+                text: el.horary
+            })   
+        }, []);
+
+        $('#selectHorario').select2({
+            placeholder:'seleccione',
+            width:'100%',
+            data: horario
+        });
+    }); 
+//fin horario
+    $('#cancelCourse').on('click', function () {
+        $('#modalCourses').modal('hide')
+    })
+    
     $('#saveCourse').on('click', function () {
         let nameCourse   = $('#nameCourse').val()
         let yearCourse   = $('#yearCourse').val()
-        let horaryCourse = $('#horaryCourse').val()
+        let horaryCourse = $('#selectHorario').select2('data')[0].text;
+        console.log(horaryCourse)
         ajax({
             url: '/api/newCourse',
             type: 'POST',
@@ -222,7 +249,8 @@ function modalNewCourse() {
                 type: 'success',
                 timer: 60000
                 }).then(result => {
-                    //reloadRepairTableAlumnos()
+                    reloadTableCourse()
+                    $('#modalCourses').modal('hide')
                 })
             })
     })
@@ -262,6 +290,76 @@ $('#deletCourse').on('click', function(){
       }
     });
 })
+//MODIFICAR UN CURSO
+$('#modCourse').on('click', function () {
+    modalModCourse();
+})
+
+function modalModCourse() { 
+    $('#modalCourses').modal();
+    $('#modal_title').text('Modificar curso');
+    $('#modal_body').html(`
+    <div class="row">
+        <div class="offset-md-2 col-md-8">
+            <label><i class="fas fa-users"></i> Nombre</label>
+            <input id="nameModCourse" type="text" class="form-control border-input" value="${cursosRowSelectedData.name}">
+        </div>
+            <div class="offset-md-2 col-md-8" style="margin-top:10px;">
+                <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
+                <input id="yearModCourse" type="text" class="form-control border-input" value="${cursosRowSelectedData.year}">
+            </div>
+            <div class="offset-md-2 col-md-8" style="margin-top:10px;">
+                <label style="float:left;"><i class="fas fa-clock"></i> Horario</label>
+                <input id="horaryModCourse" type="text" class="form-control border-input" value="${cursosRowSelectedData.horary}" readOnly>
+            </div>
+           
+            <div class="offset-md-5 col-md-3" style="margin-top:10px;">
+                <button id="cancelModCourse" type="button" class="btn btn-danger"><i class="fas fa-ban"></i> Cancelar</button>
+            </div>
+            <div class="col-md-3" style="margin-top:10px">
+                <button id="modificarCurso" type="button" class="btn btn-primary"><i class="fas fa-cloud"></i> Modificar</button>
+            </div>
+        </div>       
+    `)
+    $('#modificarCurso').on('click', function () {
+        let mod_name   = $('#nameModCourse').val();
+        let mod_year   = $('#yearModCourse').val();
+        let mod_horary = $('#horaryModCourse').val();
+
+        ajax({
+            url: 'api/modCourses',
+            type: 'POST',
+            data: {
+                id: cursosRowSelectedData._id,
+                name: mod_name,
+                year: mod_year,
+                horary: mod_horary,
+            }
+        }).then(res => {
+            if (res.error) {
+                toastr.error(res.error)
+            } else {
+                swal({
+                    title: 'Curso modificado correctamente!',
+                    text: res.ok,
+                    backdrop: 'static',
+                    keyboard: false,
+                    type: 'success',
+                    timer: 3000
+                }).then(result => {
+                    $('#modCourse').prop('disabled', true);
+                    $('#deletCourse').prop('disabled', true);
+                    $('#modalCourses').modal('hide')
+                    reloadTableCourse()
+                })
+            }
+        })
+    });
+    $('#cancelModCourse').on('click', function () {
+        $('#modalCourses').modal('hide')
+    })
+    
+};
     
 </script>
 {{/extend}}

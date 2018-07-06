@@ -117,6 +117,93 @@ const Courses = [
         })
       }
     }
-  }
+},
+//MODIFICAR UN CURSO
+{
+    method: 'POST',
+    path: '/api/modCourses',
+    options: {
+        handler: (request, h) => {
+            let id = request.payload.id;
+            let name = request.payload.name;
+            let year = request.payload.year;
+            let horary = request.payload.horary;
+            let modCourseObj = {};
+
+            return new Promise(resolve => {
+                db.find({
+                    "selector": {
+                        "_id": id,
+                        "type": "courses",
+                        "status": "enabled",
+                    },
+                    "limit": 1
+                }, function (err, result) {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        modCourseObj = result.docs[0];
+                        modCourseObj.name = name;
+                        modCourseObj.year = year;
+                        modCourseObj.horary = horary;
+
+                        db.insert(modCourseObj, function (errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+
+                            resolve({ ok: 'Curso ' + modCourseObj.name + ' modificado correctamente' });
+                        });
+                    } else {
+                        resolve({ error: 'El horario ' + name + ' no existe' });
+                    }
+                });
+            });
+        },
+        validate: {
+            payload: Joi.object().keys({
+                id: Joi.string(),
+                name: Joi.string(),
+                year: Joi.string(),
+                horary: Joi.string()
+            })
+        }
+    }
+},
+//Obtener Horarios 
+{ 
+    method: 'GET',
+    path: '/api/horariosCoursesTraer', 
+    options: {
+        handler: (request, h) => {
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'type': 'horarios',
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                                year: el.year,
+                                place: el.place,
+                                horary: el.horary
+                            })
+                        }, []) 
+
+                        resolve(res);
+                    } else {
+                        resolve({ err: 'no existen horarios' });
+                    }
+                });
+            });
+        }
+    }
+},
+
 ];
 export default Courses;

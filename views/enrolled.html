@@ -757,10 +757,14 @@ function opcionesModal() {
 
      })
     };
+
+
     $('#pagosEnrolled').on('click', function(){
         pagosModal();
+
     })
     function pagosModal() { 
+    let maxCuotas = alumosRowSelectedData.numCuotas
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Pago de cuotas');
       $('#modal_body').html(`
@@ -774,15 +778,15 @@ function opcionesModal() {
                     </div>
                     <div class="col-md-4">
                         <label style="float:left;"><i class="fa fa-key"></i> Cuotas</label>
-                        <input id="modRut" type="text" value="${alumosRowSelectedData.numCuotas}"  required class="form-control border-input" readOnly>
+                        <input id="cuotasPorPagar" type="text" value="${alumosRowSelectedData.numCuotas}"  required class="form-control border-input" readOnly>
                     </div>
                     <div class="col-md-4">
                         <label style="float:left;"><i class="fa fa-key"></i> Valor cuota</label>
-                        <input id="modRut" type="text" value="${alumosRowSelectedData.montoCuota}"  required class="form-control border-input" readOnly>
+                        <input id="x" type="text" value="${alumosRowSelectedData.montoCuota}"  required class="form-control border-input" readOnly>
                     </div>
                     <div class="col-md-4">
                         <label style="float:left;"><i class="fa fa-key"></i> Total restante</label>
-                        <input id="modRut" type="text" value="${alumosRowSelectedData.montoTotal}"  required class="form-control border-input" readOnly>
+                        <input id="x" type="text" value="${alumosRowSelectedData.montoTotal}"  required class="form-control border-input" readOnly>
                     </div>
                 </div>
             </div>
@@ -805,18 +809,7 @@ function opcionesModal() {
                     </div>
                     <div class="col-md-4">
                         <label><i class="fas fa-list-ol"></i> N° Cuotas</label>
-                        <select class="form-control" id="dues" disabled>
-                            <option selected="true" disabled="disabled">seleccione</option>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                            <option>6</option>
-                            <option>7</option>
-                            <option>8</option>
-                            <option>9</option>
-                        </select>
+                        <input class="form-control" id="numCuotas" type="number" max="${maxCuotas}" min="1" onKeyPress="if(this.value.length==1) return false;" placeholder="Ej: ${maxCuotas}">
                     </div>
                     <div class="col-md-4"> 
                         <label><i class="fas fa-money-check-alt"></i> Monto</label>
@@ -845,6 +838,7 @@ function opcionesModal() {
         </div>
         </div>
       `)
+
       //habilitar y deshabilitar input
         $('#payment').on('change', function (e){
             let TypePayment  = $('#payment').val();

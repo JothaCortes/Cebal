@@ -65,7 +65,7 @@
                 </div>
     
                 <div class="col-md-4" style="margin-top:15px;">
-                    <button id="x" class="btn btn-success btn-block" ><i class="fas fa-edit"></i> Modificar</button>
+                    <button id="modCuotas" class="btn btn-success btn-block" ><i class="fas fa-edit"></i> Modificar</button>
                 </div>
             </div>
         </div>   
@@ -251,15 +251,19 @@
                 return el.score == score;
             })[0]
         }
+//modificar valores de cuotas
+$('#modCuotas').on('click', function () {
+        let mod_estado = $('#selectEstado').select2('data')[0].text;
+        let mod_nota   = $('#selectNota').select2('data')[0].text;
+        let mod_valor  = $('#selectValor').val();
 
-    /*$('#modValores').on('click', function () {
-        //Variables desde modal
-        let valoresMatricula  = $('#selectValor').val()
         ajax({
-            url: 'api/modValues',
+            url: 'api/modValoresCuotas',
             type: 'POST',
             data: {
-                valores: valoresMatricula
+                status: mod_estado,
+                score: mod_nota,
+                price: mod_valor
             }
         }).then(res => {
             if (res.error) {
@@ -273,12 +277,12 @@
                     type: 'success',
                     timer: 3000
                 }).then(result => {
-                    //$('#satModal').modal('hide')
-                   // reloadRepairTableClient()
+                   
                 })
             }
         })
-    });*/
+    });
+
 $('#newHorario').on('click', function () {
     modalNewHorario();
 })
