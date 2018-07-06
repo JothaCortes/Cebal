@@ -24,8 +24,8 @@
         </ul>
     <div class="tab-content" id="pills-tabContent">
         <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
-                <div class="row">
-                    <div class="col-md-2 col-xs-12">
+            <div class="row">
+                <div class="col-md-2 col-xs-12">
                         <br>
                         <button class="btn btn-primary btn-block" id="newCourse" style="margin-top: 20px">
                             <i class="fa fa-plus"></i> Agregar
@@ -56,7 +56,7 @@
                             </center>
                         </div>
                     </div>    
-                </div>
+            </div>
         </div>
     
     
@@ -65,7 +65,43 @@
                 <div class="tab-content">
                     <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
                         <div class="row">
-                            PRUEBA     
+                            <div class="col-md-2 col-xs-12">
+                                <br>
+                                <button class="btn btn-primary btn-block" id="asignar" style="margin-top: 20px" disabled>
+                                    <i class="fa fa-plus"></i> Asignar
+                                </button>
+                                <br>
+                                <button class="btn btn-success btn-block" id="x" disabled>
+                                    <i class="fas fa-edit"></i> Modificar
+                                </button>
+                                <br>
+                                <button class="btn btn-danger btn-block" id="x" disabled>
+                                    <i class="fas fa-ban"></i> Eliminar
+                                </button>
+                            </div>
+                            <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                                <table id="tableAlumnosAsignar" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Rut</th>
+                                            <th>Nombre</th>
+                                            <th>Apellidos</th>
+                                            <th></th>
+                                            <th>Horario</th>
+                                            <th>Tipo</th>
+                                            <th>Promedio</th>
+                                            <th>Colegio</th>
+                                            <th>Electivo</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div id="loadingCourseAsignar">
+                                    <center>
+                                        <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                                        <span class="sr-only">Cargando...</span>
+                                    </center>
+                                </div>
+                            </div>    
                         </div>
                     </div>
                 </div> 
@@ -97,9 +133,73 @@ let datatableCourse;
 let cursosRowSelectedData;
 let coursesRowSelected;
 
+let datatableAlumnosEnrolled;
+let alumosRowSelectedData;
+
 jQuery(document).ready(function ($) {
     chargeTableCourses();
+    chargeTableAlumnos()
 });
+//cargar alumnos enrolled en dataTable
+    function chargeTableAlumnos() {
+        datatableAlumnosEnrolled = $('#tableAlumnosAsignar')
+        .DataTable({            
+                    "iDisplayLength": 100,
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "responsive": true,
+                    "columns": [
+                        { "data": "_id"},
+                        { "data": "name" },
+                        { "data": "lastname1"},
+                        { "data": "lastname2"},
+                        { "data": "horario"},
+                        { "data": "tipoCurso"},
+                        { "data": "promedio"},
+                        { "data": "colegio"},
+                        { "data": "electivo"}               
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/alumnosAsignar'
+                    }).then(res => {
+                        if (res.err) {
+                            toastr.warning('No existen Alumnos')
+                        } else {
+                            datatableAlumnosEnrolled.rows.add(res).draw();
+                            $('#loadingCourseAsignar').empty();
+                        }      
+                    })
+                }
+        });   
+        
+     $('#tableAlumnosAsignar tbody').on('click', 'tr', function () {
+        
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            $('#asignar').prop('disabled', true);
+        } else {
+            $(this).addClass('selected');
+            alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
+            console.log(alumosRowSelectedData)
+            $('#asignar').prop('disabled', false);
+        }
+    });
+}
+    function reloadTableCourse() {
+        ajax({
+            url: 'api/alumnosAsignar'
+        }).then(res => {
+            if (res.err) {
+                toastr.warning('No existen cursos')
+            } else {
+                datatableAlumnosEnrolled.clear().draw();
+                datatableAlumnosEnrolled.rows.add(res).draw();
+            }
+        })
+    }
+//cargar cursos en dataTable
     function chargeTableCourses() {
         datatableCourse = $('#tableCourses')
         .DataTable({            
@@ -162,6 +262,16 @@ function reloadTableCourse() {
 $('#newCourse').on('click', function () {
     modalNewCourse();
 })
+
+$('#asignar').on('click', function () {
+    modalAsignarCurso();
+})
+function modalAsignarCurso() { 
+    $('#modalCourses').modal();
+    $('#modal_title').text('Asignar curso');
+    $('#modal_body').html(`
+    
+    `)}
 
 function modalNewCourse() { 
     $('#modalCourses').modal();

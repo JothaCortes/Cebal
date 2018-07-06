@@ -477,13 +477,14 @@ function modalMatrAlumnos() {
                                         <option selected="true" disabled="disabled">seleccione</option>
                                         <option>Efectivo</option>
                                         <option>Cheque</option>
+                                        <option>Transferencia</option>
                                     </select> 
                                 </div>
                                 <div class="col-md-4">
                                     <label><i class="fas fa-graduation-cap"></i> N° Boleta</label>
                                 </div>
                                 <div class="col-md-6" style="margin-top: 0px">
-                                    <input id="x" type="text" class="form-control border-input">
+                                    <input id="boleta" type="text" class="form-control border-input">
                                 </div>
                             </div>
                         </div>
@@ -498,13 +499,27 @@ function modalMatrAlumnos() {
             </div>
 
             <div class="col-md-3" style="margin-top:15px;">
-                <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
+                <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
             </div>
         </div>
         </div>    
     </div>
       `)
 generalFunction()
+
+
+$('#boleta').on('change', function (e){
+    saveTicket()
+})
+
+function saveTicket(){
+    let ticket = $('#boleta').val()
+    if(ticket === ''){
+        $('#guardarNuevoAlumno2').prop('disabled', true)
+    }else{
+        $('#guardarNuevoAlumno2').prop('disabled', false)
+    }
+}
 
 function generalFunction(){
     quotaValues().then(res => {
@@ -904,7 +919,9 @@ $('#matrEgreso').on('change', function(){
                 type: 'success',
                 timer: 60000
                 }).then(result => {
+                    $('#modalEstudiantes').modal('hide')
                     reloadRepairTableAlumnos()
+
                 })
             })
         })
@@ -999,9 +1016,8 @@ $('#agregarEstudiante').on('click', function () {
                         </div>
                         <div class="col-md-4" style="margin-top:3px;">
                             <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
-                            <input type="file"  accept="image/*" class="form-control-file" id="matrImage">
+                            <input type="file" accept="image/*" class="form-control-file" id="matrImage">
                         </div>
-
                     </div>
                 </div>    
                 <div class="card" style="margin-top:3px">
@@ -1089,29 +1105,22 @@ $('#fechaNuevoAlumno').daterangepicker({
                 this.value = '';
         }
     })
-    //validar rut  
-    $(document).ready(function(){
-        $('#rutNuevoAlumno').focus
-        $('#rutNuevoAlumno').on('keyup', function(){
-            this.value = rutFunc (this.value)
-            $('#guardarNuevoAlumno2').prop('disabled', false);
-        })
-    });
-        function rutFunc (rut){
-            return $.formatRut(rut)
-        }
-        function cleanRut(rut){
-            var replace1 = rut.split('.').join('');
-            var replace2 = replace1.replace('-', '');
-            return replace2;
-        }
+
+    function rutFunc (rut){
+        return $.formatRut(rut)
+    }
+    function cleanRut(rut){
+        var replace1 = rut.split('.').join('');
+        var replace2 = replace1.replace('-', '');
+        return replace2;
+    }
     //validar rut 
     $('#rutNuevoAlumno').on('keyup', function(){
         let rut  = $('#rutNuevoAlumno').val()
-        if($.validateRut(rut)) {
-            console.log("rut valido")
+        if($.validateRut(rut) && rut.length>5) {
+            $('#guardarNuevoAlumno2').prop('disabled', false);  
         }else{
-            console.log("Ingrese un rut válido");
+            $('#guardarNuevoAlumno2').prop('disabled', true);
         }
     })
     $('#limpiarNuevoAlumno').on('click', function () {
@@ -1127,13 +1136,14 @@ $('#fechaNuevoAlumno').daterangepicker({
         $('#parentescoApoderado').val('')
         $('#trabajoApoderado').val('')
         $('#celularApoderado').val('')
+        $('#correoApoderado').val('')
         $('#rutNuevoAlumno').focus()
     })
 
     $('#guardarNuevoAlumno2').on('click', function () {
         //Variables desde modal
             let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
-            let nuevoAlumnoCiudad    =$('#ciudadNuevoAlumno').val()
+            let nuevoAlumnoCiudad    = $('#ciudadNuevoAlumno').val()
             let nuevoAlumnofecha     = $('#fechaNuevoAlumno').val()
             let nuevoAlumnoNombre    = $('#nombreNuevoAlumno').val()
             let nuevoAlumnoApellido1 = $('#apellido1NuevoAlumno').val()
@@ -1145,14 +1155,18 @@ $('#fechaNuevoAlumno').daterangepicker({
             let apoderadoParentesco  = $('#parentescoApoderado').val()
             let apoderadoTrabajo     = $('#trabajoApoderado').val()
             let apoderadoCelular     = $('#celularApoderado').val()
-            let apoderadoCorreo      =$('#correoApoderado').val()
+            let apoderadoCorreo      = $('#correoApoderado').val()
+
+            let img = $('#matrImage').val()
+
+            console.log(img)
         //fin variables
             ajax({
                 url: '/api/nuevoalumno',
                 type: 'POST',
                 data: {
                     rutalumno:           nuevoAlumnoRut,
-                    ciudadAlumno:       nuevoAlumnoCiudad,
+                    ciudadAlumno:        nuevoAlumnoCiudad,
                     fechaAlumno:         nuevoAlumnofecha,
                     nombreAlumno:        nuevoAlumnoNombre,
                     apellido1Alumno:     nuevoAlumnoApellido1,
@@ -1165,20 +1179,25 @@ $('#fechaNuevoAlumno').daterangepicker({
                     trabajoApoderado:    apoderadoTrabajo,
                     celularApoderado:    apoderadoCelular,
                     correoApoderado:     apoderadoCorreo
+                   // img:                 img
                 }
             }).then(res => {
                 console.log(res)
-               	swal({
-                    title: 'Agregado!',
-                    backdrop: 'static', 
-                    keyboard: false,
-                    text: res.ok,
-                    type: 'success',
-                    timer: 60000
-                 }).then(result => {
+                if(res.ok) {
+                    swal({
+                        title: 'Agregado!',
+                        backdrop: 'static', 
+                        keyboard: false,
+                        text: `El alumno ${res.ok.name} ${res.ok.lastname1} agregado correctamente.`,
+                        type: 'success',
+                        timer: 60000
+                    }).then(result => {
                         reloadRepairTableAlumnos()
                         $('#modalEstudiantes').modal('hide')
                     })
+                } else {
+                    toastr.warning(res.err)
+                }	
             })
         })
     };

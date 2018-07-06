@@ -8,7 +8,6 @@ let db = cloudant.db.use(configEnv.db)
 
 
 const Joined = [
-// agregar Alumno Cebal
 { 
     method: 'POST',
     path: '/api/queryrut',
@@ -27,8 +26,7 @@ const Joined = [
 
                     if (result.docs[0]) {
                         console.log('rut no disponible')
-                        console.log(res)
-                        resolve(res);
+                        resolve({ err: `El rut ${result.docs[0]._id} ya existe en el sistema` });
                     } else {
                         console.log('rut disponible')
                         resolve({ ok: 'rut disponible' });
@@ -62,6 +60,9 @@ const Joined = [
             let trabajoAp    = request.payload.trabajoApoderado;
             let celularAp    = request.payload.celularApoderado;
             let correoAp     = request.payload.correoApoderado;
+            //let img          = request.payload.img;
+
+            //console.log(img)
 
             let alumnObject = {
                 _id: clean(rut),
@@ -84,19 +85,33 @@ const Joined = [
             }
             
             return new Promise(resolve => {
-                db.insert(alumnObject, function (errUpdate, body) {
-                    if (errUpdate) throw errUpdate;
-                    resolve({ ok: 'Alumno ' + alumnObject.name + ' agregado correctamente' });
+                db.find({
+                    'selector': {
+                        '_id': clean(rut),
+                        'type': 'alumnos',
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        resolve({ err: `El rut ${result.docs[0]._id} ya existe en el sistema` });
+                    } else {
+                        db.insert(alumnObject, function (errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+                            resolve({ ok: alumnObject });
+                        });
+                    }
                 });
+    
             })   
         },
         validate: {
             payload: Joi.object().keys({
-                rutalumno: Joi.string().allow(''),
-                ciudadAlumno:Joi.string().allow(''),
+                rutalumno: Joi.string().required(),
+                ciudadAlumno:Joi.string().required(),
                 fechaAlumno: Joi.string().allow(''),
-                nombreAlumno: Joi.string().allow(''),
-                apellido1Alumno: Joi.string().allow(''),
+                nombreAlumno: Joi.string().required(),
+                apellido1Alumno: Joi.string().required(),
                 apellido2Alumno: Joi.string().allow(''),
                 correoAlumno: Joi.string().allow(''),
                 celularAlumno: Joi.string().allow(''),
@@ -105,7 +120,8 @@ const Joined = [
                 parentescoApoderado: Joi.string().allow(''),
                 trabajoApoderado: Joi.string().allow(''),
                 celularApoderado: Joi.string().allow(''), 
-                correoApoderado: Joi.string().allow('')
+                correoApoderado: Joi.string().allow(''),
+                //img: Joi.string().allow('')
             })
         }
     }
@@ -116,29 +132,28 @@ const Joined = [
     path: '/api/nuevaMatricula',
     options: {
         handler: (request, h) => {
-            let session         = request.auth.credentials;
-            let rutAlumno       = request.payload.rutAlumno;
-            let colegio         = request.payload.colegio;
-            let estadoEgreso    = request.payload.estadoEgreso;
-            let beca            = request.payload.beca ;
-            let añoEgreso       = request.payload.añoEgreso;
-            let curso           = request.payload.curso;
-            let promedio        = request.payload.promedio;
-            let horario         = request.payload.horario;
-            let electivo        = request.payload.electivo;
-            let electivo2       = request.payload.electivo2;
-            let fechaMatricula  = request.payload.fechaMatricula;
-            let diaCobro        = request.payload.diaCobro;
-            let tipoCurso       = request.payload.tipoCurso;
+            let rutAlumno      = request.payload.rutAlumno;
+            let colegio        = request.payload.colegio;
+            let estadoEgreso   = request.payload.estadoEgreso;
+            let beca           = request.payload.beca ;
+            let añoEgreso      = request.payload.añoEgreso;
+            let curso          = request.payload.curso;
+            let promedio       = request.payload.promedio;
+            let horario        = request.payload.horario;
+            let electivo       = request.payload.electivo;
+            let electivo2      = request.payload.electivo2;
+            let fechaMatricula = request.payload.fechaMatricula;
+            let diaCobro       = request.payload.diaCobro;
+            let tipoCurso      = request.payload.tipoCurso;
 
-            let formaPago       = request.payload.formaPago;
-            let descuento       = request.payload.descuento;
-            let descuento2      = request.payload.descuento2;
-            let valorMatricula  = request.payload.valorMatricula;
-            let numCuotas       = request.payload.numCuotas;
-            let montoCuota      = request.payload.montoCuota;
-            let totalCuotas     = request.payload.totalCuotas;
-            let montoTotal      = request.payload.montoTotal;
+            let formaPago      = request.payload.formaPago;
+            let descuento      = request.payload.descuento;
+            let descuento2     = request.payload.descuento2;
+            let valorMatricula = request.payload.valorMatricula;
+            let numCuotas      = request.payload.numCuotas;
+            let montoCuota     = request.payload.montoCuota;
+            let totalCuotas    = request.payload.totalCuotas;
+            let montoTotal     = request.payload.montoTotal;
             
             return new Promise(resolve => {
                 db.find({
@@ -176,14 +191,14 @@ const Joined = [
                                     montoTotal     :montoTotal
                                 }
                             }
-                            student.matricula = matriculaObject;
-                            student.status = 'enrolled'
-                            db.insert(student, function (errUpdate, body) {
-                                if (errUpdate) throw errUpdate;
-                                resolve({ ok: student });
-                            });
                         })
-                        
+
+                        student.matricula = matriculaObject;
+                        student.status = 'enrolled'
+                        db.insert(student, function (errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+                            resolve({ ok: 'Estudiante Matriculado Correctamente' });
+                        });
                     } else {
                        resolve({ err: 'no se encuentra el alumno' });
                     }
