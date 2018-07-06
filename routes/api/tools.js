@@ -3,6 +3,7 @@ import moment from 'moment-timezone'
 import fs from 'fs';
 import cloudant from '../../config/db.js';
 import configEnv from '../../config/env_status.js';
+import { validate, clean, format }  from 'rut.js'
 
 let db = cloudant.db.use(configEnv.db)
 
@@ -46,6 +47,7 @@ const Tools = [{ // todos los clientes habilitados
     path: '/api/tools/firstsearch',
     options: {
       handler: (request, h) => {
+        let session = request.auth.credentials;
         let type = request.payload.type;
         let val = request.payload.val;
         let query;
@@ -60,29 +62,32 @@ const Tools = [{ // todos los clientes habilitados
                             $gte: null
                         },
                         type: 'alumnos',
-                        email: val,
+                        email: val.replace(/ /g,''),
                         $not: {
                             status: 'disabled'
-                        }
-    
+                        },
+                        city: session.place
                     }
                 }
             } else if (type == 'rut') {
                 query = {
                     selector: {
-                        _id: val,
+                        _id: val.replace(/ /g,''),
                         type: 'alumnos',
                         $not: {
                             status: 'disabled'
-                        }
+                        },
+                        city: session.place
                     }
                 }
             } else {
+                /*
                 let splitval = val.split(' ');
     
                 let name = splitval[0];
                 let lastname = val.substr(val.indexOf(' ') + 1);
-                
+                */
+
                 //TODO: agregar busqueda de apellido en primer parámetro
                 query = {
                     selector: {
@@ -93,15 +98,21 @@ const Tools = [{ // todos los clientes habilitados
                         $or: [
                             {
                                 name: {
-                                    $regex: `(?i)${name}`
+                                    $regex: `(?i)${val}`
                                 }
                             },
                             {
-                                lastname: {
-                                    $regex: `(?i)${lastname}`,
+                                lastname1: {
+                                    $regex: `(?i)${val}`,
                                 }  
                             },
-                        ] 
+                            {
+                                lastname2: {
+                                    $regex: `(?i)${val}`,
+                                }  
+                            },
+                        ],
+                        city: session.place
                     }    
                 }  
             }

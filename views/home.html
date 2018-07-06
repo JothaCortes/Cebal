@@ -119,13 +119,14 @@
     </div>
 </div>
 
+
 {{#extend "js"}}
 <script>
 
 $('#searchbtn').on('click', function() {
     let searchval = $('#firstSearcher').val();
     let searchtype  = '';
-
+    
     if (isEmail(searchval)) {
         searchtype  = 'email';
     } else if ($.validateRut(searchval)) {
@@ -140,6 +141,7 @@ $('#searchbtn').on('click', function() {
     }
     
     if(searchtype) {
+        $('#searchbtn').attr('disabled', true);
         console.log(searchtype)
         console.log(searchval)
         $('#searchresults').html(`<center><i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><span class="sr-only">Loading...</span></center>`)
@@ -149,52 +151,66 @@ $('#searchbtn').on('click', function() {
             data: {type: searchtype, val: searchval}
         }).then(res=> {
             console.log(res)
-            $('#searchresults').html(`
-                <div class="jumbotron table-responsive">
-                    <a href="#" id="closeresults" style="float:right;"><i class="fas fa-times"></i></a>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Rut</th>
-                                <th scope="col">Nombre</th>
-                                <th scope="col">Email</th>
-                                <th scope="col">Estado</th>
-                                <th scope="col">Historial</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablebody">
-                        </tbody>
-                    </table>
-                </div>
-            `)
+            if(res.ok) {
+                $('#searchresults').html(`
+                    <div class="jumbotron table-responsive">
+                        <a href="#" id="closeresults" style="float:right;"><i class="fas fa-times"></i></a>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Rut</th>
+                                    <th scope="col">Nombre</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">Historial</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablebody">
+                            </tbody>
+                        </table>
+                    </div>
+                `)
 
-            let tableBodyHTML = res.ok.reduce((html, el, i) => {
-                console.log(el)
-                let statusicon = '';
+                let tableBodyHTML = res.ok.reduce((html, el, i) => {
+                    console.log(el)
+                    let statusicon = '';
 
-                switch (el.status) {
-                    case 'joined':
-                        statusicon = '<i class="fas fa-sign-in-alt"></i>'
-                        break;
-                    case 'enrolled':
-                        statusicon = '<i class="fas fa-address-book"></i>'
-                        break;
-                    default:
-                        break;
-                }
+                    switch (el.status) {
+                        case 'joined':
+                            statusicon = '<button class="btn btn-primary statusbtn"><i class="fas fa-sign-in-alt"></i></button>'
+                            break;
+                        case 'enrolled':
+                            statusicon = '<button class="btn btn-info statusbtn"><i class="fas fa-address-book"></i></button>'
+                            break;
+                        case 'disabled':
+                            statusicon = '<button class="btn btn-danger statusbtn"><i class="fas fa-times"></i></button>'
+                            break;
+                        case 'retired':
+                            statusicon = '<button class="btn btn-success statusbtn"><i class="fas fa-user-graduate"></i></button>'
+                            break;
+                        default:
+                            break;
+                    }
 
-                return html += `
-                    <tr>
-                        <th scope="row">${el._id}</th>
-                        <td>${el.name} ${el.lastname1}</td>
-                        <td>${el.email}</td>
-                        <td><button class="btn btn-primary statusbtn">${statusicon}</button></td>
-                        <td><button class="btn btn-dark"><i class="fas fa-book"></i></button></td>
-                    </tr>
-                `   
-            }, '');
+                    return html += `
+                        <tr>
+                            <th scope="row">${el._id}</th>
+                            <td>${el.name} ${el.lastname1}</td>
+                            <td>${el.email}</td>
+                            <td>${statusicon}</td>
+                            <td><button class="btn btn-dark"><i class="fas fa-book"></i></button></td>
+                        </tr>
+                    `   
+                }, '');
 
-            $('#tablebody').html(tableBodyHTML)
+                $('#tablebody').html(tableBodyHTML);
+                $('#searchbtn').attr('disabled', false);
+            } else {
+                toastr.warning('No se han encontrado alumnos');
+                $('#searchresults').empty();
+                $('#searchbtn').attr('disabled', false);
+            }
+            
         })
     } 
 })
