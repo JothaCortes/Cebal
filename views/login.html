@@ -112,7 +112,7 @@
 
 <script src="/public/js/bootstrap.min.js"></script>
 <script src="/public/js/jquery.min.js"></script>
-
+<script src="/public/js/jquery.rut.min.js"></script>
 
 
 <script>
@@ -120,6 +120,18 @@
 String.prototype.capitalize = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
+
+const rutFunc = (rut) => {
+    return $.formatRut(rut)
+}
+
+//validar rut 
+$('#rut').on('keyup', function(){
+    let rut  = $('#rut').val()
+    if($.validateRut(rut) && rut.length>5) {
+        $('#rut').val(rutFunc(rut))
+    }
+})
 
 </script>
 </body>

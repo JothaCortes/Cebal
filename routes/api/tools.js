@@ -71,9 +71,11 @@ const Tools = [{ // todos los clientes habilitados
                 }
             } else if (type == 'rut') {
                 let cleanRutSpaces = val.replace(/ /g,'')
+                let cleanRutVal = cleanRut(cleanRutSpaces)
+                console.log(cleanRutVal)
                 query = {
                     selector: {
-                        _id: clean(cleanRutSpaces),
+                        _id: cleanRutVal,
                         type: 'alumnos',
                         $not: {
                             status: 'disabled'
@@ -132,5 +134,12 @@ const Tools = [{ // todos los clientes habilitados
     }
 }, 
 ];
+
+
+const cleanRut = (rut) => {
+    var replace1 = rut.split('.').join('');
+    var replace2 = replace1.replace('-', '');
+    return replace2;
+}
 
 export default Tools

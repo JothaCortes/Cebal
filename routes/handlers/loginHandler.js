@@ -1,6 +1,7 @@
 import md5       from 'md5'
 import cloudant  from '../../config/db.js'
 import configEnv from '../../config/env_status.js'
+import { validate, clean, format }  from 'rut.js'
 
 let db = cloudant.db.use(configEnv.db)
 let uuid = 1
@@ -8,7 +9,7 @@ const findUser = async (rut, password) => {
     return new Promise((resolve) => {
         db.find({
             selector: {
-                _id: rut,
+                _id: clean(rut),
                 password: password,
                 status: 'enabled',
                 type: 'user'

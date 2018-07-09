@@ -196,7 +196,23 @@ h5, .h5 {
                             toastr.warning('No existen Alumnos')
                             $('#loadingStudents').empty();
                         } else {
-                            datatableAlumnos.rows.add(res).draw();
+                            console.log(res)
+
+                            let reformat = res.reduce((arr, el, i) => {
+                                return arr.concat({
+                                    _id: rutFunc(el._id),
+                                    name: el.name,
+                                    lastname1: el.lastname1,
+                                    lastname2: el.lastname2,
+                                    address: el.address,
+                                    email: el.email,
+                                    phone: el.phone,
+                                    nameAp: el.nameAp,
+                                    relationshipAp: el.relationshipAp
+                                })   
+                            }, []);
+
+                            datatableAlumnos.rows.add(reformat).draw();
                             $('#loadingStudents').empty();
                         }      
                     })
