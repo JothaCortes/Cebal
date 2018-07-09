@@ -133,7 +133,7 @@ const Joined = [
     options: {
         handler: (request, h) => {
             let session = request.auth.credentials;
-            let rutAlumno      = request.payload.rutAlumno;
+            let rutAlumno      = cleanRut(request.payload.rutAlumno);
             let colegio        = request.payload.colegio;
             let estadoEgreso   = request.payload.estadoEgreso;
             let beca           = request.payload.beca ;
@@ -224,13 +224,9 @@ const Joined = [
                             }
                             student.matricula = matriculaObject;
                             student.status = 'enrolled'
-                            
-                            db.insert(student, function (errUpdate, body) {
-                                if (errUpdate) throw errUpdate;
-                                resolve({ ok: 'Estudiante Matriculado Correctamente' });
-                            });
+                         
 
-                            /*
+                            
                             crearBoleta({
                                 numBoleta:boleta,
                                 credentials:session,
@@ -250,7 +246,7 @@ const Joined = [
                                 }
                                 
                             })
-                            */
+                            
                          
                             
                         })
