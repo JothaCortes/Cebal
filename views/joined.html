@@ -1163,7 +1163,7 @@ $('#agregarEstudiante').on('click', function () {
             if(nuevoAlumnoRut.length > 5) validateCounter++; // 1
             if(nuevoAlumnoCiudad.length > 1) validateCounter++; // 2
             if(nuevoAlumnofecha.length > 3) validateCounter++; // 3
-            if(nuevoAlumnoNombre.length > 0) { //4
+            if(nuevoAlumnoNombre.length >= 1) { //4
                 validateCounter++; 
             } else {
                 errMsg += '<br> Debe ingresar el nombre del alumno.'
@@ -1199,6 +1199,7 @@ $('#agregarEstudiante').on('click', function () {
             //fin variables
 
             if(validateCounter >= 8) {
+                $('#guardarNuevoAlumno2').prop('disabled', true);
                 ajax({
                     url: '/api/nuevoalumno',
                     type: 'POST',
@@ -1374,6 +1375,9 @@ function modEstudiante() {
                         </div> 
                     </div>
                 </div>   
+
+                <div id="errMessages"></div>
+
                 <div class="row"> 
                      <div class="offset-md-6 col-md-3" style="margin-top:15px;">
                         <button id="modCancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
@@ -1383,24 +1387,97 @@ function modEstudiante() {
                     </div>
                 </div>
       `)
+
+    $('#modDate').daterangepicker({
+        "locale": {
+            "format": "DD/MM/YYYY",
+            "daysOfWeek": [
+                "Dom",
+                "Lun",
+                "Mar",
+                "Mie",
+                "Jue",
+                "Vie",
+                "Sab"
+            ],
+            "monthNames": [
+                "Enero",
+                "Febrero",
+                "Marzo",
+                "Abril",
+                "Mayo",
+                "Junio",
+                "Julio",
+                "Agosto",
+                "Septiembre",
+                "Octubre",
+                "Noviembre",
+                "Diciembre"
+            ],
+            "firstDay": 1
+        },
+        drops: "down",
+        singleDatePicker: true,
+        showDropdowns: true
+    });
+
+    $('#modDate').val(alumosRowSelectedData.birthday)
+
     $('#modCancel').on('click', function () {
         $('#modalEstudiantes').modal('hide')
     });
+
     $('#modAcept').on('click', function () {
-            let mod_date      = $('#modDate').val();
-            let mod_name      = $('#modName').val();
-            let mod_Lastname1 = $('#modLastname1').val();
-            let mod_Lastname2 = $('#modLastname2').val();
-            let mod_correo    = $('#modCorreo').val();
-            let mod_phone     = $('#modPhone').val();
-            let mod_address   = $('#modAddress').val();
+        let mod_date      = $('#modDate').val();
+        let mod_name      = $('#modName').val();
+        let mod_Lastname1 = $('#modLastname1').val();
+        let mod_Lastname2 = $('#modLastname2').val();
+        let mod_correo    = $('#modCorreo').val();
+        let mod_phone     = $('#modPhone').val();
+        let mod_address   = $('#modAddress').val();
 
-            let mod_nameAp    = $('#modNameAp').val();
-            let mod_relationAp= $('#modRelationAp').val();
-            let mod_workAp    = $('#modWork').val();
-            let mod_phoneAp   = $('#modPhoneAp').val();
-            let mod_correoAp  = $('#modCorreoAp').val();
+        let mod_nameAp    = $('#modNameAp').val();
+        let mod_relationAp= $('#modRelationAp').val();
+        let mod_workAp    = $('#modWork').val();
+        let mod_phoneAp   = $('#modPhoneAp').val();
+        let mod_correoAp  = $('#modCorreoAp').val();
 
+        let validateCounter = 0 // debe llegar a 6
+        let errMsg = '';
+        $('#errMessages').empty();
+
+        if(mod_date.length > 3) validateCounter++; // 1
+        if(mod_name.length > 1) { // 2
+            validateCounter++; 
+        } else {
+            errMsg += '<br> Debe ingresar el nombre del alumno.'
+        }
+
+        if(mod_Lastname1.length > 0) { // 3
+            validateCounter++
+        } else {
+            errMsg += '<br> Debe ingresar el apellido paterno del alumno.'
+        }
+
+        if(mod_address.length > 0) { // 4
+            validateCounter++
+        } else {
+            errMsg += '<br> Debe ingresar la dirección del alumno.'
+        }
+
+        if(mod_nameAp.length > 0) { // 5
+            validateCounter++
+        } else {
+            errMsg += '<br> Debe ingresar el nombre del apoderado del alumno.'
+        }
+        
+        if(mod_relationAp.length > 0) { // 6
+            validateCounter++
+        } else {
+            errMsg += '<br> Debe ingresar el parentesco del apoderado.'
+        }
+        
+        if(validateCounter >= 6) { 
             ajax({
                 url: 'api/modStudent',
                 type: 'POST',
@@ -1431,12 +1508,21 @@ function modEstudiante() {
                         type: 'success',
                         timer: 3000
                     }).then(result => {
-                       // $('#modHorario').prop('disabled', true);
+                    // $('#modHorario').prop('disabled', true);
                         $('#modalEstudiantes').modal('hide')
                         reloadRepairTableAlumnos()
                     })
                 }
             })
+        } else {
+            $('#errMessages').html(`
+            <div class="alert alert-dismissible alert-warning">
+                <h4 class="alert-heading">Se deben corregir los siguientes errores.</h4>
+                ${errMsg}
+            </div>
+            `)
+        }
+            
     }); 
 
 };

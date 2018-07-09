@@ -620,7 +620,7 @@ function opcionesModal() {
             $('#modal_body').html(defaultModalHTML)
         })
         $('#printPDF').on('click', function () {
-            var doc = new jsPDF('p', 'pt');
+            var doc = new jsPDF();
             doc.setDrawColor(0, 0, 0);
             doc.setFontSize(16);
             doc.setFontType("bold")
@@ -629,10 +629,11 @@ function opcionesModal() {
             doc.setFontSize(10);
             doc.setFontType("normal");
             doc.text(90,58,"Preuniversitario CEBAL");
-
+            
+            
             doc.addImage(logoCebal, 'JPEG', 20, 30, 30, 10);
-            doc.addImage(perfil, 'JPEG', 150, 52, 35, 45);
-
+            //doc.addImage(perfil, 'JPEG', 150, 52, 35, 45);
+                
             doc.setFontType("bold");
             doc.text(40,78,"N° Matrícula");
             doc.setFontType("normal");
