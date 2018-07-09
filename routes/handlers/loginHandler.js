@@ -4,11 +4,11 @@ import configEnv from '../../config/env_status.js'
 
 let db = cloudant.db.use(configEnv.db)
 let uuid = 1
-const findUser = async (email, password) => {
+const findUser = async (rut, password) => {
     return new Promise((resolve) => {
         db.find({
             selector: {
-                _id: email,
+                _id: rut,
                 password: password,
                 status: 'enabled',
                 type: 'user'
@@ -38,15 +38,15 @@ const login = async (request, h) => {
 
     if (request.method === 'post') {
         if(!request.payload.username || !request.payload.password) {
-            return h.view('login', { message: 'Ingrese email y contraseña' }, { layout: false })
+            return h.view('login', { message: 'Ingrese rut y contraseña' }, { layout: false })
         } else {
             account = await findUser(request.payload.username, md5(request.payload.password))
 
             if( !account ) {
-                return h.view('login', { message: 'Usuario o contraseña incorrecta' }, { layout: false })
+                return h.view('login', { message: 'rut o contraseña incorrecta' }, { layout: false })
             } else {
                 const sid = String(++uuid)
-                account.email = account._id
+                account.rut = account._id
                 delete account._id
                 delete account._rev
                 delete account.password

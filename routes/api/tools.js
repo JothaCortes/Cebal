@@ -70,9 +70,10 @@ const Tools = [{ // todos los clientes habilitados
                     }
                 }
             } else if (type == 'rut') {
+                let cleanRutSpaces = val.replace(/ /g,'')
                 query = {
                     selector: {
-                        _id: val.replace(/ /g,''),
+                        _id: clean(cleanRutSpaces),
                         type: 'alumnos',
                         $not: {
                             status: 'disabled'
@@ -81,14 +82,6 @@ const Tools = [{ // todos los clientes habilitados
                     }
                 }
             } else {
-                /*
-                let splitval = val.split(' ');
-    
-                let name = splitval[0];
-                let lastname = val.substr(val.indexOf(' ') + 1);
-                */
-
-                //TODO: agregar busqueda de apellido en primer parámetro
                 query = {
                     selector: {
                         _id: {
