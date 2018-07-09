@@ -1,0 +1,1169 @@
+{{!< layout/default}}
+
+<style>
+.info-box {
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    border-radius: .25rem;
+    padding: .5rem;
+    min-height: 80px;
+    background: #fff;
+    display: flex!important; 
+}
+.info-box-icon {
+    border-radius: .25rem;
+    display: block;
+    width: 90px;
+    text-align: center;
+    font-size: 40px;
+    color: #fff!important;
+}
+.btn-outline-dark {
+    color: #2974bf;
+    border-color: #4876a5;
+}
+.modal-lg {
+max-width: 1000px;
+}
+.modal-dialog {
+    margin: 0 auto;
+}
+.modal-header {
+    padding: 0.6rem;
+}
+.card-header{
+    background-color: #c9cfe8;
+    color:#333333;
+    padding: 0.2rem 1.25rem;
+  }
+  .col-md-2 {
+    max-width: 14%;
+}
+h5, .h5 {
+    font-size: 1.25rem;
+    margin-bottom: 0rem;
+}
+.btn-block {
+    color: azure;
+}
+.btn-warning:disabled {
+    color: #fff;
+    background-color: #FF7518;
+    border-color: #FF7518;
+}
+.btn-warning {
+    color: #fff;
+    background-color: #FF7518;
+    border-color: #FF7518;
+}
+   
+</style>
+{{#extend "css"}}
+
+{{/extend}}
+
+
+
+<!--Menu de busqueda -->
+<div class="col-md-12" style="margin-top:60px;">
+        <div class="row"> 
+            <div class="col-md-2" >  
+            </div>
+          <br>    
+        </div>
+</div> <hr>
+<!--Menu Botones-->
+<div class="container-fluid">
+<div class="tab-content">
+    <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+        <div class="row">
+            <div class="col-md-2 col-xs-12">
+                <br>
+                <button class="btn btn-primary btn-block" id="agregarEstudiante" style="margin-top: 20px">
+                    <i class="fa fa-plus" aria-hidden="true" ></i> Agregar
+                </button>
+                <br>
+                <button class="btn btn-success btn-block" id="modificarEstudiante" disabled>
+                        <i class="fas fa-edit"></i> Matricular
+                </button>
+                <br>
+                <button class="btn btn-danger btn-block" id="opcionesEstudiante" disabled>
+                    <i class="fas fa-clipboard-list"></i> Opciones
+                </button>
+            </div>
+    
+            <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                <table id="table" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Rut</th>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th></th>
+                            <th>Domicilio</th>
+                            <th>E-mail</th>
+                            <th>Celular</th>
+                            <th>Apoderado</th>
+                            <th>Parentesco</th>
+                            
+                        </tr>
+                    </thead>
+                </table>
+                <div id="loadingStudents">
+                    <center>
+                        <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                        <span class="sr-only">Cargando...</span>
+                    </center>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+</div>
+<!-- Modal formato-->
+<div class="modal fade" id="modalEstudiantes" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #ffffff">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
+        </div>
+    </div>
+</div>
+
+
+{{#extend "js"}}
+<script>
+    let admin = "{{{ credentials.name }}}";
+    let datatable;
+    let datatableAlumnos;
+    let alumosRowSelectedData;
+    jQuery(document).ready(function ($) {
+        chargeTableAlumnos();
+        //NProgress.done();
+    });
+       
+    function chargeTableAlumnos() {
+        datatableAlumnos = $('#table')
+        .DataTable({            
+                    "iDisplayLength": 100,
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "responsive": true,
+                    "columns": [
+                        { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
+                        { "data": "_id"},
+                        { "data": "name" },
+                        { "data": "lastname1"},
+                        { "data": "lastname2"},
+                        { "data": "address"},
+                        { "data": "email"},
+                        { "data": "phone"},
+                        { "data": "nameAp"},
+                        { "data": "relationshipAp"}               
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/studentsCebal'
+                    }).then(res => {
+                        if (res.err) {
+                            toastr.warning('No existen Alumnos')
+                        } else {
+                            datatableAlumnos.rows.add(res).draw();
+                            $('#loadingStudents').empty();
+                        }      
+                    })
+            }
+        });   
+        
+        $('#table tbody').on('click', 'button.see1', function (){
+            //var data_see1 = datatableAlumnos.row($(this).parents("tr")).data();
+         alert("Ver puntajes")
+        } );
+
+     $('#table tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            $('#modificarEstudiante').prop('disabled', true);
+            $('#opcionesEstudiante').prop('disabled', true);
+        } else {
+            datatableAlumnos.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            alumosRowSelectedData = datatableAlumnos.row($(this)).data();
+            console.log(alumosRowSelectedData)
+            $('#modificarEstudiante').prop('disabled', false);
+            $('#opcionesEstudiante').prop('disabled', false);
+        }
+    });
+}
+//DATATABLE FINAL recargar
+function reloadRepairTableAlumnos() {
+        ajax({
+            url: 'api/studentsCebal'
+        }).then(res => {
+            if (res.err) {
+                toastr.warning('No existen Alumnos')
+            } else {
+                datatableAlumnos.clear().draw();
+                datatableAlumnos.rows.add(res).draw();
+            }
+        })
+
+    }
+//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//EDITAR DATOS DEL DATATABLE AL HACER DOBLE CLICK
+function modalEditarAlumnos() { 
+    console.log(alumosRowSelectedData)
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Editar alumno');
+      $('#modal_body').html(`
+      
+      <ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Ingreso Alumnos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Datos académicos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Datos matrícula</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+            <div style="padding:5px;"> 
+                <div class="card">
+                        <div class="card-header"><h5>Datos alumno</h5></div>
+                    <div class="card-body row">
+        
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut</label>
+                        <input id="x" maxlength="12" type="text"  required class="form-control border-input" value="${alumosRowSelectedData._id}" >
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento</label>
+                            <input id ="x" type="text" name="fecha" class="form-control border-input" value="${alumosRowSelectedData.birthday}">
+                        </div>
+
+                        <div class="col-md-4">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre</label>
+                            <input id="x" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.name}">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"> Apellido paterno</label>
+                            <input id="x" type="text" class="form-control border-input" value="${alumosRowSelectedData.lastname1}" >
+                        </div>
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;">Apellido materno</label>
+                            <input id="x" type="text" class="form-control border-input" value="${alumosRowSelectedData.lastname2}">
+                        </div>
+
+                    
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
+                            <input id="x" type="email" name="email" class="form-control border-input" value="${alumosRowSelectedData.email}">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                            <input id="x" type="text" class="form-control border-input"  value="${alumosRowSelectedData.phone}">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección</label>
+                            <input id="x" type="text" class="form-control border-input"  value="${alumosRowSelectedData.address}">
+                        </div>
+                    </div>
+                </div>    
+                <div class="card" style="margin-top:3px">
+                        <div class="card-header"><h5>Datos apoderado</h5></div>
+                    <div class="card-body row">        
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
+                            <input id="x" type="text" class="form-control border-input"  value="${alumosRowSelectedData.nameAp}">
+                        </div>
+
+                        <div class="col-md-6" style="margin-top:3px;">
+                            <label style="float:left;">Parentesco</label>
+                            <input id="x" type="text" class="form-control border-input"  value="${alumosRowSelectedData.relationshipAp}" >
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
+                            <input id="x" type="text" class="form-control border-input"  value="${alumosRowSelectedData.workAp}">
+                        </div>
+
+                        <div class="col-md-6" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                            <input id="x" type="text" class="form-control border-input"  value="${alumosRowSelectedData.phoneAp}">
+                        </div>  
+                    </div>
+                </div>   
+                <div class="row"> 
+                     <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                        <button id="x" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                    </div>
+
+                    <div class="col-md-3" style="margin-top:15px;">
+                        <button id="x" class="btn btn-success btn-block" ><i class="fas fa-edit"></i> Modificar</button>
+                    </div>
+                </div>
+            
+        </div>   
+        </div>
+
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div style="padding:5px;"> 
+            <div class="row">
+                <div class="col-md-4">
+                    <label style="float:left;"><i class="fas fa-school"></i> Colegio</label>
+                    <input id="x" type="text"  required class="form-control border-input">
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="far fa-calendar"></i> Egreso</label>
+                        <input id="x" type="text"  required class="form-control border-input">
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <label style="float:left;"><i class="fab fa-bimobject"></i> Becado</label>
+                    <input id="x" type="text"  required class="form-control border-input">
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="far fa-calendar-check"></i> Año de egreso</label>
+                        <input id="x" type="text"  required class="form-control border-input">
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Cursando</label>
+                        <input id="x" type="text"  required class="form-control border-input">
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <label><i class="fas fa-book"></i> Promedio</label>
+                    <input id="x" maxlength="2" type="text" class="form-control border-input solo-numero">
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="far fa-calendar-alt"></i> Horario</label>
+                        <input id="x" type="text"  required class="form-control border-input">
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i>Prueba electiva</label>
+                        <input id="x" type="text"  required class="form-control border-input">
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
+                        <input id="x" type="text"  required class="form-control border-input">
+                    </div>
+                </div>
+
+               <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                    <button id="x" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                </div>
+
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="x" class="btn btn-success btn-block" ><i class="fas fa-edit"></i> Modificar</button>
+                </div>
+            </div>
+            </div>
+        </div>
+
+
+
+        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <div style="padding:5px;"> 
+            <div class="row">
+        
+                <div class="col-md-3" style="margin-top:3px;">
+                    <label style="float:left;"><i class="far fa-calendar"></i> Fecha de matrícula</label>
+                    <input id ="x" type="text" class="form-control border-input">
+                </div>
+                <div class="col-md-3">
+                    <label><i class="fas fa-book"></i> Día de cobro</label>
+                    <input id ="x" type="text" class="form-control border-input">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Tipo de curso</label>
+                        <input id ="x" type="text" class="form-control border-input">
+                    </div>  
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Forma de pago</label>
+                        <input id ="x" type="text" class="form-control border-input">
+                    </div>  
+                </div>
+        
+                <div class="col-md-12">
+                    <h4>Descuentos</h4><br>
+                </div>
+
+                <div class="col-md-3">
+                    <label><i class="fas fa-graduation-cap"></i> Descuento 1</label>
+                    <input id ="x" type="text" class="form-control border-input">
+                </div>
+                <div class="col-md-3">
+                    <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> Descuento 2</label>
+                    <input id ="x" type="text" class="form-control border-input">
+                </div>
+
+                <div class="col-md-6" style="margin-top:-50px;">
+                    <div class="card">
+                    <div class="card-header"><h5>Datos financieros<h5></div>
+                    <div class="card-body row">
+                        
+                        <div class="col-md-4" style="margin-top: -10px">
+                            <label style="float:left;"> Valor matrícula :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: -10px">
+                            <input id="valorMatricula" type="text" class="form-control border-input"  value="" >
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"> Cantidad cuotas :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="numCuotas" type="text" class="form-control border-input"  value="">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"> Monto por cuota :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="montoCuota" type="text" class="form-control border-input"  value="">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"> Total cuotas :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="totalCuotas" type="text" class="form-control border-input"  value="">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"><b> Monto total :</b></label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="montoTotal" type="text" class="form-control border-input"  value="">
+                        </div>
+                    </div>
+                    </div>  
+                </div>
+
+                <div class="col-md-3" style="margin-top: -150px">
+                        <input id="descuento1" type="text" class="form-control border-input" disabled>
+                </button>
+                   
+                </div>
+                <div class="col-md-3" style="margin-top: -150px">
+                    <input id="descuento2" type="text" class="form-control border-input" disabled>
+                </div>
+
+
+                <div class="col-md-6" style="margin-top: -90px; margin-left: -493px">
+                    <div class="card">
+                        <div class="card-header"><h5>Pago de matrícula</h5></div>
+                        <div class="card-body row">
+                            <div class="col-md-4">
+                                <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> Forma de pago</label> 
+                            </div>
+                            <div class="col-md-6" style="margin-top: -10px">
+                                <input id ="x" type="text" class="form-control border-input">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> N° Boleta</label> 
+                            </div>
+                            <div class="col-md-6" style="margin-top: 0px">
+                                <input id="x" type="text" class="form-control border-input">
+                            </div>
+                            <div class="col-md-4" style="margin-top:15px;">
+                                <button id="x" class="btn btn-dark btn-block">Matricular</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>    
+        </div>
+    </div>
+
+      `)};
+//BOTON MODIFICAR ESTUDIANTE
+$('#modificarEstudiante').on('click', function () {
+    modalEditarAlumnos();
+})
+//AGREGAR UN NUEVO ESTUDIANTE CON SU APODERADO
+$('#agregarEstudiante').on('click', function () {
+       //console.log(data_see1) 
+    nuevoEstudiante();
+    administrador();
+    calcularMontoMatricula();
+})
+//Opciones estudiante
+$('#opcionesEstudiante').on('click', function(){
+    opcionesModal();
+})
+function opcionesModal() { 
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Opciones');
+      $('#modal_body').html(`
+     
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-4">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-align-justify"></i></span>
+                    <div class="info-box-content">
+                    <span class="info-box-text"><h5><a class="dropdown-item" href="#">Puntajes</a></h5></span>
+                    <p style="margin-left: 25px"> 1024</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info elevation-1" style="background-color: #23ad67 !important;"><i class="fas fa-user"></i></span>
+                        <div class="info-box-content"><h5>Asistencia</a></h5></span>
+                            <p style="margin-left: 25px"> 845</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info elevation-1" style="background-color: #ef3f3f !important;"><i class="fas fa-sign-out-alt"></i></span>
+                            <div class="info-box-content">
+                                    <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Documentos</a></h5></span>
+                                    <p style="margin-left: 25px"> 41</p>
+                                </div>
+                        </div>
+                    </div>
+        </div>
+       
+     `)}
+    //acciones especiales por usuario admin
+    function administrador (){
+        if (admin == 'Admin'){
+            $('#descuento1').prop('disabled', false);
+            $('#descuento2').prop('disabled', false);
+            }
+    }
+    //obtener variables formMatricula
+     
+
+
+    //xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    //calcular el monto de la matricula de un alumno
+    function calcularMontoMatricula(){
+        let v_matr = $('#valorMatricula').val()
+        let c_cuotas = $('#numCuotas').val()
+        let m_couta = $('#montoCuota').val()
+        let t_cuotas = $('#totalCuotas').val()   
+            let totalCuotas = parseFloat(c_cuotas)*parseFloat(m_couta);
+            let total= parseFloat(v_matr) + parseFloat(totalCuotas);
+                 $('#montoTotal').val(total)
+
+        $('#numCuotas').on('change', function(){
+            //xxxxxxxxxxx
+        })
+    }
+
+    function nuevoEstudiante() { 
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Ingreso de nuevo alumno');
+      $('#modal_body').html(`
+
+    <ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Ingreso Alumnos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Datos académicos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false">Datos matrícula</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+            <div style="padding:5px;"> 
+                <div class="card">
+                        <div class="card-header"><h5>Datos alumno</h5></div>
+                    <div class="card-body row">
+        
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut</label>
+                        <input id="rutNuevoAlumno" maxlength="12" type="text"  required class="form-control border-input"  placeholder="Ingrese Rut" >
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento</label>
+                            <input id ="fechaNuevoAlumno" type="date" name="fecha" class="form-control border-input">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad</label>
+                            <select class="form-control" id="ciudadNuevoAlumno">
+                                <option selected="true" disabled="disabled">seleccione</option>
+                                <option>Curicó</option>
+                                <option>Parral</option>
+                                <option>Linares</option>
+                            </select> 
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre</label>
+                            <input id="nombreNuevoAlumno" type="text"  required class="form-control border-input"  placeholder="Ingrese Nombre">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"> Apellido paterno</label>
+                            <input id="apellido1NuevoAlumno" type="text" class="form-control border-input"  placeholder="Ingrese primer apellido" >
+                        </div>
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;">Apellido materno</label>
+                            <input id="apellido2NuevoAlumno" type="text" class="form-control border-input" placeholder="Ingrese segundo apellido">
+                        </div>
+
+                    
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
+                            <input id="correoNuevoAlumno" type="email" name="email" class="form-control border-input"  value="" placeholder="Ingrese correo">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                            <input id="celularNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección</label>
+                            <input id="direccionNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección">
+                        </div>
+                    </div>
+                </div>    
+                <div class="card" style="margin-top:3px">
+                        <div class="card-header"><h5>Datos apoderado</h5></div>
+                    <div class="card-body row">        
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
+                            <input id="nombreApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese nombre apoderado">
+                        </div>
+
+                        <div class="col-md-6" style="margin-top:3px;">
+                            <label style="float:left;">Parentesco</label>
+                            <input id="parentescoApoderado" type="text" class="form-control border-input"  value="" placeholder="Parentesco apoderado">
+                        </div>
+
+                        <div class="col-md-4" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
+                            <input id="trabajoApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección de trabajo">
+                        </div>
+
+                        <div class="col-md-6" style="margin-top:3px;">
+                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                            <input id="celularApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
+                        </div>  
+                    </div>
+                </div>   
+                <div class="row"> 
+                     <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                        <button id="limpiarNuevoAlumno" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                    </div>
+
+                    <div class="col-md-3" style="margin-top:15px;">
+                        <button id="guardarNuevoAlumno" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
+                    </div>
+                </div>
+            
+        </div>   
+        </div>
+
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div style="padding:5px;"> 
+            <div class="row">
+                <div class="col-md-4">
+                    <label style="float:left;"><i class="fas fa-school"></i> Colegio</label>
+                    <input id="colegioNuevoAlumno" type="text"  required class="form-control border-input" placeholder="Ingrese nombre colegio">
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="far fa-calendar"></i> Egreso</label>
+                        <select class="form-control" id="egresoAlumno">
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Egresado</option>
+                            <option>No egresado</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <label style="float:left;"><i class="fab fa-bimobject"></i> Becado</label>
+                    <select class="form-control" id="becaAlumno">
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Si</option>
+                            <option>No</option>
+                        </select>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="far fa-calendar-check"></i> Año de egreso</label>
+                        <select class="form-control" id="añoEgresoAlumno" disabled>
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>2013</option>
+                            <option>2014</option>
+                            <option>2015</option>
+                            <option>2016</option>
+                            <option>2017</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> Cursando</label>
+                        <select class="form-control" id="cursoAlumno" disabled>
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Primero medio</option>
+                            <option>Segundo medio</option>
+                            <option>Tercero medio</option>
+                            <option>Cuarto medio</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <label for="exampleFormControlSelect1"><i class="fas fa-book"></i> Promedio</label>
+                    <input id="promedioAlumno" maxlength="2" max="70" type="text" class="form-control border-input solo-numero"  placeholder="Ej: 60">
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="far fa-calendar-alt"></i> Horario</label>
+                        <select id="selectHorario2">
+                                <option></option>
+                            </select>
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i>Prueba electiva</label>
+                        <select class="form-control" id="electivo">
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Ciencias</option>
+                            <option>Historia</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
+                        <select class="form-control" id="electivo">
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Ciencias</option>
+                            <option>Historia</option>
+                        </select> 
+                    </div>  
+                </div>
+
+                <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                    <button id="verVALORSELECT" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                </div>
+
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block" ><i class="fas fa-cloud"></i> Guardar</button>
+                </div>
+                
+            
+            </div>
+            </div>
+        </div>
+
+
+
+        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+            <div style="padding:5px;"> 
+            <div class="row">
+        
+                <div class="col-md-3" style="margin-top:3px;">
+                    <label style="float:left;"><i class="far fa-calendar"></i> Fecha de matrícula</label>
+                    <input id ="alumnoFechaMatricula" type="date" name="fecha" class="form-control border-input">
+                </div>
+                <div class="col-md-3">
+                    <label><i class="fas fa-book"></i> Día de cobro</label>
+                    <input id="alumnoDiaCobro" type="text" class="form-control border-input solo-numero  placeholder="Ej: 5">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1"><i class="fas fa-graduation-cap"></i> Tipo de curso</label>
+                        <select class="form-control" id="alumnoTipoCurso">
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Anual</option>
+                            <option>Intensivo</option>
+                        </select> 
+                    </div>  
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Forma de pago</label>
+                        <select class="form-control" id="alumnoFormaPago">
+                            <option selected="true" disabled="disabled">seleccione</option>
+                            <option>Cuotas</option>
+                            <option>Contado</option>
+                        </select> 
+                    </div>  
+                </div>
+        
+                <div class="col-md-12">
+                    <h4>Descuentos</h4><br>
+                </div>
+
+                <div class="col-md-3">
+                    <label><i class="fas fa-graduation-cap"></i> Descuento 1</label>
+                    <select class="custom-select" id="alumnoDescuento1">
+                        <option selected="true" disabled="disabled">seleccione</option>
+                        <optgroup label="Seleccionar descuento">
+                            <option>Hijo de profesor (15%)</option>
+                            <option>Ex alumno (5%)</option>
+                            <option>Hermano (15%)</option>
+                            <option>Director (10%)</option>
+                        </optgroup>
+                        <optgroup label="Colegio">
+                            <option>10%</option>
+                            <option>15%</option>
+                            <option>20%</option>
+                        </optgroup>
+                        <optgroup label="Otro descuento">
+                            <option>Seleccionar</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label><i class="fas fa-graduation-cap"></i> Descuento 2</label>
+                    <select class="custom-select"  id="alumnoDescuento2" disabled>
+                        <option selected="true" disabled="disabled">seleccione</option>
+                        <optgroup label="Seleccionar descuento">
+                            <option>Hijo de profesor (15%)</option>
+                            <option>Ex alumno (5%)</option>
+                            <option>Hermano (15%)</option>
+                            <option>Director (10%)</option>
+                        </optgroup>
+                        <optgroup label="Colegio">
+                            <option>10%</option>
+                            <option>15%</option>
+                            <option>20%</option>
+                        </optgroup>
+                        <optgroup label="Otro descuento">
+                            <option>Seleccionar</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="col-md-6" style="margin-top:-50px;">
+                    <div class="card">
+                    <div class="card-header"><h5>Datos financieros<h5></div>
+                    <div class="card-body row">
+                        
+                        <div class="col-md-4" style="margin-top: -10px">
+                            <label style="float:left;"> Valor matrícula :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: -10px">
+                            <input id="valorMatricula" type="text" class="form-control border-input"  value="45000" readOnly>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"> Cantidad cuotas :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="numCuotas" type="text" class="form-control border-input"  value="9">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"> Monto por cuota :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="montoCuota" type="text" class="form-control border-input"  value="65000">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"> Total cuotas :</label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="totalCuotas" type="text" class="form-control border-input"  value="585000">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label style="float:left;"><b> Monto total :</b></label>
+                        </div>
+                        <div class"col-md-2" style="margin-top: 2px">
+                            <input id="montoTotal" type="text" class="form-control border-input"  value="">
+                        </div>
+                    </div>
+                    </div>  
+                </div>
+
+                <div class="col-md-3" style="margin-top: -150px">
+                        <input id="descuento1" type="text" class="form-control border-input" disabled>
+                </button>
+                   
+                </div>
+                <div class="col-md-3" style="margin-top: -150px">
+                    <input id="descuento2" type="text" class="form-control border-input" disabled>
+                </div>
+
+
+                <div class="col-md-6" style="margin-top: -90px; margin-left: -493px">
+                    <div class="card">
+                        <div class="card-header"><h5>Pago de matrícula</h5></div>
+                        <div class="card-body row">
+                            <div class="col-md-4">
+                                <label><i class="fas fa-graduation-cap"></i> Forma de pago</label> 
+                            </div>
+                            <div class="col-md-6" style="margin-top: -10px">
+                                <select class="form-control" id="alumnoFormaPago">
+                                    <option selected="true" disabled="disabled">seleccione</option>
+                                    <option>Efectivo</option>
+                                    <option>Cheque</option>
+                                </select> 
+                            </div>
+                            <div class="col-md-4">
+                                <label><i class="fas fa-graduation-cap"></i> N° Boleta</label>
+                            </div>
+                            <div class="col-md-6" style="margin-top: 0px">
+                                <input id="x" type="text" class="form-control border-input">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+            <div class="row"> 
+                     <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                        <button id="limpiarNuevoAlumno3" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                    </div>
+
+                    <div class="col-md-3" style="margin-top:15px;">
+                        <button id="guardarNuevoAlumno3" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>    
+        </div>
+    </div>
+      `)
+
+
+//calcular el valor de las cuotas de un estudiante
+$('#egresoAlumno').on('change', function(){
+    let egreso = $('#egresoAlumno').val()
+    if (egreso == 'Egresado'){
+        $('#añoEgresoAlumno').prop('disabled', false);
+        c
+    }else{
+        $('#añoEgresoAlumno').prop('disabled', true);
+        $('#cursoAlumno').prop('disabled', false);
+    }
+    })
+$('#alumnoDescuento1').on('change', function(){
+    $('#alumnoDescuento2').prop('disabled', false);
+});
+//iniciar select de horarios
+let selects = {
+        place:[],
+        horario: [],
+    }
+
+ajax({ // cargar valores de cuotas
+    url:'/api/quotaValuesCebal'
+    }).then(res => {
+      //  console.log(res)
+    });
+
+ajax({ // cargar horarios
+    url:'/api/horariosCebalTraer'
+    }).then(res => {
+           // falta filtrar por ciudad
+        console.log(res)
+        selects.place = res.filter(function(el) {
+            return el.place == '{{{credentials.place}}}'
+        })
+
+        console.log(selects.place)
+
+        let horario = selects.place.reduce((arr, el, i) => {
+            return arr.concat({
+                id: i,
+                text: el.horary
+            })   
+        }, []);
+
+        $('#selectHorario').select2({
+            placeholder:'seleccione',
+            width:'100%',
+            data: horario
+        });
+    });
+//xxxxx
+//validar rut   
+    $(document).ready(function(){
+        $('#rutNuevoAlumno').focus
+        $('#rutNuevoAlumno').on('keyup', function(){
+            this.value = rutFunc (this.value)  
+        })
+    });
+        function rutFunc (rut){
+            return $.formatRut(rut)
+        }
+        function cleanRut(rut){
+            var replace1 = rut.split('.').join('');
+            var replace2 = replace1.replace('-', '');
+            return replace2;
+        }
+    //validar rut 
+    $('#rutNuevoAlumno').on('keyup', function(){
+        let rut  = $('#rutNuevoAlumno').val()
+        if($.validateRut(rut)) {
+            console.log("rut valido")
+        }else{
+            console.log("Ingrese un rut válido");
+        }
+    })
+
+    //validar solo numeros
+    $(document).ready(function (){
+      $('.solo-numero').keyup(function (){
+        this.value = (this.value + '').replace(/[^0-9]/g, ''); 
+      });
+    });
+    //validar valor maximo y minimo
+   
+    //xxxxxxxxxxxx
+
+    $('#limpiarNuevoAlumno').on('click', function () {
+        $('#rutNuevoAlumno').val('')
+        $('#fechaNuevoAlumno').val('')
+        $('#nombreNuevoAlumno').val('')
+        $('#apellido1NuevoAlumno').val('')
+        $('#apellido2NuevoAlumno').val('')
+        $('#correoNuevoAlumno').val('')
+        $('#celularNuevoAlumno').val('')
+        $('#direccionNuevoAlumno').val('')
+        $('#nombreApoderado').val('')
+        $('#parentescoApoderado').val('')
+        $('#trabajoApoderado').val('')
+        $('#celularApoderado').val('')
+        $('#rutNuevoAlumno').focus()
+    })
+    $('#guardarNuevoAlumno').on('click', function () {
+        //Variables desde modal
+            let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
+            let nuevoAlumnoCiudad    =$('#ciudadNuevoAlumno').val()
+            let nuevoAlumnofecha     = $('#fechaNuevoAlumno').val()
+            let nuevoAlumnoNombre    = $('#nombreNuevoAlumno').val()
+            let nuevoAlumnoApellido1 = $('#apellido1NuevoAlumno').val()
+            let nuevoAlumnoApellido2 = $('#apellido2NuevoAlumno').val()
+            let nuevoAlumnoCorreo    = $('#correoNuevoAlumno').val()
+            let nuevoAlumnoCelular   = $('#celularNuevoAlumno').val()
+            let nuevoAlumnoDireccion = $('#direccionNuevoAlumno').val()
+            let ApoderadoNombre      = $('#nombreApoderado').val()
+            let ApoderadoParentesco  = $('#parentescoApoderado').val()
+            let ApoderadoTrabajo     = $('#trabajoApoderado').val()
+            let ApoderadoCelular     = $('#celularApoderado').val()
+        //fin variables
+            ajax({
+                url: '/api/nuevoalumno',
+                type: 'POST',
+                data: {
+                    rutalumno:           nuevoAlumnoRut,
+                    ciudadAlumno:       nuevoAlumnoCiudad,
+                    fechaAlumno:         nuevoAlumnofecha,
+                    nombreAlumno:        nuevoAlumnoNombre,
+                    apellido1Alumno:     nuevoAlumnoApellido1,
+                    apellido2Alumno:     nuevoAlumnoApellido2,
+                    correoAlumno:        nuevoAlumnoCorreo,
+                    celularAlumno:       nuevoAlumnoCelular,
+                    direccionAlumno:     nuevoAlumnoDireccion,
+                    nombreApoderado:     ApoderadoNombre,
+                    parentescoApoderado: ApoderadoParentesco,
+                    trabajoApoderado:    ApoderadoTrabajo,
+                    celularApoderado:    ApoderadoCelular
+                }
+            }).then(res => {
+                console.log(res)
+               	swal({
+                    title: 'Agregado!',
+                    backdrop: 'static', 
+                    keyboard: false,
+                    text: res.ok,
+                    type: 'success',
+                    timer: 60000
+                 }).then(result => {
+                        reloadRepairTableAlumnos()
+                    })
+            })
+        })
+
+//Guardar datos académicos del alumno
+$('#guardarNuevoAlumno2').on('click', function () {
+        //Variables desde modal
+        let nuevoAlumnoRut2       = $('#rutNuevoAlumno').val()
+        let nuevoAlumnoColegio   = $('#colegioNuevoAlumno').val()
+        let nuevoAlumnoEgreso    = $('#egresoAlumno').val()
+        let nuevoAlumnoBeca      =$('#becaAlumno').val()
+        let nuevoAlumnoAñoEgreso =$('#añoEgresoAlumno').val()
+        let nuevoAlumnoCurso     =$('#cursoAlumno').val()
+        let nuevoAlumnoPromedio  =$('#promedioAlumno').val()
+        let nuevoAlumnoHorario   =$('#selectHorario').val()
+        let nuevoAlumnoElectivo  =$('#electivo').val()
+
+        ajax({
+                url: '/api/datosAcademicos',
+                type: 'POST',
+                data: {
+                    rutalumno      :nuevoAlumnoRut2,
+                    alumnoColegio  :nuevoAlumnoColegio,
+                    alumnoEgreso   :nuevoAlumnoEgreso,
+                    alumnoBeca     :nuevoAlumnoBeca,
+                    alumnoAñoEgreso:nuevoAlumnoAñoEgreso,
+                    alumnoCurso    :nuevoAlumnoCurso,
+                    alumnoPromedio :nuevoAlumnoPromedio,
+                    alumnoHorario  :nuevoAlumnoHorario,
+                    alumnoElectivo :nuevoAlumnoElectivo
+                }
+            }).then(res => {
+                console.log(res)
+               	swal({
+                    title: 'Agregado!',
+                    backdrop: 'static', 
+                    keyboard: false,
+                    text: res.ok,
+                    type: 'success',
+                    timer: 60000
+                })
+            })
+        })
+
+    };
+</script>
+<script>
+</script>
+{{/extend}}
+

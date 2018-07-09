@@ -1,0 +1,309 @@
+{{!< layout/default}}
+
+
+{{#extend "css"}}
+<style>
+</style>
+{{/extend}}
+
+{{#if admin}}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-3 col-xs-12" style="margin-top:10px;">
+            <fieldset>			
+                <label for="checkbox-1">Usuario</label>
+                <input class="searchOptions" type="checkbox" name="searchFilter" id="checkbox-1">
+                <label for="checkbox-2">Fechas</label>
+                <input class="searchOptions" type="checkbox" name="searchFilter" id="checkbox-2">					
+            </fieldset>
+        </div>
+
+        <div class="col-md-3 col-xs-12" id="userFilterContainer" style="margin-top:10px;"></div>
+        <div class="col-md-3 col-xs-12" id="dateFilterContainer" style="margin-top:10px;"></div>
+        <div class="col-md-1 col-xs-12" id="filterButtonContainer" style="margin-top:10px;"></div>
+        <div class="col-md-2 col-xs-12" style="margin-top:10px;">
+            <button id="reloadLogs" class="btn btn-primary btn-block"><i class="fas fa-sync-alt" aria-hidden="true"></i> Recargar Logs</button>
+        </div>
+    </div>
+
+    <div style="margin-top: 10px;" class="col-md-12 box-shadows table-responsive">
+        <table id="table" class="display table table-condensed" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                <th>Fecha</th>
+                <th>Usuario</th>
+                <th>Email de usuario</th>
+                <th>Rol</th>
+                <th>Formulario</th>
+                <th>Descripción</th>
+                <th>Imagen</th>
+                </tr>
+            </thead>		 
+        </table>
+        <div id="loadingLogs">
+            <center><i style="color:#3498db;" class="fas fa-spinner fa-pulse fa-5x fa-fw"></i><span class="sr-only">Loading...</span></center> 
+        </div>
+    </div>
+</div>
+{{else}}
+<script>
+    document.location.href="/";
+</script>
+{{/if}}
+
+{{#extend "js"}}
+<script>
+    let datatable;
+    let logsData = [];
+    let users = [];
+	let filterUser = 0;
+	let filterDate = 0;
+	let userSelected = '';
+	let startDate = '';
+	let endDate = '';
+    let start = moment().subtract(29, 'days');
+    let end = moment();
+
+    
+    $(document).ready(function() {
+        $('input').checkboxradio();
+
+        chargeTable()
+        loadUsers() 
+    });
+
+
+    const loadUsers = () => {
+        ajax({
+            url: 'api/users'
+        }).then(res =>{
+            users = res.reduce((arr, el, i) => {
+                return arr.concat({
+                    id: i,
+                    text: el._id
+                })   
+            }, []);
+        })
+    }
+
+    function chargeTable() {
+        datatable = $('#table')
+        .DataTable( {
+            "ordering": false,
+            "iDisplayLength": 100,
+            "oLanguage": {
+                "sSearch": ""
+            },
+            "responsive": true,
+            "columns" : [ 
+                {"data" : "date"}, 
+                {"data" : "userName"},
+                {"data" : "email"},
+                {"data" : "role"}, 
+                {"data" : "form"}, 
+                {"data" : "action"},
+                {"data" : "img"}
+            ],
+            createdRow: function( row, data, dataIndex){
+                if(data.img != '') {
+                    $('td', row).eq(6).html(`<a onclick="showImg('/img_logs/${data.img}')" class="btn btn-primary" style="color:white;"><i class="fa fa-eye" aria-hidden="true"></i></a>`);
+                }
+            },
+            initComplete: function(settings, json) {
+                reloadAllLogs()
+            }
+        });
+    }
+
+    function reloadAllLogs() {
+        logsButtons(false)
+        ajax({
+           url: 'api/logs' 
+        }).then(res=> {
+
+            if(res != 'err') {
+                console.log(res)
+                datatable.clear().draw();
+                $('#loadingLogs').html(`<center><i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><span class="sr-only">Loading...</span></center> `)
+                
+                setTimeout(function() {
+                    logsData = res.reduce((arr, el, i) => {
+                        return arr.concat({
+                            date: moment(el._id).format('DD/MM/YYYY hh:mm'),
+                            userName: el.userName,
+                            email: el.userEmail,
+                            role: el.role,
+                            form: el.form,
+                            action: el.action,
+                            img: el.img
+                        })   
+                    }, []);
+
+                    datatable.rows.add(logsData).draw();
+                    $('#loadingLogs').empty()
+                    logsButtons(true)
+                }, 1000)
+                
+            } else {
+                toastr.warning('SIN LOGS PARA MOSTRAR')
+                $('#loadingLogs').empty()
+                $('#reloadLogs').attr('disabled', false)
+            }
+            
+        });
+    }
+
+    $('#filterButtonContainer').on('click', '#filterButton', function() {
+        let p1 = '';
+        let p2 = '';
+        let p3 = '';
+        
+        if (filterUser == 1) {
+            p1 = userSelected.toString(); 
+        }
+            
+        if (filterDate == 1) {
+            p2 = startDate.toString();
+            p3 = endDate.toString();
+        }
+
+        logsButtons(false)
+
+        ajax({
+            url: 'api/getLogs',
+            type: 'POST',
+            data: {user:p1, startDate: p2, endDate: p3}
+        }).then(res=>{
+            datatable.clear().draw();
+            console.log(res)
+            $('#loadingLogs').html(`<center><i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-5x fa-fw"></i><span class="sr-only">Loading...</span></center> `)
+           
+            setTimeout(function() {
+                
+                logsData = res.reduce((arr, el, i) => {
+                    return arr.concat({
+                        date: moment(el._id).format('DD/MM/YYYY hh:mm'),
+                        userName: el.userName,
+                        email: el.userEmail,
+                        role: el.role,
+                        form: el.form,
+                        action: el.action,
+                        img: el.img
+                    })   
+                }, []);
+                
+                logsButtons(true)
+                datatable.rows.add(logsData).draw();
+                $('#loadingLogs').empty()
+            }, 1000)
+
+            
+        })
+    })
+
+    $('#reloadLogs').on('click', function() {
+    	reloadAllLogs()
+    });
+
+    function cb(start, end) {
+		startDate = start.format('YYYY-MM-DDT00:00:00');
+		endDate = end.format('YYYY-MM-DDT23:59:59');
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+    }
+
+    function showImg(url) {
+		console.log(url);
+		swal({
+    		title: '',
+			html: `<div id="imglog"><img style="max-width:100%; max-height:600px;" src="${url}.jpeg" onerror="onerrorimg()"></div>`,
+			width: '80%',
+			height: '600px'
+		})
+    }
+    
+    function onerrorimg() {
+        $('#imglog').html(`
+        <div class="alert alert-dismissible alert-danger">
+            <strong>No se ha encontrado el archivo de imagen.</strong>
+        </div>
+        `)
+    }
+
+    $( ".searchOptions" ).on( "change", function(e) {
+        let target = $( e.target );
+        let checked = target.is( ":checked" )
+        let id = target[0].id
+
+        if (id === 'checkbox-1') {
+            if (checked === true) {
+                filterUser = 1;
+                $('#userFilterContainer').html('<select id="users" style="width: 100%;"></select>');
+                
+                $('#users').select2({
+                    data: users
+                });
+
+                userSelected = $('#users').select2('data')[0].text // seleccionar primer usuario pro defecto
+                $('#users').on('change', function(e) { 
+                    userSelected = $('#users').select2('data')[0].text;
+                });
+            }else{
+                filterUser = 0;
+                $('#userFilterContainer').empty();
+                userSelected = '';
+            }
+        } else if (id === 'checkbox-2') {
+            if (checked === true) {
+                filterDate = 1;
+                $('#dateFilterContainer').html(`
+                    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                        <span></span> <b class="caret"></b>
+                    </div>`
+                );
+
+                $('#reportrange').daterangepicker({
+                    startDate: start,
+                    endDate: end,
+                    ranges: {
+                        'Hoy': [moment(), moment()],
+                        'Ayer': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Ultimos 7 días': [moment().subtract(6, 'days'), moment()],
+                        'Ultimos 30 días': [moment().subtract(29, 'days'), moment()],
+                        'Este mes': [moment().startOf('month'), moment().endOf('month')],
+                        'El mes anterior': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                    }
+                }, cb);
+
+                cb(start, end);
+
+            }else{
+                filterDate = 0;
+                $('#dateFilterContainer').empty();
+                startDate = '';
+                endDate = '';
+            }
+        }
+
+        if( filterDate === 1 || filterUser === 1) {
+            $('#filterButtonContainer').html('<button class="btn btn-primary btn-block" id="filterButton"><i class="fas fa-filter"></i> Filtrar</button>');
+        }else {
+            $('#filterButtonContainer').empty();
+        }
+        
+        
+			
+    });
+    
+    function logsButtons(status) {
+        if (status) {
+            $('#filterButton').attr('disabled', false);
+            $('#reloadLogs').attr('disabled', false);
+        } else {
+            $('#filterButton').attr('disabled', true);
+            $('#reloadLogs').attr('disabled', true);
+        }
+    }
+</script>
+{{/extend}}
+
