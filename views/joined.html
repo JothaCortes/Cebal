@@ -302,7 +302,7 @@ function modalMatrAlumnos() {
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label><i class="far fa-calendar-check"></i> Año de egreso</label>
-                                <select class="form-control" id="matrAñoEgreso" disabled>
+                                <select class="form-control" id="matrAñoEgreso">
                                     <option selected="true" disabled="disabled">seleccione</option>
                                     <option>2013</option>
                                     <option>2014</option>
@@ -501,7 +501,7 @@ function modalMatrAlumnos() {
                                     <label><i class="fas fa-graduation-cap"></i> N° Boleta</label>
                                 </div>
                                 <div class="col-md-6" style="margin-top: 0px">
-                                    <input id="boleta" type="text" class="form-control border-input">
+                                    <input id="boleta" type="number" class="form-control border-input">
                                 </div>
                             </div>
                         </div>
@@ -525,7 +525,7 @@ function modalMatrAlumnos() {
 generalFunction()
 
 
-$('#boleta').on('change', function (e){
+$('#boleta').on('keyup', function (e){
     saveTicket()
 })
 
@@ -883,7 +883,7 @@ $('#matrEgreso').on('change', function(){
         let colegio        = $('#matrColegio').val()
         let estadoEgreso   = $('#matrEgreso').val()
         let beca           = $('#matrBeca').val()
-        let añoEgreso      = $('#matrAñoEgreso').val()
+        let anoEgreso      = $('#matrAñoEgreso').val()
         let curso          = $('#matrCurso').val()
         let promedio       = $('#matrPromedio').val()
         let horario        = $('#selectHorario').select2('data')[0].text;
@@ -900,6 +900,9 @@ $('#matrEgreso').on('change', function(){
         let montoCuota     = $('#matrMontoCuota').val()
         let totalCuotas    = $('#matrTotalCuotas').val()
         let montoTotal     = $('#matrMontoTotal').val()
+        let boleta         =$('#boleta').val()
+        let formaPagoMatricula =$('#matrFormaPago').val()
+        
         //fin variables
         ajax({
             url: '/api/nuevaMatricula',
@@ -909,7 +912,7 @@ $('#matrEgreso').on('change', function(){
                 colegio       :colegio,
                 estadoEgreso  :estadoEgreso,
                 beca          :beca,
-                añoEgreso     :añoEgreso,
+                anoEgreso     :anoEgreso,
                 curso         :curso,
                 promedio      :promedio,
                 horario       :horario,
@@ -925,7 +928,9 @@ $('#matrEgreso').on('change', function(){
                 numCuotas     :numCuotas,
                 montoCuota    :montoCuota,
                 totalCuotas   :totalCuotas,
-                montoTotal    :montoTotal
+                montoTotal    :montoTotal,
+                boleta        :boleta,
+                formaPagoMatricula:formaPagoMatricula
             }
         }).then(res => {
             console.log(res)

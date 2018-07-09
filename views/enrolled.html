@@ -607,7 +607,7 @@ function opcionesModal() {
             $('#modal_body').html(defaultModalHTML)
         })
         $('#printPDF').on('click', function () {
-            var doc = new jsPDF('p', 'pt');
+            var doc = new jsPDF();
             doc.setDrawColor(0, 0, 0);
             doc.setFontSize(16);
             doc.setFontType("bold")
@@ -623,7 +623,7 @@ function opcionesModal() {
             doc.setFontType("bold");
             doc.text(40,78,"N° Matrícula");
             doc.setFontType("normal");
-            doc.text(85,78,"2");
+            doc.text(85,78,alumosRowSelectedData.numMatricula.toString());
 
             doc.setFontType("bold");
             doc.text(40,85,"Año");
