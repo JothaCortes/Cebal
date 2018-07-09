@@ -115,17 +115,12 @@
                             <div class="col-md-2 col-xs-12">
                                 <br>
                                 <button class="btn btn-primary btn-block" id="x" disabled>
-                                    <i class="fa fa-plus"></i> Pagos
+                                    <i class="fa fa-plus"></i> Opciones
                                 </button>
                                 <button class="btn btn-warning btn-block" id="x" disabled>
                                     <i class="fas fa-edit"></i> Modificar
                                 </button>
-                                <button class="btn btn-success btn-block" id="x" disabled>
-                                    <i class="fas fa-ban"></i> Opciones
-                                </button>
-                                <button class="btn btn-danger btn-block" id="x" disabled>
-                                        <i class="fas fa-ban"></i> Cerrar Matrícula
-                                </button>
+                        
                             </div>
                         
                             <div class="col-md-10 col-xs-12 box-shadows table-responsive">
@@ -225,11 +220,6 @@ let alumosRowSelectedData;
                 }
         });   
         
-    $('#tableEnrolledAlumns tbody').on('click', 'button.see1', function (){
-        //var data_see1 = datatableAlumnos.row($(this).parents("tr")).data();
-        alert("Ver puntajes")
-    } );
-
      $('#tableEnrolledAlumns tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
@@ -301,10 +291,7 @@ function chargeTableAlumnosDisabled() {
                 }
         });   
         
-    $('#tableDisabledAlumns tbody').on('click', 'button.see1', function (){
-        //var data_see1 = datatableAlumnos.row($(this).parents("tr")).data();
-        alert("Ver puntajes")
-    } );
+    
 
      $('#tableDisabledAlumns tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
@@ -620,7 +607,7 @@ function opcionesModal() {
             $('#modal_body').html(defaultModalHTML)
         })
         $('#printPDF').on('click', function () {
-            var doc = new jsPDF();
+            var doc = new jsPDF('p', 'pt');
             doc.setDrawColor(0, 0, 0);
             doc.setFontSize(16);
             doc.setFontType("bold")
@@ -629,11 +616,10 @@ function opcionesModal() {
             doc.setFontSize(10);
             doc.setFontType("normal");
             doc.text(90,58,"Preuniversitario CEBAL");
-            
-            
+
             doc.addImage(logoCebal, 'JPEG', 20, 30, 30, 10);
-            //doc.addImage(perfil, 'JPEG', 150, 52, 35, 45);
-                
+            doc.addImage(perfil, 'JPEG', 150, 52, 35, 45);
+
             doc.setFontType("bold");
             doc.text(40,78,"N° Matrícula");
             doc.setFontType("normal");
@@ -765,6 +751,10 @@ function opcionesModal() {
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-user"></i> Rut</label>
+                        <input id="modRut" type="text" value="${alumosRowSelectedData._id}"  required class="form-control border-input" readOnly>
+                    </div>
+                    <div class="col-md-4">
                         <label style="float:left;"><i class="fa fa-user"></i> Nombre</label>
                         <input id="modName" type="text" value="${alumosRowSelectedData.name}"  required class="form-control border-input" readOnly>
                     </div>
@@ -790,22 +780,13 @@ function opcionesModal() {
             <div class="card-header"><h5>Cancelación de cuotas</h5></div>
             <div class="card-body">
                 <div class="row">
-
-                    <div class="col-md-4">
-                        <label><i class="fas fa-hand-holding-usd"></i> Tipo de Pago</label>
-                        <select class="form-control" id="payment">
-                            <option selected="true" disabled="disabled">seleccione</option>
-                            <option>Cuotas</option>
-                            <option>Monto</option>
-                        </select>
-                    </div>
                     <div class="col-md-4">
                         <label><i class="fas fa-list-ol"></i> N° Cuotas</label>
                         <input class="form-control" id="numCuotas" type="number" max="${maxCuotas}" min="1" onKeyPress="if(this.value.length==1) return false;" placeholder="Ej: ${maxCuotas}">
                     </div>
                     <div class="col-md-4"> 
                         <label><i class="fas fa-money-check-alt"></i> Monto</label>
-                        <input class="form-control" id="amount" type="text" placeholder="ej: 50000" disabled>
+                        <input class="form-control" id="amount" type="text" disabled>
                     </div>
                     <div class="col-md-4"> 
                         <label><i class="fas fa-ticket-alt"></i> N° Boleta</label>
@@ -820,38 +801,44 @@ function opcionesModal() {
         </div>
         <div class="col-md-12">
             <div class="row"> 
-            <div class="offset-md-6 col-md-3" style="margin-top:15px;">
-                <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
-            </div>
-
-            <div class="col-md-3" style="margin-top:15px;">
-                <button id="save" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
-            </div>
+                <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                    <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                </div>
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="save" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
+                </div>
         </div>
         </div>
       `)
-      pags()
-      function pagos (){
+    pagos()  
+    $('#ticket').on('change', function (e){
+        saveTicket()
+    })
+    function saveTicket(){
+        let ticket = $('#ticket').val()
+        if(ticket === ''){
+            $('#save').prop('disabled', true)
+        }else{
+            $('#save').prop('disabled', false)
+        }
+    }
 
-      }
-       let tipoPago = $('#payment').val()
-       let nCuotas  = $('#numCuotas').val()
-       let Monto    = $('#amount').val()
-       let nBoleta  = $('#ticket').val()
-       let datePago = $('#initDate').val()
-      //habilitar y deshabilitar input
-        $('#payment').on('change', function (e){
-            let TypePayment  = $('#payment').val();
-            if (TypePayment == 'Cuotas'){
-                $('#dues').prop('disabled', false)
-                $('#amount').prop('disabled', true)
-                $('#amount').val("")
-            }else{
-                $('#amount').prop('disabled', false)
-                $('#dues').prop('disabled', true)
-                $('#dues').val("")
-            }
-        });
+    function pagos (){
+        $('#numCuotas').on('change', function (e){
+            let nCuotas  = $('#numCuotas').val()
+            let mCuota = alumosRowSelectedData.montoCuota
+            let montoTotal= nCuotas*mCuota
+            $('#amount').val(montoTotal)
+        })
+    }
+    //GUARDAR PAGOS
+    let rutAlumno= $('#modRut').val()
+    //let cuotasRestantes= 
+    let tipoPago = $('#payment').val()
+    let Monto    = $('#amount').val()
+    let nBoleta  = $('#ticket').val()
+    let datePago = $('#initDate').val()
+     
 
         
         $('#cancel').on('click', function () {
