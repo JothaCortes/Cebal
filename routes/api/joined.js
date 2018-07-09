@@ -109,15 +109,15 @@ const Joined = [
             payload: Joi.object().keys({
                 rutalumno: Joi.string().required(),
                 ciudadAlumno:Joi.string().required(),
-                fechaAlumno: Joi.string().allow(''),
+                fechaAlumno: Joi.string().required(),
                 nombreAlumno: Joi.string().required(),
                 apellido1Alumno: Joi.string().required(),
                 apellido2Alumno: Joi.string().allow(''),
                 correoAlumno: Joi.string().allow(''),
                 celularAlumno: Joi.string().allow(''),
-                direccionAlumno: Joi.string().allow(''),
-                nombreApoderado: Joi.string().allow(''),
-                parentescoApoderado: Joi.string().allow(''),
+                direccionAlumno: Joi.string().required(),
+                nombreApoderado: Joi.string().required(),
+                parentescoApoderado: Joi.string().required(),
                 trabajoApoderado: Joi.string().allow(''),
                 celularApoderado: Joi.string().allow(''), 
                 correoApoderado: Joi.string().allow(''),
@@ -132,6 +132,7 @@ const Joined = [
     path: '/api/nuevaMatricula',
     options: {
         handler: (request, h) => {
+            let session = request.auth.credentials;
             let rutAlumno      = request.payload.rutAlumno;
             let colegio        = request.payload.colegio;
             let estadoEgreso   = request.payload.estadoEgreso;
@@ -163,9 +164,11 @@ const Joined = [
                 }, (err, result) => {
                     if (err) throw err;
                     if (result.docs[0]) {
+                        let student = result.docs[0];
+                        let matriculaObject ={};
                         addEnrollmentCounter(session).then(res=>{
-                            let student = result.docs[0];
-                            let matriculaObject = {
+                            
+                            matriculaObject = {
                                 date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                                 numMatricula   :res,
                                 colegio        :colegio,

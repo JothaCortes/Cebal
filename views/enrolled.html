@@ -620,7 +620,7 @@ function opcionesModal() {
             $('#modal_body').html(defaultModalHTML)
         })
         $('#printPDF').on('click', function () {
-            var doc = new jsPDF();
+            var doc = new jsPDF('p', 'pt');
             doc.setDrawColor(0, 0, 0);
             doc.setFontSize(16);
             doc.setFontType("bold")

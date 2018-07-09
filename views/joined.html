@@ -194,6 +194,7 @@ h5, .h5 {
                     }).then(res => {
                         if (res.err) {
                             toastr.warning('No existen Alumnos')
+                            $('#loadingStudents').empty();
                         } else {
                             datatableAlumnos.rows.add(res).draw();
                             $('#loadingStudents').empty();
@@ -495,7 +496,7 @@ function modalMatrAlumnos() {
     </div>
         <div class="row"> 
             <div class="offset-md-6 col-md-3" style="margin-top:15px;">
-                <button id="limpiarNuevoAlumno3" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                <button id="limpiarNuevoAlumno3" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Limpiar campos</button>
             </div>
 
             <div class="col-md-3" style="margin-top:15px;">
@@ -511,6 +512,7 @@ generalFunction()
 $('#boleta').on('change', function (e){
     saveTicket()
 })
+
 
 function saveTicket(){
     let ticket = $('#boleta').val()
@@ -965,125 +967,128 @@ $('#agregarEstudiante').on('click', function () {
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Ingreso de nuevo alumno');
       $('#modal_body').html(`
-                <div class="card">
-                        <div class="card-header"><h5>Datos alumno</h5></div>
-                    <div class="card-body row">
+            <div class="card">
+                <div class="card-header"><h5>Datos alumno</h5></div>
+                <div class="card-body row">
         
-                        <div class="col-md-4">
-                            <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut</label>
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut</label>
                         <input id="rutNuevoAlumno" maxlength="12" type="text"  required class="form-control border-input"  placeholder="Ingrese Rut" >
-                        </div>
+                    </div>
 
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento</label>
-                           
-                            <input  id="fechaNuevoAlumno" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
-                       </div>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento</label>   
+                        <input  id="fechaNuevoAlumno" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
+                    </div>
 
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad</label>
-                            <input id="ciudadNuevoAlumno" type="text"  required class="form-control border-input" value="{{{ credentials.place }}}" readOnly>
-                        </div>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad</label>
+                        <input id="ciudadNuevoAlumno" type="text"  required class="form-control border-input" value="{{{ credentials.place }}}" readOnly>
+                    </div>
 
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre</label>
-                            <input id="nombreNuevoAlumno" type="text"  required class="form-control border-input"  placeholder="Ingrese Nombre">
-                        </div>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre</label>
+                        <input id="nombreNuevoAlumno" type="text"  required class="form-control border-input"  placeholder="Ingrese Nombre">
+                    </div>
 
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"> Apellido paterno</label>
-                            <input id="apellido1NuevoAlumno" type="text" class="form-control border-input"  placeholder="Ingrese primer apellido" >
-                        </div>
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;">Apellido materno</label>
-                            <input id="apellido2NuevoAlumno" type="text" class="form-control border-input" placeholder="Ingrese segundo apellido">
-                        </div>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"> Apellido paterno</label>
+                        <input id="apellido1NuevoAlumno" type="text" class="form-control border-input"  placeholder="Ingrese primer apellido" >
+                    </div>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;">Apellido materno</label>
+                        <input id="apellido2NuevoAlumno" type="text" class="form-control border-input" placeholder="Ingrese segundo apellido">
+                    </div>
 
                     
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                            <input id="correoNuevoAlumno" type="email" aria-describedby="emailHelp" class="form-control border-input"  value="" placeholder="Ingrese correo">
-                        </div>
-
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
-                            <input id="celularNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
-                        </div>
-
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección</label>
-                            <input id="direccionNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección">
-                        </div>
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
-                            <input type="file" accept="image/*" class="form-control-file" id="matrImage">
-                        </div>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
+                        <input id="correoNuevoAlumno" type="email" aria-describedby="emailHelp" class="form-control border-input"  value="" placeholder="Ingrese correo">
                     </div>
-                </div>    
-                <div class="card" style="margin-top:3px">
-                        <div class="card-header"><h5>Datos apoderado</h5></div>
-                    <div class="card-body row">        
 
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
-                            <input id="nombreApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese nombre apoderado">
-                        </div>
-
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;">Parentesco</label>
-                            <input id="parentescoApoderado" type="text" class="form-control border-input"  value="" placeholder="Parentesco apoderado">
-                        </div>
-
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
-                            <input id="trabajoApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección de trabajo">
-                        </div>
-
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
-                            <input id="celularApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
-                        </div> 
-                        <div class="col-md-4" style="margin-top:3px;">
-                            <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                            <input id="correoApoderado" type="email" aria-describedby="emailHelp" class="form-control border-input" placeholder="Ingrese correo apoderado">
-                        </div> 
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                        <input id="celularNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
                     </div>
-                </div>   
-                <div class="row"> 
-                     <div class="offset-md-3 col-md-3" style="margin-top:15px;">
-                        <button id="limpiarNuevoAlumno" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección</label>
+                        <input id="direccionNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección">
                     </div>
-                    <div class="col-md-3" style="margin-top:15px;">
-                        <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
+                        <input type="file" accept="image/*" class="form-control-file" id="matrImage">
                     </div>
                 </div>
+            </div>    
+
+            <div class="card" style="margin-top:3px">
+                <div class="card-header"><h5>Datos apoderado</h5></div>
+                <div class="card-body row">        
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
+                        <input id="nombreApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese nombre apoderado">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;">Parentesco</label>
+                        <input id="parentescoApoderado" type="text" class="form-control border-input"  value="" placeholder="Parentesco apoderado">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
+                        <input id="trabajoApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección de trabajo">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                        <input id="celularApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese celular">
+                    </div> 
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
+                        <input id="correoApoderado" type="email" aria-describedby="emailHelp" class="form-control border-input" placeholder="Ingrese correo apoderado">
+                    </div> 
+                </div>
+            </div>
+            
+            <div id="errMessages"></div>
+
+            <div class="row"> 
+                <div class="offset-md-3 col-md-3" style="margin-top:15px;">
+                    <button id="limpiarNuevoAlumno" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Limpiar</button>
+                </div>
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="guardarNuevoAlumno2" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
+                </div>
+            </div>
       `)
- //fecha nacimiento Alumno
-$('#fechaNuevoAlumno').daterangepicker({
+    //fecha nacimiento Alumno
+    $('#fechaNuevoAlumno').daterangepicker({
         "locale": {
             "format": "DD/MM/YYYY",
             "daysOfWeek": [
-            "Dom",
-            "Lun",
-            "Mar",
-            "Mie",
-            "Jue",
-            "Vie",
-            "Sab"
+                "Dom",
+                "Lun",
+                "Mar",
+                "Mie",
+                "Jue",
+                "Vie",
+                "Sab"
             ],
             "monthNames": [
-            "Enero",
-            "Febrero",
-            "Marzo",
-            "Abril",
-            "Mayo",
-            "Junio",
-            "Julio",
-            "Agosto",
-            "Septiembre",
-            "Octubre",
-            "Noviembre",
-            "Diciembre"
+                "Enero",
+                "Febrero",
+                "Marzo",
+                "Abril",
+                "Mayo",
+                "Junio",
+                "Julio",
+                "Agosto",
+                "Septiembre",
+                "Octubre",
+                "Noviembre",
+                "Diciembre"
             ],
             "firstDay": 1
         },
@@ -1106,23 +1111,17 @@ $('#fechaNuevoAlumno').daterangepicker({
         }
     })
 
-    function rutFunc (rut){
-        return $.formatRut(rut)
-    }
-    function cleanRut(rut){
-        var replace1 = rut.split('.').join('');
-        var replace2 = replace1.replace('-', '');
-        return replace2;
-    }
     //validar rut 
     $('#rutNuevoAlumno').on('keyup', function(){
         let rut  = $('#rutNuevoAlumno').val()
         if($.validateRut(rut) && rut.length>5) {
-            $('#guardarNuevoAlumno2').prop('disabled', false);  
+            $('#guardarNuevoAlumno2').prop('disabled', false);
+            $('#rutNuevoAlumno').val(rutFunc(rut))
         }else{
             $('#guardarNuevoAlumno2').prop('disabled', true);
         }
     })
+
     $('#limpiarNuevoAlumno').on('click', function () {
         $('#rutNuevoAlumno').val('')
         $('#fechaNuevoAlumno').val('')
@@ -1157,48 +1156,96 @@ $('#fechaNuevoAlumno').daterangepicker({
             let apoderadoCelular     = $('#celularApoderado').val()
             let apoderadoCorreo      = $('#correoApoderado').val()
 
+            let validateCounter = 0 // debe llegar a 8
+            let errMsg = '';
+            $('#errMessages').empty();
+
+            if(nuevoAlumnoRut.length > 5) validateCounter++; // 1
+            if(nuevoAlumnoCiudad.length > 1) validateCounter++; // 2
+            if(nuevoAlumnofecha.length > 3) validateCounter++; // 3
+            if(nuevoAlumnoNombre.length > 0) { //4
+                validateCounter++; 
+            } else {
+                errMsg += '<br> Debe ingresar el nombre del alumno.'
+            }
+
+            if(nuevoAlumnoApellido1.length > 0) { // 5
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar el apellido paterno del alumno.'
+            }
+
+            if(nuevoAlumnoDireccion.length > 0) { // 6
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar la dirección del alumno.'
+            }
+
+            if(apoderadoNombre.length > 0) { // 7
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar el nombre del apoderado del alumno.'
+            }
+            
+            if(apoderadoParentesco.length > 0) { // 8
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar el parentesco del apoderado.'
+            }
+
             let img = $('#matrImage').val()
 
             console.log(img)
-        //fin variables
-            ajax({
-                url: '/api/nuevoalumno',
-                type: 'POST',
-                data: {
-                    rutalumno:           nuevoAlumnoRut,
-                    ciudadAlumno:        nuevoAlumnoCiudad,
-                    fechaAlumno:         nuevoAlumnofecha,
-                    nombreAlumno:        nuevoAlumnoNombre,
-                    apellido1Alumno:     nuevoAlumnoApellido1,
-                    apellido2Alumno:     nuevoAlumnoApellido2,
-                    correoAlumno:        nuevoAlumnoCorreo,
-                    celularAlumno:       nuevoAlumnoCelular,
-                    direccionAlumno:     nuevoAlumnoDireccion,
-                    nombreApoderado:     apoderadoNombre,
-                    parentescoApoderado: apoderadoParentesco,
-                    trabajoApoderado:    apoderadoTrabajo,
-                    celularApoderado:    apoderadoCelular,
-                    correoApoderado:     apoderadoCorreo
-                   // img:                 img
-                }
-            }).then(res => {
-                console.log(res)
-                if(res.ok) {
-                    swal({
-                        title: 'Agregado!',
-                        backdrop: 'static', 
-                        keyboard: false,
-                        text: `El alumno ${res.ok.name} ${res.ok.lastname1} agregado correctamente.`,
-                        type: 'success',
-                        timer: 60000
-                    }).then(result => {
-                        reloadRepairTableAlumnos()
-                        $('#modalEstudiantes').modal('hide')
-                    })
-                } else {
-                    toastr.warning(res.err)
-                }	
-            })
+            //fin variables
+
+            if(validateCounter >= 8) {
+                ajax({
+                    url: '/api/nuevoalumno',
+                    type: 'POST',
+                    data: {
+                        rutalumno:           nuevoAlumnoRut,
+                        ciudadAlumno:        nuevoAlumnoCiudad,
+                        fechaAlumno:         nuevoAlumnofecha,
+                        nombreAlumno:        nuevoAlumnoNombre,
+                        apellido1Alumno:     nuevoAlumnoApellido1,
+                        apellido2Alumno:     nuevoAlumnoApellido2,
+                        correoAlumno:        nuevoAlumnoCorreo,
+                        celularAlumno:       nuevoAlumnoCelular,
+                        direccionAlumno:     nuevoAlumnoDireccion,
+                        nombreApoderado:     apoderadoNombre,
+                        parentescoApoderado: apoderadoParentesco,
+                        trabajoApoderado:    apoderadoTrabajo,
+                        celularApoderado:    apoderadoCelular,
+                        correoApoderado:     apoderadoCorreo
+                    // img:                 img
+                    }
+                }).then(res => {
+                    console.log(res)
+                    if(res.ok) {
+                        swal({
+                            title: 'Agregado!',
+                            backdrop: 'static', 
+                            keyboard: false,
+                            text: `El alumno ${res.ok.name} ${res.ok.lastname1} agregado correctamente.`,
+                            type: 'success',
+                            timer: 60000
+                        }).then(result => {
+                            reloadRepairTableAlumnos()
+                            $('#modalEstudiantes').modal('hide')
+                        })
+                    } else {
+                        toastr.warning(res.err)
+                    }	
+                })
+            } else {
+                $('#errMessages').html(`
+                <div class="alert alert-dismissible alert-warning">
+                    <h4 class="alert-heading">Se deben corregir los siguientes errores.</h4>
+                    ${errMsg}
+                </div>
+                `)
+            }
+            
         })
     };
 //BOTON ELIMINAR ESTUDIANTE
