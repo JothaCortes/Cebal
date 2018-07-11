@@ -11,6 +11,8 @@ import APIEnrolled from './api/enrolled';
 import Courses     from './courses';
 import APICourses  from './api/courses';
 
+import Scores      from './scores';
+//import APIScores   from './api/scores';
 
 import listStudents from './listStudents';
 import APIlistStudents from './api/listStudents';
@@ -92,17 +94,26 @@ const Home = {
 const Routes = [].concat(
     Login,
     Logout,
+
     Public,
     imgLogs,
     Home,
+
     Joined,
     APIJoined,
+
     Enrolled,
     APIEnrolled,
+
     Courses,
     APICourses,
+
+    Scores,
+    //APIScores,
+
     listStudents,
     APIlistStudents,
+    
     administrationPanel,
     APIadministrationPanel,
     logs,

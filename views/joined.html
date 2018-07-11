@@ -157,7 +157,7 @@ h5, .h5 {
     let numberQuotes ={};
     let valores = {};
     let typePayStatus = 0;//tipo de pago: 0 cuotas 1 contado
-
+    let statusBeca = 0;
     let estudianteDelete;
     let defaultModalHTML = '';
     let datatable;
@@ -293,9 +293,9 @@ function modalMatrAlumnos() {
                         <div class="col-md-4">
                             <label style="float:left;"><i class="fab fa-bimobject"></i> Becado</label>
                             <select class="form-control" id="matrBeca">
-                                    <option selected="true" disabled="disabled">seleccione</option>
-                                    <option>Si</option>
                                     <option>No</option>
+                                    <option>Si</option>
+                                   
                                 </select>
                         </div>
 
@@ -304,11 +304,15 @@ function modalMatrAlumnos() {
                                 <label><i class="far fa-calendar-check"></i> Año de egreso</label>
                                 <select class="form-control" id="matrAñoEgreso">
                                     <option selected="true" disabled="disabled">seleccione</option>
+                                    <option>2010</option>
+                                    <option>2011</option>
+                                    <option>2012</option>
                                     <option>2013</option>
                                     <option>2014</option>
                                     <option>2015</option>
                                     <option>2016</option>
                                     <option>2017</option>
+                                    <option>2018</option>
                                 </select> 
                             </div>  
                         </div>
@@ -409,12 +413,7 @@ function modalMatrAlumnos() {
                                 <option>Hermano (15%)</option>
                                 <option>Director (10%)</option>
                             </optgroup>
-                            <optgroup label="Colegio">
-                                <option>10%</option>
-                                <option>15%</option>
-                                <option>20%</option>
-                            </optgroup>
-                            <optgroup label="Otro descuento">
+                            <optgroup label="Sin descuento">
                                 <option>Seleccionar</option>
                             </optgroup>
                         </select>
@@ -424,17 +423,12 @@ function modalMatrAlumnos() {
                         <select class="custom-select"  id="matrDescuento2" disabled>
                             <option selected="true" disabled="disabled">seleccione</option>
                             <optgroup label="Seleccionar descuento">
-                                <option>Hijo de profesor (15%)</option>
-                                <option>Ex alumno (5%)</option>
-                                <option>Hermano (15%)</option>
-                                <option>Director (10%)</option>
+                                <option disabled>Hijo de profesor (15%)</option>
+                                <option disabled>Ex alumno (5%)</option>
+                                <option disabled>Hermano (15%)</option>
+                                <option disabled>Director (10%)</option>
                             </optgroup>
-                            <optgroup label="Colegio">
-                                <option>10%</option>
-                                <option>15%</option>
-                                <option>20%</option>
-                            </optgroup>
-                            <optgroup label="Otro descuento">
+                            <optgroup label="Sin descuento">
                                 <option>Seleccionar</option>
                             </optgroup>
                         </select>
@@ -542,16 +536,18 @@ function saveTicket(){
 function generalFunction(){
     quotaValues().then(res => {
         numberQuotesCebal ().then(res => {
-            //calcularValoresPromedio().then(res => {
+           // calcularValoresPromedio().then(res => {
                 wayToPay().then(res => {
                     calcularDescuento1().then(res => {
                         calcularDescuento2().then(res => {
-                            calcularMontoTotal()
-                            console.log(allValues) 
+                            beca().then(res =>{
+                                calcularMontoTotal()
+                                console.log(allValues) 
+                            })
                         })
                     })
                 })
-           // })
+            //})
         })
     })
 }
@@ -573,11 +569,16 @@ $('#matrDescuento').on('change', function (e){
 $('#matrDescuento2').on('change', function (e){
     generalFunction()
 })
-/*TODO: TERMINAR
-$('#matrPromedio').on('change', function (e){
-    validarValorPromedio()
+$('#matrBeca').on('change', function(){
     generalFunction()
-}) */
+})
+//TODO: TERMINAR
+$('#matrPromedio').on('change', function (e){
+    //validarValorPromedio()
+    generalFunction()
+}) 
+
+
 
 //Promedio min 10 y max 70
 function validarValorPromedio(){
@@ -589,7 +590,7 @@ function validarValorPromedio(){
     }
 }
 
-/*/calcular los valores segun promedio de notas
+//calcular los valores segun promedio de notas
 function calcularValoresPromedio(){
     return new Promise(resolve =>{
        let average = $('#matrPromedio').val()
@@ -599,33 +600,70 @@ function calcularValoresPromedio(){
         valores.graduated = res.filter(function(el) {
             return el.status == 'graduated';
         })[0].notes
+        console.log(valores.graduated)
+        
 
             if (average === '64'){
                 let Score64 = valores.graduated.filter(function(el) {
                     return el.score == '64';
                 })[0].price
-                console.log(Score64)
-
                 resolve()
             }else{
+                alert("no ha seleccionado nada")
                 resolve()
             } 
             resolve()
         }
-
+    resolve()
     })
-}*/
+}
+//becado o no becado
+function beca(){
+    return new Promise(resolve =>{
+    let beca = $('#matrBeca').val()
+        if (beca === 'Si'){
+            statusBeca = 1
+            allValues.cantidadCuotas = 0
+            allValues.montoPorCuota = 0
+            allValues.totalCuotas = 0
+            $('#matrFormaPago').val("Contado")
+            $('#matrFormaPago').prop('disabled', true)
+            resolve()
+        }else if (beca === 'No'){
+            statusBeca = 0
+            $('#matrFormaPago').prop('disabled', false)
+            resolve()
+        }
+    })
+}
+
 //calcular los descuentos
 function calcularDescuento1(){
     return new Promise(resolve =>{
         let descuento = $('#matrDescuento').val()
-        if(descuento ==='Hijo de profesor (15%)' ||descuento === 'Hermano (15%)' || descuento === '15%'){
+        if(descuento ==='Hijo de profesor (15%)'){
             allValues.descuentoCuota1= allValues.montoPorCuota * 0.15;
             montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
             allValues.montoPorCuota = Math.floor(montoxCuota)
             totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
             allValues.totalCuotas= Math.floor(totalAllCuotas)
-          
+            $('#matrDescuento2 option:eq(2)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(3)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(4)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(1)').prop('disabled', true);
+            $('#matrDescuento2').prop('disabled', false)
+            resolve()
+        }else if(descuento ==='Hermano (15%)'){
+            allValues.descuentoCuota1= allValues.montoPorCuota * 0.05;
+            montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
+            allValues.montoPorCuota = Math.floor(montoxCuota)
+            totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
+            allValues.totalCuotas= Math.floor(totalAllCuotas)
+            $('#matrDescuento2 option:eq(1)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(2)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(4)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(3)').prop('disabled', true);
+            $('#matrDescuento2').prop('disabled', false)
             resolve()
         }else if(descuento ==='Ex alumno (5%)'){
             allValues.descuentoCuota1= allValues.montoPorCuota * 0.05;
@@ -633,21 +671,27 @@ function calcularDescuento1(){
             allValues.montoPorCuota = Math.floor(montoxCuota)
             totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
             allValues.totalCuotas= Math.floor(totalAllCuotas)
+            $('#matrDescuento2 option:eq(1)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(3)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(4)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(2)').prop('disabled', true);
+            $('#matrDescuento2').prop('disabled', false)
             resolve()
-        
-        }else if(descuento ==='Director (10%)' || descuento === '10%'){
+        }else if(descuento ==='Director (10%)'){
             allValues.descuentoCuota1= allValues.montoPorCuota * 0.10;
             montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
             allValues.montoPorCuota = Math.floor(montoxCuota)
             totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
             allValues.totalCuotas= Math.floor(totalAllCuotas)
+            $('#matrDescuento2 option:eq(1)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(2)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(3)').prop('disabled', false);
+            $('#matrDescuento2 option:eq(4)').prop('disabled', true);
+            $('#matrDescuento2').prop('disabled', false)
             resolve()
-        }else if(descuento ==='20%'){
-            allValues.descuentoCuota1= allValues.montoPorCuota * 0.20;
-            montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
-            allValues.montoPorCuota = Math.floor(montoxCuota)
-            totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
-            allValues.totalCuotas= Math.floor(totalAllCuotas)
+        }else if (descuento ==='Seleccionar'){
+            $('#matrDescuento2').prop('disabled', true)
+            $('#matrDescuento2').val("seleccione")
             resolve()
         }else{
             resolve()
@@ -657,17 +701,13 @@ function calcularDescuento1(){
 function calcularDescuento2(){
     return new Promise(resolve =>{
         let descuento2 = $('#matrDescuento2').val()
-        if(descuento2 ==='Hijo de profesor (15%)' ||descuento2 === 'Hermano (15%)' || descuento2 === '15%'){
+        if(descuento2 ==='Hijo de profesor (15%)' ||descuento2 === 'Hermano (15%)'){
             
             montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.15
             allValues.montoPorCuota = Math.floor(montoxCuotas)
             totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
             allValues.totalCuotas= Math.floor(totalAllCuota)
 
-           /* allValues.montoPorCuota = (allValues.montoPorCuota - allValues.descuentoCuota2)
-            allValues.totalCuotas = (allValues.cantidadCuotas * allValues.montoPorCuota )
-            console.log('monto total',allValues.totalCuotas) */
-           
             resolve()
         }else if(descuento2 ==='Ex alumno (5%)'){
             montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.05
@@ -676,14 +716,8 @@ function calcularDescuento2(){
             allValues.totalCuotas= Math.floor(totalAllCuota)
             resolve()
         
-        }else if(descuento2 ==='Director (10%)' || descuento2 === '10%'){
+        }else if(descuento2 ==='Director (10%)'){
             montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.10
-            allValues.montoPorCuota = Math.floor(montoxCuotas)
-            totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
-            allValues.totalCuotas= Math.floor(totalAllCuota)
-            resolve()
-        }else if(descuento2 ==='20%'){
-            montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.20
             allValues.montoPorCuota = Math.floor(montoxCuotas)
             totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
             allValues.totalCuotas= Math.floor(totalAllCuota)
@@ -799,10 +833,7 @@ function quotaValues (){
    
 }
 
-//activar descuento2
-$('#matrDescuento').on('change', function (e){
-    $('#matrDescuento2').prop('disabled', false)
-});
+
 //fecha matricula
 $('#matrFecha').daterangepicker({
         "locale": {
@@ -851,22 +882,6 @@ $('#matrEgreso').on('change', function(){
         $('#matrAñoEgreso').val('')
     }
     })
-  //BECA = SOLO SE PAGA MATRICULA
-  $('#matrBeca').on('change', function(){
-        let Matr = $('#matrBeca').val()
-    if (Matr == 'Si'){
-        $('#matrNumCuotas').val('0')
-        $('#matrMontoCuota').val('0')
-        $('#matrTotalCuotas').val('0')
-        $('#matrMontoTotal').val('0')
-        let valorMatr = $('#matrValor').val()
-        $('#matrMontoTotal').val(valorMatr)
-        $('#matrFormaPago').prop('disabled', true);
-    }else{
-       // $('#matrAñoEgreso').val("false");
-    }
-    }) 
-
     //validar solo numeros
     $(document).ready(function (){
         $('.solo-numero').keyup(function (){
@@ -931,9 +946,15 @@ $('#matrEgreso').on('change', function(){
                 montoTotal    :montoTotal,
                 boleta        :boleta,
                 formaPagoMatricula:formaPagoMatricula
-            }
+            } 
+      
+           
+            //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
         }).then(res => {
-            console.log(res)
+            if(res.error){
+                toastr.error(res.error)
+            }else{
+           
             swal({
                 title: 'Agregado!',
                 backdrop: 'static', 
@@ -946,6 +967,7 @@ $('#matrEgreso').on('change', function(){
                     reloadRepairTableAlumnos()
 
                 })
+            }
             })
         })
  //iniciar select de horarios

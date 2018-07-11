@@ -224,9 +224,6 @@ const Joined = [
                             }
                             student.matricula = matriculaObject;
                             student.status = 'enrolled'
-                         
-
-                            
                             crearBoleta({
                                 numBoleta:boleta,
                                 credentials:session,
@@ -243,22 +240,14 @@ const Joined = [
                                     });
                                 } else {
                                     console.log(res2.err)
-                                }
-                                
-                            })
-                            
-                         
-                            
+                                }      
+                            })     
                         })
-
-                        
                     } else {
                        resolve({ err: 'no se encuentra el alumno' });
                     }
                 });
             })
-            
-            
         }, 
         validate: {
             payload: Joi.object().keys({
