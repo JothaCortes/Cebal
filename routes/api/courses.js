@@ -83,24 +83,29 @@ const Courses = [
         }
     }
 },
-{ //TRAER ALUMNOS
-    method: 'GET',
-    path: '/api/alumnosAsignar', 
+//asedrftghjkl
+{
+    method: 'POST',
+    path: '/api/alumnosporhorario',
     options: {
         handler: (request, h) => {
-            let credentials = request.auth.credentials;
+            let horario = request.payload.horario;
+
             return new Promise(resolve => {
                 db.find({
-                    'selector': {
-                        '_id': {
-                            '$gte': null
+                    selector: {
+                        _id: {
+                            $gte: null
                         },
-                        'city': credentials.place,
-                        'type': 'alumnos',
-                        'status': 'enrolled'
+                        type: 'alumnos',
+                        statusCourse: "notAsigned",
+                        matricula: {
+                            horario: horario
+                        }
                     }
-                }, (err, result) => {
+                }, function (err, result) {
                     if (err) throw err;
+
                     if (result.docs[0]) {
                         let res = result.docs.reduce((arr, el, i)=>{
                             return arr.concat({
@@ -133,19 +138,21 @@ const Courses = [
                                 tipoCurso: el.matricula.tipoCurso,
                                 formaP: el.matricula.finance.formaPago,
 
-                                numCuotas:el.matricula.finance.numCuotas,
-                                montoCuota:el.matricula.finance.montoCuota,
-                                totalCuotas:el.matricula.finance.totalCuotas,
-                                montoTotal: el.matricula.finance.montoTotal
+                                
                             })
                         }, []) 
-
-                        resolve(res);
+                        console.log(result)
+                        resolve({ok: res})
                     } else {
-                        resolve({ err: 'no existen alumnos' });
+                        resolve({ err: `No se encuentran alumnos con horario ${horario}`});
                     }
                 });
             });
+        },
+        validate: {
+            payload: Joi.object().keys({
+                horario: Joi.string()
+            })
         }
     }
 },
