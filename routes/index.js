@@ -12,7 +12,7 @@ import Courses     from './courses';
 import APICourses  from './api/courses';
 
 import Scores      from './scores';
-//import APIScores   from './api/scores';
+import APIScores   from './api/scores';
 
 import listStudents from './listStudents';
 import APIlistStudents from './api/listStudents';
@@ -109,7 +109,7 @@ const Routes = [].concat(
     APICourses,
 
     Scores,
-    //APIScores,
+    APIScores,
 
     listStudents,
     APIlistStudents,

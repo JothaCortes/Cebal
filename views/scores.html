@@ -1,14 +1,287 @@
 {{!< layout/default}}
-<style>
 
-</style>
 {{#extend "css"}}
-
+<style>
+.card-header{
+    background-color: #9dacea;
+    color:#333333;
+    padding: 0.2rem 1.25rem;
+  }
+</style>
 {{/extend}}
-{{#extend "js"}}
+<div class="col-md-12" >
+    <div class="row"> 
+        <div class="offset-md-10 col-md-2" >  
+            <label><h5>Sede: {{{ credentials.place }}}</h5></label>
+        </div>
+      <br>    
+    </div>
+</div> <hr>
+<div class="col-md-12">
+        <ul class="nav nav-pills mb-3 nav-justified" id="pills-tab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">Pruebas</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Puntajes</a>
+            </li>
+        </ul>
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+            <div class="row">
+                <div class="col-md-2 col-xs-12">
+                        <br>
+                        <button class="btn btn-primary btn-block" id="nuevaPrueba" style="margin-top: 20px">
+                            <i class="fa fa-plus"></i> Agregar
+                        </button>
+                        <br>
+                        <button class="btn btn-success btn-block" id="modCourse" disabled>
+                            <i class="fas fa-edit"></i> Modificar
+                        </button>
+                        <br>
+                        <button class="btn btn-danger btn-block" id="deletCourse" disabled>
+                            <i class="fas fa-ban"></i> Eliminar
+                        </button>
+                    </div>
+                    <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                        <table id="tableScores" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Fecha</th>
+                                    <th>Materia</th>
+                                    <th>Horario</th>
+                                    <th>Curso</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div id="loadingScores">
+                            <center>
+                                <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                                <span class="sr-only">Cargando...</span>
+                            </center>
+                        </div>
+                    </div>    
+            </div>
+        </div>
+    
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+            <div class="container-fluid">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+                        <div class="row">
+                            <div class="col-md-2 col-xs-12">
+                                <br>
+                                <button class="btn btn-primary btn-block" id="asignar" style="margin-top: 20px" disabled>
+                                    <i class="fa fa-plus"></i> Asignar
+                                </button>
+                                <br>
+                                <button class="btn btn-success btn-block" id="x" disabled>
+                                    <i class="fas fa-edit"></i> Modificar
+                                </button>
+                                <br>
+                                <button class="btn btn-danger btn-block" id="x" disabled>
+                                    <i class="fas fa-ban"></i> Eliminar
+                                </button>
+                            </div>
+                            <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                                <table id="tableAlumnosAsignar" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Rut</th>
+                                            <th>Nombre</th>
+                                            <th>Puntaje</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <div id="loadingScoreOk">
+                                    <center>
+                                        <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                                        <span class="sr-only">Cargando...</span>
+                                    </center>
+                                </div>
+                            </div>    
+                        </div>
+                    </div>
+                </div> 
+            </div>
+        </div>
+    </div>
+</div>
 
-<h1>Hola</h1>
+<!-- Modal formato-->
+<div class="modal fade" id="modalScores" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #ffffff">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
+        </div>
+    </div>
+</div>
+{{#extend "js"}}
 <script>
+
+$('#nuevaPrueba').on('click', function () {
+    modalnuevaPrueba();
+})
+function modalnuevaPrueba() { 
+    $('#modalScores').modal();
+    $('#modal_title').text('Crear nueva Prueba');
+    $('#modal_body').html(`
+    <div class="card  mb-12" style="max-width: 50rem;">
+            <div class="card-header"><h5>Datos curso</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label ><i class="far fa-calendar-alt"></i> Año</label>
+                        <select class="form-control" id="selectyear" disabled>
+                            <option>2018</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-user"></i> Horario</label>
+                        <select id="selectHorary">
+                                <option></option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-key"></i> Nombre</label>
+                        <select id="selectname">
+                                <option></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+                
+
+        <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
+            <div class="card-header"><h5>Datos prueba</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label><i class="fas fa-list-ol"></i> Materia</label>
+                        <select class="form-control" id="selectMateria">
+                            <option>Historia</option>
+                            <option>Lenguaje y Comunicación</option>
+                            <option>Matemáticas</option>
+                            <option>Ciencias</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4"> 
+                        <label><i class="fas fa-money-check-alt"></i> Nombre o descripción</label>
+                        <input class="form-control" id="namePrueba" type="text">
+                    </div>
+                    <div class="col-md-4">
+                        <label><i class="fas fa-calendar-alt"></i> fecha </label>
+                        <input  id="initDatePrueba" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <div class="row"> 
+                <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                    <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                </div>
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="save" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
+                </div>
+        </div>
+        </div>     
+    `)
+
+ $('#cancel').on('click', function () {
+    $('#modalScores').modal('hide')
+ })
+//fecha matricula
+$('#initDatePrueba').daterangepicker({
+        "locale": {
+            "format": "DD/MM/YYYY",
+            "daysOfWeek": [
+            "Dom",
+            "Lun",
+            "Mar",
+            "Mie",
+            "Jue",
+            "Vie",
+            "Sab"
+            ],
+            "monthNames": [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+            ],
+            "firstDay": 1
+        },
+        drops: "up",
+        singleDatePicker: true,
+        showDropdowns: true
+    });
+ //Iniciar select de cursos
+    let selects = {
+        horary: []
+    }
+    ajax({ // cargar horarios
+    url:'/api/horaryTraer'
+    }).then(res => {
+        selects.place = res.filter(function(el) {
+            return el.place == '{{{credentials.place}}}'
+        })
+        let horario = selects.place.reduce((arr, el, i) => {
+            return arr.concat({
+                id: i,
+                text: el.horary
+            })   
+        }, []);
+        $('#selectHorary').select2({
+            placeholder:'seleccione',
+            width:'100%',
+            data: horario
+        });
+    });  
+
+ajax({ // cargar cursos
+    url:'/api/coursesTraer'
+    }).then(res => {
+        $('#selectHorary').on('change', function (e) {
+            let selectedHorario = $('#selectHorary').select2('data')[0].text;
+            let horarioSelect = res.filter(function(el) {
+                return el.horary == selectedHorario
+            })
+            let nameCourseSelect = horarioSelect.reduce((arr, el, i) => {
+                return arr.concat({
+                    id: i,
+                    text: el.name
+                })   
+            },[]);
+            $('#selectname').empty()
+            $('#selectname').select2({
+                    placeholder:'seleccione',
+                    width:'100%',
+                    data: nameCourseSelect
+            })
+        }); 
+    });  
+    };
+
+    
 
 </script>
 {{/extend}}
