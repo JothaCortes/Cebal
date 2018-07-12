@@ -507,14 +507,13 @@ $('#cancelarHide').on('click', function () {
             let rowTodelete = datatableAlumnosEnrolled.row($(this)).data();
 
             alumnosaAsignar = alumnosaAsignar.filter(function(el) {
-                return el !== rowTodelete
+                return el !== rowTodelete._id
             })
         } else {
             $(this).addClass('selected');
             $('#asignar').prop('disabled', false);
             alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
             alumnosaAsignar.push(alumosRowSelectedData._id)
-            console.log(alumnosaAsignar)
         }
     });
 }
