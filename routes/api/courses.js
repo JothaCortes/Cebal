@@ -165,12 +165,17 @@ const Courses = [
                                     date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                                     usuario :`${credentials.name} ${credentials.lastname}`     
                                 })
-                            }, []) 
+                            }, [])
                             console.log(alumnosReduce)
-
                             changeStudentCourseStatus(alumnos).then(res=>{
                                 if(res.ok) {
-                                    resolve(res.ok)
+                                    let addToCourse = result.docs[0]
+                                    addToCourse.alumnos = alumnosReduce
+                                  
+                                    db.insert(addToCourse, function (errUpdate, body) {
+                                        if (errUpdate) throw errUpdate;
+                                        resolve(res.ok)
+                                    });
                                 } else if(res.err) {
                                     resolve(res.err)
                                 }

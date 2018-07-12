@@ -512,9 +512,6 @@ $('#cancelarHide').on('click', function () {
         } else {
             $(this).addClass('selected');
             $('#asignar').prop('disabled', false);
-          
-
-
             alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
             alumnosaAsignar.push(alumosRowSelectedData._id)
             console.log(alumnosaAsignar)
