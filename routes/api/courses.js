@@ -83,14 +83,13 @@ const Courses = [
         }
     }
 },
-//asedrftghjkl
+//Mostrar alumnos por horario del curso seleccionado
 {
     method: 'POST',
     path: '/api/alumnosporhorario',
     options: {
         handler: (request, h) => {
             let horario = request.payload.horario;
-
             return new Promise(resolve => {
                 db.find({
                     selector: {
@@ -98,7 +97,9 @@ const Courses = [
                             $gte: null
                         },
                         type: 'alumnos',
-                        statusCourse: "notAsigned",
+                        $not: {
+                            statusCourse: 'assigned'
+                        },
                         matricula: {
                             horario: horario
                         }
@@ -111,34 +112,16 @@ const Courses = [
                             return arr.concat({
                                 _id: el._id,
                                 status: el.status,
-                                birthday:el.birthday,  
                                 name: el.name,
                                 lastname1: el.lastname1,
                                 lastname2: el.lastname2,
-                                email: el.email,
-                                phone: el.phone,
-                                address: el.address,
-                                nameAp: el.nameAp,
-                                relationshipAp: el.relationshipAp,
-                                workAp: el.workAp,
-                                phoneAp: el.phoneAp,
-                                city: el.city,
-
                                 colegio:el.matricula.colegio,
                                 añoEgreso:el.matricula.añoEgreso,
                                 promedio:el.matricula.promedio,
                                 horario:el.matricula.horario,
                                 electivo:el.matricula.electivo,
                                 electivo2:el.matricula.electivo2,
-                                apoderado: el.nameAp,
-                                parentesco: el.relationshipAp,
-                                workAp: el.workAp,
-                                phoneAp:el.phoneAp,
-                                date: el.matricula.date,
-                                tipoCurso: el.matricula.tipoCurso,
-                                formaP: el.matricula.finance.formaPago,
-
-                                
+                                tipoCurso: el.matricula.tipoCurso
                             })
                         }, []) 
                         console.log(result)
@@ -152,6 +135,54 @@ const Courses = [
         validate: {
             payload: Joi.object().keys({
                 horario: Joi.string()
+            })
+        }
+    }
+},
+//GUARDAR ALUMNOS EN UN CURSO
+{ 
+    method: 'POST',
+    path: '/api/asignarAlumnosACurso',
+    options: {
+        handler: (request, h) => {
+            let credentials = request.auth.credentials;
+            let alumnos   = JSON.parse(request.payload.alumnos);
+            let curso     = request.payload.idCurso
+            return new Promise(resolve=>{
+                db.find({
+                    selector: {
+                      _id: curso,
+                      status: 'enabled'
+                    },
+                    limit: 1
+                  }, (err, result) => {
+                      if (err) throw err;
+                      
+                      if(result.docs[0]) {
+                            let alumnosReduce = alumnos.reduce((arr, el, i)=>{
+                                return arr.concat({
+                                    rut:el,
+                                    date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                                    usuario :`${credentials.name} ${credentials.lastname}`     
+                                })
+                            }, []) 
+                            console.log(alumnosReduce)
+
+                            changeStudentCourseStatus(alumnos).then(res=>{
+                                if(res.ok) {
+                                    resolve(res.ok)
+                                } else if(res.err) {
+                                    resolve(res.err)
+                                }
+                            })
+                      }
+                  });
+            })
+        },
+        validate: {
+            payload: Joi.object().keys({
+                alumnos: Joi.string(),
+                idCurso : Joi.string()
             })
         }
     }
@@ -279,4 +310,37 @@ const Courses = [
 },
 
 ];
+
+function changeStudentCourseStatus(alumnos){
+    return new Promise(resolve => {
+        db.find({
+            'selector': {
+                '_id': {
+                    '$in': alumnos
+                },
+                'type': 'alumnos',
+            }
+        }, (err, result) => {
+            if (err) throw err;
+
+            if (result.docs[0]) {
+                //console.log(result.docs)
+
+                let alumnosReduce = result.docs.reduce((arr, el, i)=>{
+                    el.statusCourse = 'assigned'
+                    return arr.concat(el)
+                }, []) 
+
+                db.bulk({docs:alumnosReduce}, function(er) {
+                    if (err) throw err;
+                    resolve({ok: 'Alumnos asignados correctamente'})
+                });
+
+
+            } else {
+                resolve({ err: 'no existen alumnos' });
+            }
+        });
+    });
+}
 export default Courses;

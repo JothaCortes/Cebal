@@ -81,14 +81,15 @@ const Joined = [
                 relationshipAp :parentescoAp,
                 workAp         :trabajoAp,
                 phoneAp        :celularAp, 
-                emailAp        :correoAp
+                emailAp        :correoAp,
+                statusCourse   :''
             }
             
             return new Promise(resolve => {
                 db.find({
                     'selector': {
-                        '_id': clean(rut),
-                        'type': 'alumnos',
+                        '_id': cleanRut(rut),
+                        'type': 'alumnos'
                     }
                 }, (err, result) => {
                     if (err) throw err;

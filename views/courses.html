@@ -12,7 +12,7 @@
     background-color: #FF7518;
     border-color: #FF7518;
 }
-.modal-lg {
+.modal-lg2 {
 max-width: 1400px;
 }
 </style>
@@ -85,7 +85,7 @@ max-width: 1400px;
 
 <!-- Modal formato-->
 <div class="modal fade" id="modalCourses" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg2" role="document">
         <div class="modal-content" style="background-color: #ffffff">
             <div class="modal-header" style="background:#333333; color:#fff">
                 <h5 class="modal-title" id="modal_title"></h5>
@@ -98,12 +98,28 @@ max-width: 1400px;
         </div>
     </div>
 </div>
+<!-- Modal formato-->
+<div class="modal fade" id="modalCourses2" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #ffffff">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title2"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body2"></div>
+            <div class="modal-footer" id="modal_footer2"></div>
+        </div>
+    </div>
+</div>
 
 
 {{#extend "js"}}
 <script>
 //DATATABLE CURSOS
-let horarioSelect='';
+let horarioSelect ='';
+let cursoSelected ='';
 let alumnosaAsignar=[]
 let datatable;
 let datatableCourse;
@@ -158,8 +174,8 @@ jQuery(document).ready(function ($) {
             cursosRowSelectedData = datatableCourse.row($(this)).data();
             coursesRowSelected = datatableCourse.row($(this));
             horarioSelect = cursosRowSelectedData.horary
-            console.log(horarioSelect)
-            
+            cursoSelected = cursosRowSelectedData._id
+           
             $('#modCourse').prop('disabled', false);
             $('#deletCourse').prop('disabled', false);
             $('#asignarCourse').prop('disabled', false);
@@ -198,9 +214,9 @@ function modalAsignarCurso() {
     `)}
 
 function modalNewCourse() { 
-    $('#modalCourses').modal();
-    $('#modal_title').text('Crear nuevo curso');
-    $('#modal_body').html(`
+    $('#modalCourses2').modal();
+    $('#modal_title2').text('Crear nuevo curso');
+    $('#modal_body2').html(`
     <div class="row">
         <div class="offset-md-2 col-md-8">
             <label><i class="fas fa-users"></i> Nombre</label>
@@ -443,10 +459,6 @@ function modalAsignarCurso() {
 $('#cancelarHide').on('click', function () {
     $('#modalCourses').modal('hide')
 })  
-  
-console.log("horarioselect",horarioSelect)
-  
-
     jQuery(document).ready(function ($) {
     chargeTableAlumnos()
     });
@@ -499,18 +511,36 @@ console.log("horarioselect",horarioSelect)
             })
         } else {
             $(this).addClass('selected');
-            alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
-            alumnosaAsignar.push(alumosRowSelectedData)
-            
-            console.log(alumnosaAsignar)
-
-           
-            //console.log( alumosRowSelectedData.rut)
             $('#asignar').prop('disabled', false);
+          
+
+
+            alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
+            alumnosaAsignar.push(alumosRowSelectedData._id)
+            console.log(alumnosaAsignar)
         }
     });
-}   
-    
+}
+$('#asignar').on('click', function () {
+    asignarAlumnosACurso()
+})     
+}
+function asignarAlumnosACurso(){
+    if (alumnosaAsignar[0]){
+        ajax({
+            url:'api/asignarAlumnosACurso',
+            type:'POST',
+            data:{
+                alumnos: JSON.stringify(alumnosaAsignar),
+                idCurso: cursoSelected
+            }
+        }).then(res=>{
+            console.log(res)
+        })
+    }else{
+        toastr.warning('No se ha seleccionado ningún alumno')
+    }
+  
 }
 
     
