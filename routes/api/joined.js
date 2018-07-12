@@ -241,6 +241,7 @@ const Joined = [
                                     });
                                 } else {
                                     console.log(res2.err)
+                                    resolve(res2.err)
                                 }      
                             })     
                         })
@@ -525,7 +526,6 @@ const Joined = [
 }
 ];
 
-
 function addEnrollmentCounter(credentials) {
     console.log(credentials)
     return new Promise(resolve=>{
@@ -566,12 +566,13 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                 console.log('No existe la boleta... creando')
                 let newTicket = {
                     _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                    type: 'boleta',
                     numBoleta: numBoleta,
                     cuotas:cuotas,
                     monto: monto,
                     rutAlumno: cleanRut(rutAlumno),
                     place:credentials.place,
-                    rutCreador: cleanRut(credentials.rut),
+                    rutCreador: cleanRut(credentials.rut), // usuario que generó la boleta
                     formaPagoMatricula:formaPagoMatricula
                 }
                 db.insert(newTicket, function (errUpdate, body) {

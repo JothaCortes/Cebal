@@ -626,12 +626,16 @@ function beca(){
             allValues.cantidadCuotas = 0
             allValues.montoPorCuota = 0
             allValues.totalCuotas = 0
-            $('#matrFormaPago').val("Contado")
+            $('#matrFormaPago').val('Contado')
             $('#matrFormaPago').prop('disabled', true)
+            $('#matrDiaCobro').val('0')
+            $('#matrDiaCobro').prop('disabled', true)
             resolve()
         }else if (beca === 'No'){
             statusBeca = 0
             $('#matrFormaPago').prop('disabled', false)
+            $('#matrDiaCobro').val('')
+            $('#matrDiaCobro').prop('disabled', false)
             resolve()
         }
     })
@@ -915,7 +919,7 @@ $('#matrEgreso').on('change', function(){
         let montoCuota     = $('#matrMontoCuota').val()
         let totalCuotas    = $('#matrTotalCuotas').val()
         let montoTotal     = $('#matrMontoTotal').val()
-        let boleta         =$('#boleta').val()
+        let boleta         = $('#boleta').val()
         let formaPagoMatricula =$('#matrFormaPago').val()
         
         //fin variables
@@ -951,23 +955,22 @@ $('#matrEgreso').on('change', function(){
            
             //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
         }).then(res => {
-            if(res.error){
-                toastr.error(res.error)
-            }else{
-           
-            swal({
-                title: 'Agregado!',
-                backdrop: 'static', 
-                keyboard: false,
-                text: res.ok,
-                type: 'success',
-                timer: 60000
-                }).then(result => {
-                    $('#modalEstudiantes').modal('hide')
-                    reloadRepairTableAlumnos()
+            if(res.err){
+                toastr.warning(res.err)
+            } else {
+                swal({
+                    title: 'Agregado!',
+                    backdrop: 'static', 
+                    keyboard: false,
+                    text: res.ok,
+                    type: 'success',
+                    timer: 10000
+                    }).then(result => {
+                        $('#modalEstudiantes').modal('hide')
+                        reloadRepairTableAlumnos()
 
-                })
-            }
+                    })
+                }
             })
         })
  //iniciar select de horarios
