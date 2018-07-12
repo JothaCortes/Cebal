@@ -170,8 +170,11 @@ const Courses = [
                             changeStudentCourseStatus(alumnos).then(res=>{
                                 if(res.ok) {
                                     let addToCourse = result.docs[0]
-                                    addToCourse.alumnos = alumnosReduce
-                                  
+                                    if (!addToCourse.alumnos){
+                                        addToCourse.alumnos = alumnosReduce
+                                    }else{
+                                        addToCourse.alumnos.push(alumnosReduce)
+                                    }
                                     db.insert(addToCourse, function (errUpdate, body) {
                                         if (errUpdate) throw errUpdate;
                                         resolve(res.ok)

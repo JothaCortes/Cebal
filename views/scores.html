@@ -126,6 +126,7 @@
 </div>
 {{#extend "js"}}
 <script>
+    let courseSelected ='';
 
 $('#nuevaPrueba').on('click', function () {
     modalnuevaPrueba();
@@ -151,7 +152,7 @@ function modalnuevaPrueba() {
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label style="float:left;"><i class="fa fa-key"></i> Nombre</label>
+                        <label style="float:left;"><i class="fa fa-key"></i> Nombre curso</label>
                         <select id="selectname">
                                 <option></option>
                         </select>
@@ -183,6 +184,10 @@ function modalnuevaPrueba() {
                         <label><i class="fas fa-calendar-alt"></i> fecha </label>
                         <input  id="initDatePrueba" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
                     </div>
+                    <div class="col-md-4"> 
+                        <label><i class="fas fa-money-check-alt"></i> Docente</label>
+                        <input class="form-control" id="nameDocente" type="text">
+                    </div>
                 </div>
             </div>
         </div>
@@ -192,12 +197,11 @@ function modalnuevaPrueba() {
                     <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
                 </div>
                 <div class="col-md-3" style="margin-top:15px;">
-                    <button id="save" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
+                    <button id="saveScore" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
                 </div>
         </div>
         </div>     
     `)
-
  $('#cancel').on('click', function () {
     $('#modalScores').modal('hide')
  })
@@ -260,17 +264,21 @@ $('#initDatePrueba').daterangepicker({
 ajax({ // cargar cursos
     url:'/api/coursesTraer'
     }).then(res => {
+        console.log(res)
         $('#selectHorary').on('change', function (e) {
             let selectedHorario = $('#selectHorary').select2('data')[0].text;
+
             let horarioSelect = res.filter(function(el) {
                 return el.horary == selectedHorario
             })
+           
             let nameCourseSelect = horarioSelect.reduce((arr, el, i) => {
                 return arr.concat({
                     id: i,
                     text: el.name
                 })   
             },[]);
+            console.log(nameCourseSelect)
             $('#selectname').empty()
             $('#selectname').select2({
                     placeholder:'seleccione',
@@ -278,8 +286,49 @@ ajax({ // cargar cursos
                     data: nameCourseSelect
             })
         }); 
+        $('#selectname').on('change', function (e) {
+            let selectedNameCourse = $('#selectname').select2('data')[0].text;
+            let courseSelected2 = res.filter(function(el){
+                return el.name == selectedNameCourse
+            })
+            courseSelected = courseSelected2[0]._id
+            console.log(courseSelected)
+        })
     });  
 
+
+$('#saveScore').on('click', function () {
+   let idCurso       = courseSelected
+   let nombreCurso   = $('#selectname').select2('data')[0].text;
+   let materia       = $('#selectMateria').val()
+   let nombrePrueba  = $('#namePrueba').val()
+   let fechaPrueba   = $('#initDatePrueba').val()
+   let nombreDocente = $('#nameDocente').val()
+
+    console.log({
+            idCurso,
+            nombreCurso,
+            materia,
+            nombrePrueba,
+            fechaPrueba,
+            nombreDocente 
+    })
+ 
+    ajax({
+        url:'api/crearPrueba',
+        type:'POST',
+        data:{
+            idCurso,
+            nombreCurso,
+            materia,
+            nombrePrueba,
+            fechaPrueba,
+            nombreDocente 
+        }
+    }).then(res=>{
+        console.log(res)
+    })
+})
 };
 
     

@@ -574,7 +574,7 @@ $('#matrBeca').on('change', function(){
 })
 //TODO: TERMINAR
 $('#matrPromedio').on('change', function (e){
-    //validarValorPromedio()
+  //  validarValorPromedio()
     generalFunction()
 }) 
 
@@ -592,29 +592,33 @@ function validarValorPromedio(){
 
 //calcular los valores segun promedio de notas
 function calcularValoresPromedio(){
-    return new Promise(resolve =>{
-       let average = $('#matrPromedio').val()
-       let estado = $('#matrEgreso')
-       if (estado == 'Egresado'){
+    ajax({ 
+        url:'/api/quotaValuesCebal'
+    }).then(res => {
+        return new Promise(resolve =>{
+        let average = $('#matrPromedio').val()
+        let estado = $('#matrEgreso')
+        if (estado == 'Egresado'){
 
-        valores.graduated = res.filter(function(el) {
-            return el.status == 'graduated';
-        })[0].notes
-        console.log(valores.graduated)
-        
+            valores.graduated = res.filter(function(el) {
+                return el.status == 'graduated';
+            })[0].notes
+            console.log(valores.graduated)
+            
 
-            if (average === '64'){
-                let Score64 = valores.graduated.filter(function(el) {
-                    return el.score == '64';
-                })[0].price
+                if (average === '64'){
+                    let Score64 = valores.graduated.filter(function(el) {
+                        return el.score == '64';
+                    })[0].price
+                    resolve()
+                }else{
+                    alert("no ha seleccionado nada")
+                    resolve()
+                } 
                 resolve()
-            }else{
-                alert("no ha seleccionado nada")
-                resolve()
-            } 
-            resolve()
-        }
-    resolve()
+            }
+        resolve()
+        })
     })
 }
 //becado o no becado
