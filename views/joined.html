@@ -142,6 +142,14 @@ h5, .h5 {
 
 {{#extend "js"}}
 <script>
+  
+   
+    let selects = {
+        graduated: [],
+        notgraduated: [],
+        selectedOptionEg: []
+    }
+   
 
     let allValues={
         valorMatricula:0,
@@ -153,7 +161,7 @@ h5, .h5 {
         descuentoCuota1:0,
         descuentoCuota2:0
     }
-   
+    
     let numberQuotes ={};
     let valores = {};
     let typePayStatus = 0;//tipo de pago: 0 cuotas 1 contado
@@ -164,6 +172,7 @@ h5, .h5 {
     let datatableAlumnos;
     let alumosRowSelectedData;
     let alumnosRowSelected;
+    let average = 'normal';
     jQuery(document).ready(function ($) {
         chargeTableAlumnos();
     });
@@ -332,7 +341,6 @@ function modalMatrAlumnos() {
                             <label><i class="fas fa-book"></i> Promedio</label>
                             <input id="matrPromedio" maxlength="2" type="text" class="form-control border-input solo-numero"  placeholder="Ej: 60">
                         </div>
-
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label ><i class="far fa-calendar-alt"></i> Horario</label>
@@ -536,7 +544,7 @@ function saveTicket(){
 function generalFunction(){
     quotaValues().then(res => {
         numberQuotesCebal ().then(res => {
-           // calcularValoresPromedio().then(res => {
+            traerNotas().then(res => {
                 wayToPay().then(res => {
                     calcularDescuento1().then(res => {
                         calcularDescuento2().then(res => {
@@ -547,7 +555,7 @@ function generalFunction(){
                         })
                     })
                 })
-            //})
+            }) 
         })
     })
 }
@@ -558,7 +566,7 @@ $('#matrTipoCurso').on('change', function (e){
     generalFunction()
 })
 $('#matrEgreso').on('change', function (e){
-    generalFunction()
+    generalFunction()  
 })
 $('#matrFormaPago').on('change', function (e){
     generalFunction()
@@ -572,54 +580,91 @@ $('#matrDescuento2').on('change', function (e){
 $('#matrBeca').on('change', function(){
     generalFunction()
 })
-//TODO: TERMINAR
-$('#matrPromedio').on('change', function (e){
-  //  validarValorPromedio()
+$('#matrPromedio').on('keyup', function (e){
     generalFunction()
-}) 
+    $('#btnPromedio').prop('disabled', false);
+})
 
+$('#matrPromedio').on('change', function (e){
+      validarValorPromedio()
+})
+
+
+  
+   
+
+
+//calcular los valores segun promedio de notas
+
+function traerNotas(){
+    return new Promise(resolve =>{
+        ajax({ 
+            url:'/api/quotaValuesCebal'
+        }).then(res => {
+        let estado = $('#matrEgreso').val()
+        console.log("estado seleccionado",estado)
+        console.log("promedio inicio",average)
+     
+           average = $('#matrPromedio').val()
+
+            if (estado == 'Egresado'){
+                selects.graduated = res.filter(function(el) {
+                    return el.status == 'graduated';
+                })[0].notes
+
+                let promedioSelected = selects.graduated.filter(function(el){
+                    return el.score  == average
+                })
+                if (promedioSelected[0]){
+                    promedioSelected = promedioSelected[0].price
+                    allValues.montoPorCuota = promedioSelected;
+                    resolve()
+                }else{
+                    average ='normal'
+                    let normal = selects.graduated.filter(function(el) {
+                    return el.score == 'normal';
+                    })[0].price
+                    allValues.montoPorCuota = normal;
+                    resolve() 
+                } 
+                resolve()
+            }else if(estado == 'No egresado'){
+                selects.notgraduated = res.filter(function(el) {
+                    return el.status == 'notGraduated';
+                })[0].notes
+                let promedioSelected2 = selects.notgraduated.filter(function(el){
+                    return el.score  == average
+                })
+                if (promedioSelected2[0]){
+                    promedioSelected2 = promedioSelected2[0].price
+                    allValues.montoPorCuota = promedioSelected2;
+                    resolve()
+                }else{
+                    average ='normal'
+                    let normal2 = selects.notgraduated.filter(function(el) {
+                    return el.score == 'normal';
+                    })[0].price
+                    allValues.montoPorCuota = normal2;
+                    resolve() 
+                } 
+                resolve()
+            }
+        })
+        })
+        resolve()  
+}
 
 
 //Promedio min 10 y max 70
 function validarValorPromedio(){
     let maxMin = $('#matrPromedio').val()
     if(maxMin > 70){
-        $('#matrPromedio').val('70')
+        $('#matrPromedio').val('')
+        toastr.warning("Ingrese un promedio válido")
     }else if (maxMin < 10){
-        $('#matrPromedio').val('10')
+        $('#matrPromedio').val('')
+        toastr.warning("Ingrese un promedio válido")
     }
-}
-
-//calcular los valores segun promedio de notas
-function calcularValoresPromedio(){
-    ajax({ 
-        url:'/api/quotaValuesCebal'
-    }).then(res => {
-        return new Promise(resolve =>{
-        let average = $('#matrPromedio').val()
-        let estado = $('#matrEgreso')
-        if (estado == 'Egresado'){
-
-            valores.graduated = res.filter(function(el) {
-                return el.status == 'graduated';
-            })[0].notes
-            console.log(valores.graduated)
-            
-
-                if (average === '64'){
-                    let Score64 = valores.graduated.filter(function(el) {
-                        return el.score == '64';
-                    })[0].price
-                    resolve()
-                }else{
-                    alert("no ha seleccionado nada")
-                    resolve()
-                } 
-                resolve()
-            }
-        resolve()
-        })
-    })
 }
 //becado o no becado
 function beca(){
@@ -785,7 +830,6 @@ function numberQuotesCebal (){
                     return el.type == 'intensive';
                 })[0].quotaNumber
                 allValues.cantidadCuotas= numberQuotes.intensive;
-
                 resolve()
             }
         });
@@ -840,6 +884,7 @@ function quotaValues (){
     })
    
 }
+
 
 
 //fecha matricula
