@@ -31,6 +31,7 @@ const Enrolled = [
                         let res = result.docs.reduce((arr, el, i)=>{
                             return arr.concat({
                                 _id: el._id,
+                                numMatricula: el.matricula.numMatricula,
                                 status: el.status,
                                 birthday:el.birthday,  
                                 name: el.name,
@@ -68,7 +69,7 @@ const Enrolled = [
                             })
                         }, []) 
 
-                        resolve(res);
+                        resolve({ ok: res });
                     } else {
                         resolve({ err: 'no existen alumnos' });
                     }

@@ -84,6 +84,7 @@
                             <thead>
                                 <tr>
                                     <th></th>
+                                    <th>N° matrícula</th>
                                     <th>Rut</th>
                                     <th>Nombre</th>
                                     <th>Apellidos</th>
@@ -196,6 +197,7 @@ let alumosRowSelectedData;
                     "responsive": true,
                     "columns": [
                         { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
+                        { "data": "numMatricula" },
                         { "data": "_id"},
                         { "data": "name" },
                         { "data": "lastname1"},
@@ -211,9 +213,9 @@ let alumosRowSelectedData;
                         url: 'api/studentsEnrolled'
                     }).then(res => {
                         if (res.err) {
-                            toastr.warning('No existen Alumnos')
-                        } else {
-                            datatableAlumnosEnrolled.rows.add(res).draw();
+                            toastr.warning('No existen Alumnos matriculados')
+                        } else if(res.ok) {
+                            datatableAlumnosEnrolled.rows.add(res.ok).draw();
                             $('#loadingEnrolled').empty();
                         }      
                     })
@@ -282,7 +284,8 @@ function chargeTableAlumnosDisabled() {
                         url: 'api/studentsDisabled'
                     }).then(res => {
                         if (res.err) {
-                            toastr.warning('No existen Alumnos')
+                           // toastr.warning('No existen Alumnos retirados')
+                            $('#loadingDisabled').empty();
                         } else {
                             datatableAlumnosDisabled.rows.add(res).draw();
                             $('#loadingDisabled').empty();
@@ -742,6 +745,7 @@ function opcionesModal() {
         pagosModal();
 
     })
+
     function pagosModal() { 
     let maxCuotas = alumosRowSelectedData.numCuotas
     let montoTotal = 0

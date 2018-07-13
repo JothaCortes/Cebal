@@ -143,6 +143,7 @@
     moment.locale('es');
     let idleTimer = 0;
 
+    /*
     $(document).ready(function() {
         let idleInterval = setInterval(timerIncrement, 60000);
 
@@ -153,11 +154,14 @@
         $(this).keypress(function(e) {
             idleTimer = 0;
         });
-
+        
+        
         setInterval(() => {
             checkSession()
         }, 60000);
+        
     });
+    */
 
     const timerIncrement = () => {
         idleTimer++;
