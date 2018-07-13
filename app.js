@@ -9,7 +9,7 @@ import Moment         from 'moment'
 
 const server = Hapi.server({
     host: '0.0.0.0',
-    port: 3004
+    port: 3310
 })
 
 const start = async () => {

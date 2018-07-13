@@ -91,6 +91,16 @@ const Home = {
     }
 }
 
+const CheckSession = { // consultar estado de la sesión
+    method: 'GET',
+    path: '/check',
+    options: {
+      handler: (request, h) => {
+        return true;
+      }
+    }
+};
+
 const Routes = [].concat(
     Login,
     Logout,
@@ -119,6 +129,7 @@ const Routes = [].concat(
     logs,
     APIUsers,
     APIlogs,
-    APITools
+    APITools,
+    CheckSession
 )
 export default Routes

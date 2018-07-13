@@ -100,7 +100,7 @@
                     {{#if admin}}
                         <li class="nav-item dropdown">
                             <li class="nav-item">
-                                <a class="nav-link active" id="administration"  href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
+                                <a class="nav-link" id="administration"  href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
                             </li>
                         </li>
                     
@@ -153,7 +153,10 @@
         $(this).keypress(function(e) {
             idleTimer = 0;
         });
-        
+
+        setInterval(() => {
+            checkSession()
+        }, 60000);
     });
 
     const timerIncrement = () => {
@@ -161,10 +164,8 @@
         if (idleTimer == 10) { // 10 minutos
             ajax({
                 url: 'logout'
-            })
-            setTimeout(function() {
-                location.reload();
-            },1000)
+            });
+            reloadPage();
         } 
     }
 
@@ -240,6 +241,34 @@
 
     const rutFunc = (rut) => {
         return $.formatRut(rut)
+    }
+
+    const checkSession = () => {
+        $.ajax({
+		    url: '/check'
+        })
+        .done(function(data) {
+            if(data != true) reloadPage();
+        })
+        .fail(function() {
+            reloadPage();
+        });
+    }
+
+    const reloadPage = () => {
+        swal({
+            title: 'Su sesión a finalizado',
+            text: 'Redirigiendo a página de inicio de sesión...',
+            type: 'warning',
+            showCancelButton: false,
+            showConfirmButton: false,
+            animation: true
+        });
+
+        setTimeout(() => {
+            //window.location.replace("/login");
+            location.reload();
+        }, 5000);
     }
 
 </script>
