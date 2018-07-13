@@ -181,6 +181,9 @@ let defaultModalHTML = '';
 let datatable;
 let datatableAlumnosEnrolled;
 let alumosRowSelectedData;
+let alumnosRowSelected;
+let datatableAlumnosDisabled;
+let alumosRowSelectedDataDisabled;
 
     jQuery(document).ready(function ($) {
         chargeTableAlumnos();
@@ -231,8 +234,10 @@ let alumosRowSelectedData;
             $('#closeMatrStudentEnrolled').prop('disabled', true);
         } else {
             datatableAlumnosEnrolled.$('tr.selected').removeClass('selected');
+
             $(this).addClass('selected');
             alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
+            alumnosRowSelected = datatableAlumnosEnrolled.row($(this));   // EDUARDO
             console.log(alumosRowSelectedData)
             $('#pagosEnrolled').prop('disabled', false);
             $('#optionStudentEnrolled').prop('disabled', false);
@@ -255,8 +260,7 @@ function reloadTableAlumnosEnrolled() {
         })
 }
 
-let datatableAlumnosDisabled;
-let alumosRowSelectedDataDisabled;
+
 //DATATABLE DISABLED ALUMNOS
 function chargeTableAlumnosDisabled() {
     datatableAlumnosDisabled = $('#tableDisabledAlumns')
@@ -355,16 +359,19 @@ $('#closeMatrStudentEnrolled').on('click', function(){
           }    
         }).done(function(data) {
 		if (data.ok) {
-                alumosRowSelectedData.remove().draw();
-                var newRowAdded = datatable2.row.add( {
-                    "name": selectedClientData.name,
-                    "rut": selectedClientData.rut
+                alumnosRowSelected.remove().draw();
+                /*
+                var newRowAdded = datatableAlumnosDisabled.row.add( {
+                    "name": alumosRowSelectedData.name,
+                    "rut": alumosRowSelectedData.rut
                 }).draw().node();
                 $( newRowAdded ).css( 'color', '#f1c40f' );
 
                 setTimeout(function() {
                     $( newRowAdded ).css( 'color', 'black' );
                 }, 6000);
+                */
+                reloadTableAlumnosDisabled()
                 $('#modButton').prop('disabled', true);
                 $('#desButton').prop('disabled', true);
                 swal(
