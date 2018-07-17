@@ -57,10 +57,10 @@
     <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-12">
             <div class="info-box">
-                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-align-justify"></i></span>
+                <span class="info-box-icon bg-primary elevation-1"><i class="fas fa-align-justify"></i></span>
                 <div class="info-box-content">
-                <span class="info-box-text"><h5><a class="dropdown-item" href="#">Matrículas</a></h5></span>
-                <p style="margin-left: 25px"> 1024</p>
+                <span class="info-box-text"><h5><a class="dropdown-item" href="#">Alumnos Matrículados</a></h5></span>
+                <p style="margin-left: 25px" id="countMatr"></p>
                 </div>
             </div>
         </div>
@@ -69,8 +69,8 @@
             <div class="info-box">
                 <span class="info-box-icon bg-info elevation-1" style="background-color: #23ad67 !important;"><i class="fas fa-user"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Alumnos</a></h5></span>
-                    <p style="margin-left: 25px"> 845</p>
+                    <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Alumnos Ingresados</a></h5></span>
+                    <p style="margin-left: 25px" id="countJoined"></p>
                 </div>
             </div>
         </div>
@@ -79,8 +79,8 @@
             <div class="info-box">
                 <span class="info-box-icon bg-info elevation-1" style="background-color: #ef3f3f !important;"><i class="fas fa-sign-out-alt"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Retirados</a></h5></span>
-                    <p style="margin-left: 25px"> 41</p>
+                    <span class="info-box-text"><h5><a class="dropdown-item" href="#"> Alumnos Finalizados</a></h5></span>
+                    <p style="margin-left: 25px" id="countRetired"></p>
                 </div>
             </div>
         </div>
@@ -121,6 +121,16 @@
 
 {{#extend "js"}}
 <script>
+
+$(document).ready(function(){
+    ajax({
+        url: 'api/tools/counts'
+    }).then(res=>{
+        $('#countMatr').text(res.ok.enrolled)
+        $('#countJoined').text(res.ok.joined)
+        $('#countRetired').text(res.ok.retired)
+    })
+});
 
 $('#searchbtn').on('click', function() {
     let searchval = $('#firstSearcher').val();

@@ -41,6 +41,38 @@ const Tools = [{ // todos los clientes habilitados
       })
     }
   }
+},
+{ // todos los clientes habilitados
+    method: 'GET',
+    path: '/api/tools/counts',
+    options: {
+        handler: (request, h) => {
+            let session = request.auth.credentials;
+
+            return new Promise(resolve => {
+                db.find({
+                    selector: {
+                        _id: {
+                            $gte: null
+                        },
+                        type: "alumnos",
+                        city: session.place
+                    }
+                }, function (err, result) {
+                    if (err) throw err;
+
+                    if(result.docs[0]) {
+                        let counts = {}
+                        counts.joined = result.docs.filter(el => el.status == 'joined').length;
+                        counts.enrolled = result.docs.filter(el => el.status == 'enrolled').length;
+                        counts.retired = result.docs.filter(el => el.status == 'retired').length;
+
+                        resolve({ok:counts})
+                    }
+                });
+            })
+        }
+    }
 }, 
 {
     method: 'POST',
