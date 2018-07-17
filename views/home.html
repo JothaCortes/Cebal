@@ -40,6 +40,13 @@
 {{/block}}
 <div class="container" style="margin-top:100px;">
 
+    <div>
+        <h2>TESTING</h2>
+        <input type="text" id="numCuotas" placeholder="numcuotas">
+        <input type="text" id="amount" placeholder="precioporcuota">
+        <button class="btn btn-secondary" id="testCuotas">testing</button>
+    </div>
+
     <div class="row">
         <div class="col-lg-10 col-md-10 col-xs-10">
             <input id="firstSearcher" type="text" placeholder="Buscar alumno">
@@ -231,6 +238,21 @@ function ModalMatriculas() {
 
     `)
 }
+
+
+$('#testCuotas').on('click', function() {
+    ajax({
+        url: '/api/testCuotas',
+        type: 'POST',
+        data:{
+            num: $('#numCuotas').val(),
+            amount: $('#amount').val()
+        }
+    }).then(res=>{
+        console.log(res)
+    })
+    
+})
 
 </script>
 

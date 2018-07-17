@@ -65,17 +65,17 @@
                 <div class="row">
                     <div class="col-md-2 col-xs-12">
                         <br>
-                        <button class="btn btn-primary btn-block" id="pagosEnrolled" disabled>
-                            <i class="fa fa-plus"></i> Pagos
+                        <button class="btn btn-secondary btn-block" id="pagosEnrolled" disabled>
+                            <i style="color:#1abc9c;" class="fa fa-plus"></i> Pagos
                         </button>
-                        <button class="btn btn-warning btn-block" id="modStudentEnrolled" disabled>
-                            <i class="fas fa-edit"></i> Modificar
+                        <button class="btn btn-secondary btn-block" id="modStudentEnrolled" disabled>
+                            <i style="color:#f1c40f;" class="fas fa-edit"></i> Modificar
                         </button>
-                        <button class="btn btn-success btn-block" id="optionStudentEnrolled" disabled>
-                            <i class="fas fa-ban"></i> Opciones
+                        <button class="btn btn-dark btn-block" id="optionStudentEnrolled" disabled>
+                            <i style="color:#3498db;" class="fas fa-ban"></i> Opciones
                         </button>
-                        <button class="btn btn-danger btn-block" id="closeMatrStudentEnrolled" disabled>
-                                <i class="fas fa-ban"></i> Cerrar Matrícula
+                        <button class="btn btn-dark btn-block" id="closeMatrStudentEnrolled" disabled>
+                            <i style="color:#e74c3c;" class="fas fa-ban"></i> Cerrar Matrícula
                         </button>
                     </div>
                 
@@ -84,7 +84,7 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th>N° matrícula</th>
+                                    <th>N°</th>
                                     <th>Rut</th>
                                     <th>Nombre</th>
                                     <th>Apellidos</th>
@@ -753,144 +753,230 @@ function opcionesModal() {
 
     })
 
-    function pagosModal() { 
-    let maxCuotas = alumosRowSelectedData.numCuotas
-    let montoTotal = 0
-      $('#modalEstudiantes').modal();
-      $('#modal_title').text('Pago de cuotas');
-      $('#modal_body').html(`
-        <div class="card  mb-12" style="max-width: 50rem;">
-            <div class="card-header"><h5>Datos estudiante</h5></div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <label style="float:left;"><i class="fa fa-user"></i> Rut</label>
-                        <input id="modRut" type="text" value="${alumosRowSelectedData._id}"  required class="form-control border-input" readOnly>
-                    </div>
-                    <div class="col-md-4">
-                        <label style="float:left;"><i class="fa fa-user"></i> Nombre</label>
-                        <input id="modName" type="text" value="${alumosRowSelectedData.name}"  required class="form-control border-input" readOnly>
-                    </div>
-                    <div class="col-md-4">
-                        <label style="float:left;"><i class="fa fa-key"></i> Cuotas</label>
-                        <input id="cuotasPorPagar" type="text" value="${alumosRowSelectedData.numCuotas}"  required class="form-control border-input" readOnly>
-                    </div>
-                    <div class="col-md-4">
-                        <label style="float:left;"><i class="fa fa-key"></i> Valor cuota</label>
-                        <input id="x" type="text" value="${alumosRowSelectedData.montoCuota}"  required class="form-control border-input" readOnly>
-                    </div>
-                    <div class="col-md-4">
-                        <label style="float:left;"><i class="fa fa-key"></i> Total restante</label>
-                        <input id="x" type="text" value="${alumosRowSelectedData.montoTotal}"  required class="form-control border-input" readOnly>
-                    </div>
-                </div>
-            </div>
-            </div>
-        </div>
+    function pagosModal() {
+        let cuotasAPagar = []
+        ajax({
+            url: 'api/getCuotas',
+            type: 'POST',
+            data:{rut: alumosRowSelectedData._id}
+        }).then(res=>{
+            console.log(res)
+            let maxCuotas = alumosRowSelectedData.numCuotas
+            let montoTotal = 0
+
+            let listCuotas = res.ok.matricula.finance.cuotas.reduce((txt, el, i)=>{
+                let thisList = ''
                 
+                if(el.status == 'pending') {
+                    thisList = `
+                    <div class="col-md-4" style="margin-top:10px;">
+                        <a id="cuota_${el.num}" href="#" class="list-group-item list-group-item-action flex-column align-items-start cuotaPay">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
+                                <small>Cuota número ${el.num}</small>
+                            </div>
+                            <p class="mb-1">$ ${number_format(el.amount)}</p>
+                            <small>Pendiente</small>
+                        </a>
+                    </div>
+                    `
+                } else if(el.status == 'payed') {
+                    thisList = `
+                    <div class="col-md-4" style="margin-top:10px;">
+                        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
+                                <small>Cuota número ${el.num}</small>
+                            </div>
+                            <p class="mb-1">$ ${number_format(el.amount)}</p>
+                            <small>Pagada el ${moment(el.payedDay).format('DD/MM/YYYY')}</small>
+                        </a>
+                    </div>
+                    `
+                }
+                return txt += `
+                    ${thisList}
+                `
+            }, '') 
 
-        <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
-            <div class="card-header"><h5>Cancelación de cuotas</h5></div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <label><i class="fas fa-list-ol"></i> N° Cuotas</label>
-                        <input class="form-control" id="numCuotas" type="number" max="${maxCuotas}" min="1" onKeyPress="if(this.value.length==1) return false;" placeholder="Ej: ${maxCuotas}">
+            $('#modalEstudiantes').modal();
+            $('#modal_title').text('Pago de cuotas');
+            $('#modal_body').html(`
+                <div class="card  mb-12" style="max-width: 50rem;">
+                    <div class="card-header"><h5>Datos estudiante</h5></div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label style="float:left;"><i class="fa fa-user"></i> Rut</label>
+                                <input type="text" value="${rutFunc(res.ok._id)}"  required class="form-control border-input" readOnly>
+                            </div>
+                            <div class="col-md-4">
+                                <label style="float:left;"><i class="fa fa-user"></i> Nombre</label>
+                                <input type="text" value="${res.ok.name} ${res.ok.lastname1}"  required class="form-control border-input" readOnly>
+                            </div>
+                            <div class="col-md-4">
+                                <label style="float:left;"><i class="fa fa-key"></i> Monto matrícula</label>
+                                <input type="text" value="${res.ok.matricula.finance.valorMatricula}"  required class="form-control border-input" readOnly>
+                            </div>
+                            <div class="col-md-4">
+                                <label style="float:left;"><i class="fa fa-key"></i> Cantidad total de cuotas</label>
+                                <input type="text" value="${res.ok.matricula.finance.numCuotas}"  required class="form-control border-input" readOnly>
+                            </div>
+                            <div class="col-md-4">
+                                <label style="float:left;"><i class="fa fa-key"></i> Valor de cada cuota</label>
+                                <input type="text" value="${res.ok.matricula.finance.montoCuota}"  required class="form-control border-input" readOnly>
+                            </div>
+                            <div class="col-md-4">
+                                <label style="float:left;"><i class="fa fa-key"></i> Monto Total cuotas</label>
+                                <input type="text" value="${res.ok.matricula.finance.totalCuotas}"  required class="form-control border-input" readOnly>
+                            </div>
+                            
+                        </div>
                     </div>
-                    <div class="col-md-4"> 
-                        <label><i class="fas fa-money-check-alt"></i> Monto</label>
-                        <input class="form-control" id="amount" type="text" disabled>
-                    </div>
-                    <div class="col-md-4"> 
-                        <label><i class="fas fa-ticket-alt"></i> N° Boleta</label>
-                        <input class="form-control" id="ticket" type="number" placeholder="ej: 1234">
-                    </div>
-                    <div class="col-md-4">
-                        <label><i class="fas fa-calendar-alt"></i> fecha </label>
-                        <input  id="initDate" placeholder="Fecha de inicio (Día/Mes/Año)" class="form-control" type="text">
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-12">
-            <div class="row"> 
-                <div class="offset-md-6 col-md-3" style="margin-top:15px;">
-                    <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
-                </div>
-                <div class="col-md-3" style="margin-top:15px;">
-                    <button id="save" class="btn btn-primary btn-block" disabled><i class="fas fa-cloud"></i> Guardar</button>
-                </div>
-        </div>
-        </div>
-      `)
-    pagos()  
-    $('#ticket').on('change', function (e){
-        saveTicket()
-    })
-    function saveTicket(){
-        let ticket = $('#ticket').val()
-        if(ticket === ''){
-            $('#save').prop('disabled', true)
-        }else{
-            $('#save').prop('disabled', false)
-        }
-    }
+                        
 
-    function pagos (){
-        $('#numCuotas').on('change', function (e){
-            let nCuotas  = $('#numCuotas').val()
-            let mCuota = alumosRowSelectedData.montoCuota
-            let montoTotal= nCuotas*mCuota
-            $('#amount').val(montoTotal)
+                <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
+                    <div class="card-header"><h5>Cancelación de cuotas</h5></div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h5 class="mb-1">${moment(res.ok.matricula.date).format('DD/MM/YYYY')}</h5>
+                                        <small>Matrícula</small>
+                                    </div>
+                                    <p class="mb-1">$ ${res.ok.matricula.finance.valorMatricula}</p>
+                                    <small>Pagada</small>
+                                </a>
+                            </div>
+                            ${listCuotas}
+                        </div>
+                        
+                        <div class="col-md-12" style="margin-top:10px"> <!-- TODO: AGREGAR NUMERO DE BOLETA IMPORANTE -->
+                            <label style="float:left;"><i class="fa fa-asterisk"></i> Número de boleta *</label>
+                            <input type="text" value="" placeholder="Debe agregar un número de boleta" class="form-control border-input">
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-md-12">
+                    <div class="row"> 
+                        <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                            <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                        </div>
+                        <div class="col-md-3" style="margin-top:15px;">
+                            <button id="save" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
+                        </div>
+                </div>
+                </div>
+            `)
+            //pagos()
+            /*
+            $('#ticket').on('change', function (e){
+                saveTicket()
+            })
+            function saveTicket(){
+                let ticket = $('#ticket').val()
+                if(ticket === ''){
+                    $('#save').prop('disabled', true)
+                }else{
+                    $('#save').prop('disabled', false)
+                }
+            }
+            */
+           /*
+            function pagos (){
+                $('#numCuotas').on('change', function (e){
+                    let nCuotas  = $('#numCuotas').val()
+                    let mCuota = alumosRowSelectedData.montoCuota
+                    let montoTotal= nCuotas*mCuota
+                    $('#amount').val(montoTotal)
+                })
+            }
+            */
+            
+                $('#cancel').on('click', function () {
+                    $('#modalEstudiantes').modal('hide')
+                })
+                //fecha
+                $('#initDate').daterangepicker({
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "daysOfWeek": [
+                    "Dom",
+                    "Lun",
+                    "Mar",
+                    "Mie",
+                    "Jue",
+                    "Vie",
+                    "Sab"
+                    ],
+                    "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                    ],
+                    "firstDay": 1
+                },
+                drops: "up",
+                singleDatePicker: true,
+                showDropdowns: true
+            });
+
+            $('.cuotaPay').on('click', function(e){
+                $('#'+e.currentTarget.id).toggleClass( 'active' )
+
+                if($('#'+e.currentTarget.id).hasClass('active')) {
+                    cuotasAPagar.push(e.currentTarget.id.split('_')[1])
+                } else {
+                    if (cuotasAPagar.indexOf(e.currentTarget.id.split('_')[1]) > -1) {
+                        cuotasAPagar.splice(cuotasAPagar.indexOf(e.currentTarget.id.split('_')[1]), 1);
+                    }
+                }
+            }) 
+            
+            $('#save').on('click', function(){
+                if(cuotasAPagar[0]) {
+                    ajax({
+                        url: 'api/pagarcuotas',
+                        type: 'POST',
+                        data: {
+                            rut: res.ok._id,
+                            cuotas: JSON.stringify(cuotasAPagar) 
+                        }
+                    }).then(res=>{
+                        if(res.ok) {
+                            swal({
+                                title: res.ok,
+                                backdrop: 'static', 
+                                keyboard: false,
+                                text: '',
+                                type: 'success',
+                                timer: 5000
+                            }).then(result => {
+                                $('#modalEstudiantes').modal('hide')
+                            }) 
+                        }
+                        
+                    })
+                }else {
+                    toastr.warning('Debe seleccionar al menos una cuota a pagar')
+                }
+               
+            }) 
         })
-    }
-    //GUARDAR PAGOS
-    let rutAlumno= $('#modRut').val()
-    //let cuotasRestantes= 
-    let tipoPago = $('#payment').val()
-    let Monto    = $('#amount').val()
-    let nBoleta  = $('#ticket').val()
-    let datePago = $('#initDate').val()
-     
-
         
-        $('#cancel').on('click', function () {
-            $('#modalEstudiantes').modal('hide')
-        })
-        //fecha
-        $('#initDate').daterangepicker({
-        "locale": {
-            "format": "DD/MM/YYYY",
-            "daysOfWeek": [
-            "Dom",
-            "Lun",
-            "Mar",
-            "Mie",
-            "Jue",
-            "Vie",
-            "Sab"
-            ],
-            "monthNames": [
-            "Enero",
-            "Febrero",
-            "Marzo",
-            "Abril",
-            "Mayo",
-            "Junio",
-            "Julio",
-            "Agosto",
-            "Septiembre",
-            "Octubre",
-            "Noviembre",
-            "Diciembre"
-            ],
-            "firstDay": 1
-        },
-        drops: "up",
-        singleDatePicker: true,
-        showDropdowns: true
-    });
-
     };
 </script>
 {{/extend}}

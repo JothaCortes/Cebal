@@ -177,9 +177,99 @@ const Enrolled = [
             })
         }
     }
+  },
+  {
+    method: 'POST',
+    path: '/api/getCuotas',
+    options: {
+        handler: (request, h) => {
+            let rut = request.payload.rut;
+            
+            return new Promise(resolve=> {
+                db.find({ 
+                    "selector": {
+                        '_id': rut,
+                        'type': 'alumnos',
+                    }
+                }, function(err, result) {
+                    if (err) throw err;
+      
+                    if(result.docs[0]) {
+                        resolve({ok:result.docs[0]})
+                    }
+                }); 
+            })
+        },
+        validate: {
+            payload: Joi.object().keys({
+                rut: Joi.string().required()
+            })
+        }
+    }
+},
+{
+  method: 'POST',
+  path: '/api/pagarcuotas',
+  options: {
+      handler: (request, h) => {
+          let rut = request.payload.rut
+          let cuotas = JSON.parse(request.payload.cuotas)
+          
+          return new Promise(resolve=> {
+              db.find({ 
+                "selector": {
+                    '_id': rut,
+                    'type': 'alumnos',
+                }
+              }, function(err, result) {
+                    if (err) throw err;
+    
+                    if(result.docs[0]) {
+                        let student = result.docs[0]
+                        let originalFees = student.matricula.finance.cuotas
+                    
+                        
+                        let res = originalFees.map((el, i, arr) => {
+                            let fil = cuotas.filter(function(el2) {
+                                return el.num == el2
+                            })
+                            if(fil[0]) {
+                                return {
+                                    num: el.num,
+                                    amount: el.amount,
+                                    payday: el.payday,
+                                    status: 'payed',
+                                    payedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS')
+                                }
+                            } else {
+                                return el
+                            }         
+                        });
+                        
+                        student.matricula.finance.cuotas = res
+
+                        db.insert(student, function(errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+                            
+                            if(cuotas.length > 1) {
+                                resolve({ok: 'Cuotas pagadas correctamente'});
+                            } else {
+                                resolve({ok: 'Cuota pagada correctamente'})
+                            }  
+                        });
+                        //console.log(alumno, originalFees, cuotas)
+                    }
+              }); 
+          })
+      },
+      validate: {
+          payload: Joi.object().keys({
+              rut: Joi.string().required(),
+              cuotas: Joi.string().required()
+          })
+      }
   }
-
-
+}
 
 
 ];

@@ -10,6 +10,37 @@ let db = cloudant.db.use(configEnv.db)
 const Joined = [
 { 
     method: 'POST',
+    path: '/api/getStudent',
+    options: {
+        handler: (request, h) => {
+            let rut = request.payload.rut;
+
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': cleanRut(rut),
+                        'type': 'alumnos',
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        resolve({ ok: result.docs[0] });
+                    } else {
+                        resolve({ err: 'El alumno no existe' });
+                    }
+                });
+            })   
+        },
+        validate: {
+            payload: Joi.object().keys({
+                rut: Joi.string()
+            })
+        }
+    }
+},
+{ 
+    method: 'POST',
     path: '/api/queryrut',
     options: {
         handler: (request, h) => {
@@ -18,7 +49,7 @@ const Joined = [
             return new Promise(resolve => {
                 db.find({
                     'selector': {
-                        '_id': clean(rut),
+                        '_id': cleanRut(rut),
                         'type': 'alumnos',
                     }
                 }, (err, result) => {
@@ -65,8 +96,8 @@ const Joined = [
             //console.log(img)
 
             let alumnObject = {
-                _id: clean(rut),
-                date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                _id: cleanRut(rut),
+                date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'), // fecha de creacion
                 type: 'alumnos',
                 status: 'joined',
                 city           :ciudad,
@@ -88,13 +119,13 @@ const Joined = [
             return new Promise(resolve => {
                 db.find({
                     'selector': {
-                        '_id': cleanRut(rut),
-                        'type': 'alumnos'
+                        '_id': cleanRut(rut)
                     }
                 }, (err, result) => {
                     if (err) throw err;
 
                     if (result.docs[0]) {
+                        console.log(result)
                         resolve({ err: `El rut ${result.docs[0]._id} ya existe en el sistema` });
                     } else {
                         db.insert(alumnObject, function (errUpdate, body) {
@@ -178,9 +209,10 @@ const Joined = [
                 descuento,
                 descuento2,
                 valorMatricula,
-                numCuotas,
-                totalCuotas,
-                montoTotal,
+                montoCuota, // monto que cuesta cada cuota
+                numCuotas, // numero total de cuotas
+                totalCuotas, // costo total de las cuotas
+                montoTotal, // monto total (matricula + cuotas)
                 boleta,
                 formaPagoMatricula
             })
@@ -188,62 +220,71 @@ const Joined = [
             return new Promise(resolve => {
                 db.find({
                     'selector': {
-                        '_id': rutAlumno,
+                        '_id': rutAlumno, // solo id sin type !IMPORTANTE
                     }
                 }, (err, result) => {
                     if (err) throw err;
+
                     if (result.docs[0]) {
                       
                         addEnrollmentCounter(session).then(res=>{
                             let student = result.docs[0];
                             let matriculaObject ={};
-                            matriculaObject = {
-                                date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
-                                numMatricula   :res,
-                                colegio        :colegio,
-                                estadoEgreso   :estadoEgreso,
-                                beca           :beca,
-                                añoEgreso      :anoEgreso,
-                                curso          :curso,
-                                promedio       :promedio,
-                                horario        :horario,
-                                electivo       :electivo,
-                                electivo2      :electivo2,
-                                fechaMatricula :fechaMatricula,
-                                diaCobro       :diaCobro,
-                                tipoCurso      :tipoCurso,
-                                finance: {
-                                    formaPago      :formaPago,
-                                    descuento      :descuento,
-                                    descuento2     :descuento2,
-                                    valorMatricula :valorMatricula,
-                                    numCuotas      :numCuotas,
-                                    montoCuota     :montoCuota,
-                                    totalCuotas    :totalCuotas,
-                                    montoTotal     :montoTotal
-                                }
-                            }
-                            student.matricula = matriculaObject;
-                            student.status = 'enrolled'
-                            crearBoleta({
-                                numBoleta:boleta,
-                                credentials:session,
-                                rutAlumno: rutAlumno,
-                                cuotas:[{num:0, monto:valorMatricula}],
-                                monto: valorMatricula,
-                                formaPagoMatricula: formaPagoMatricula
 
-                            }).then(res2 =>{
-                                if(res2.ok) {
-                                    db.insert(student, function (errUpdate, body) {
-                                        if (errUpdate) throw errUpdate;
-                                        resolve({ ok: 'Estudiante Matriculado Correctamente' });
-                                    });
-                                } else {
-                                    console.log(res2.err)
-                                    resolve(res2.err)
-                                }      
-                            })     
+                            crearCuotas({
+                                numCuotas: numCuotas,
+                                montoCuota: montoCuota,
+                                diaCobro: diaCobro
+                            }).then(resCuotas=> {
+                                matriculaObject = {
+                                    date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                                    numMatricula   :res,
+                                    colegio        :colegio,
+                                    estadoEgreso   :estadoEgreso,
+                                    beca           :beca,
+                                    añoEgreso      :anoEgreso,
+                                    curso          :curso,
+                                    promedio       :promedio,
+                                    horario        :horario,
+                                    electivo       :electivo,
+                                    electivo2      :electivo2,
+                                    fechaMatricula :fechaMatricula,
+                                    diaCobro       :diaCobro,
+                                    tipoCurso      :tipoCurso,
+                                    finance: {
+                                        formaPago      :formaPago,
+                                        descuento      :descuento,
+                                        descuento2     :descuento2,
+                                        valorMatricula :valorMatricula,
+                                        numCuotas      :numCuotas,
+                                        montoCuota     :montoCuota,
+                                        totalCuotas    :totalCuotas,
+                                        montoTotal     :montoTotal,
+                                        cuotas: resCuotas.ok
+                                    }
+                                }
+                                student.matricula = matriculaObject;
+                                student.status = 'enrolled'
+                                crearBoleta({
+                                    numBoleta:boleta,
+                                    credentials:session,
+                                    rutAlumno: rutAlumno,
+                                    cuotas:[{num:0, monto:valorMatricula}],
+                                    monto: valorMatricula,
+                                    formaPagoMatricula: formaPagoMatricula
+    
+                                }).then(res2 =>{
+                                    if(res2.ok) {
+                                        db.insert(student, function (errUpdate, body) {
+                                            if (errUpdate) throw errUpdate;
+                                            resolve({ ok: 'Estudiante Matriculado Correctamente' });
+                                        });
+                                    } else {
+                                        console.log(res2.err)
+                                        resolve({err: res2.err})
+                                    }      
+                                })   
+                            })  
                         })
                     } else {
                        resolve({ err: 'no se encuentra el alumno' });
@@ -293,13 +334,13 @@ const Joined = [
                         '_id': {
                             '$gte': null
                         },
-                        'city': credentials.place,
                         'type': 'alumnos',
+                        'city': credentials.place,
                         'status': 'joined'
                     }
                 }, (err, result) => {
                     if (err) throw err;
-
+                    
                     if (result.docs[0]) {
                         let res = result.docs.reduce((arr, el, i)=>{
                             return arr.concat({
@@ -470,7 +511,7 @@ const Joined = [
             return new Promise(resolve => {
                 db.find({
                     "selector": {
-                        "_id": id,
+                        "_id": cleanRut(id),
                         "type": "alumnos",
                         "status": "joined"
                     },
@@ -523,6 +564,51 @@ const Joined = [
             })
         }
     }
+},
+{
+    method: 'POST',
+    path: '/api/testCuotas',
+    options: {
+        handler: (request, h) => {
+            let num = request.payload.num;
+            let amount = request.payload.amount;
+            
+            return new Promise(resolve=> {
+                let quotaArray = []
+                let today = moment.tz('America/Santiago').format('YYYY-MM-DD')
+                let payDay = moment.tz('America/Santiago').format('YYYY-MM-'+String(4))
+                let firstPayDay = ''
+                
+                if(moment(today).isAfter(payDay)) {
+                    firstPayDay = moment(payDay).add(1, 'M').format('YYYY-MM-DD');
+                } else {
+                    firstPayDay = payDay
+                }
+
+                for (let i = 0; i <= num; i++) {
+                    console.log(i)
+                    if(i == num) {
+                        console.log('FIN')
+                        resolve(quotaArray)
+                    } else {
+                        quotaArray.push({
+                            num: i+1,
+                            amount: amount,
+                            payday: firstPayDay,
+                            status: pending
+                        })
+                        firstPayDay = moment(firstPayDay).add(1, 'M').format('YYYY-MM-DD');
+                    }
+                }  
+            })
+        },
+        validate: {
+            payload: Joi.object().keys({
+                num: Joi.string().allow(''),
+                amount: Joi.string().allow('')
+            })
+        }
+    }
 }
 ];
 
@@ -547,6 +633,7 @@ function addEnrollmentCounter(credentials) {
         });
     })
 }
+
 function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPagoMatricula}) {
     return new Promise(resolve=>{
         console.log('CREANDO BOLETA')
@@ -555,6 +642,7 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                 _id: {
                     $gte: null
                 },
+                type: "boleta",
                 numBoleta: numBoleta
             }
         }, function (err, result) {
@@ -584,10 +672,44 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
     })
 }
 
+function crearCuotas({numCuotas, montoCuota, diaCobro}) {
+    return new Promise(resolve=> {
+        let quotaArray = []
+        let today = moment.tz('America/Santiago').format('YYYY-MM-DD')
+        let payDay = moment.tz('America/Santiago').format('YYYY-MM-'+String(diaCobro))
+        let firstPayDay = ''
+        
+        if(moment(today).isAfter(payDay)) {
+            firstPayDay = moment(payDay).add(1, 'M').format('YYYY-MM-DD');
+        } else {
+            firstPayDay = payDay
+        }
+
+        for (let i = 0; i <= numCuotas; i++) {
+            if(i == numCuotas) {
+                resolve({ok:quotaArray})
+            } else {
+                quotaArray.push({
+                    num: i+1,
+                    amount: removePoints(montoCuota),
+                    payday: firstPayDay,
+                    status: 'pending'
+                })
+                firstPayDay = moment(firstPayDay).add(1, 'M').format('YYYY-MM-DD');
+            }
+        }  
+    })
+}
+
 const cleanRut = (rut) => {
     var replace1 = rut.split('.').join('');
     var replace2 = replace1.replace('-', '');
     return replace2;
+}
+
+const removePoints = (amount) => {
+    var replace = amount.split('.').join('');
+    return replace;
 }
 
 export default Joined;
