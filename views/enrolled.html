@@ -218,6 +218,12 @@ let alumosRowSelectedDataDisabled;
                         if (res.err) {
                             toastr.warning('No existen Alumnos matriculados')
                         } else if(res.ok) {
+                            let res2 = res.ok.map((el, i, arr) => {
+                                
+                                return rutFunc(el._id)     
+                            });
+                            console.log(res2)
+
                             datatableAlumnosEnrolled.rows.add(res.ok).draw();
                             $('#loadingEnrolled').empty();
                         }      
