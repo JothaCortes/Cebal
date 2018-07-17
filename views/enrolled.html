@@ -854,9 +854,20 @@ function opcionesModal() {
                             ${listCuotas}
                         </div>
                         
-                        <div class="col-md-12" style="margin-top:10px"> <!-- TODO: AGREGAR NUMERO DE BOLETA IMPORANTE -->
-                            <label style="float:left;"><i class="fa fa-asterisk"></i> Número de boleta *</label>
-                            <input type="text" value="" placeholder="Debe agregar un número de boleta" class="form-control border-input">
+                        <div class="row">
+                            <div class="col-md-6" style="margin-top:10px;">
+                                <label style="float:left;"><i class="fa fa-asterisk"></i> Forma de pago *</label>
+                                <select class="form-control" id="boletaFormaPago">
+                                    <option selected="true" disabled="disabled">seleccione</option>
+                                    <option>Efectivo</option>
+                                    <option>Cheque</option>
+                                    <option>Transferencia</option>
+                                </select> 
+                            </div>
+                            <div class="col-md-6" style="margin-top:10px"> 
+                                <label style="float:left;"><i class="fa fa-asterisk"></i> Número de boleta *</label>
+                                <input id="ticket" type="text" value="" placeholder="Debe agregar un número de boleta" class="form-control border-input solo-numero">
+                            </div>
                         </div>
                     </div>
                     
@@ -869,34 +880,14 @@ function opcionesModal() {
                         <div class="col-md-3" style="margin-top:15px;">
                             <button id="save" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
                         </div>
-                </div>
+                    </div>
                 </div>
             `)
-            //pagos()
-            /*
-            $('#ticket').on('change', function (e){
-                saveTicket()
-            })
-            function saveTicket(){
-                let ticket = $('#ticket').val()
-                if(ticket === ''){
-                    $('#save').prop('disabled', true)
-                }else{
-                    $('#save').prop('disabled', false)
-                }
-            }
-            */
-           /*
-            function pagos (){
-                $('#numCuotas').on('change', function (e){
-                    let nCuotas  = $('#numCuotas').val()
-                    let mCuota = alumosRowSelectedData.montoCuota
-                    let montoTotal= nCuotas*mCuota
-                    $('#amount').val(montoTotal)
-                })
-            }
-            */
-            
+
+            $('.solo-numero').keyup(function (){
+                this.value = (this.value + '').replace(/[^0-9]/g, ''); 
+            });
+          
                 $('#cancel').on('click', function () {
                     $('#modalEstudiantes').modal('hide')
                 })
@@ -947,33 +938,46 @@ function opcionesModal() {
             }) 
             
             $('#save').on('click', function(){
-                if(cuotasAPagar[0]) {
-                    ajax({
-                        url: 'api/pagarcuotas',
-                        type: 'POST',
-                        data: {
-                            rut: res.ok._id,
-                            cuotas: JSON.stringify(cuotasAPagar) 
-                        }
-                    }).then(res=>{
-                        if(res.ok) {
-                            swal({
-                                title: res.ok,
-                                backdrop: 'static', 
-                                keyboard: false,
-                                text: '',
-                                type: 'success',
-                                timer: 5000
-                            }).then(result => {
-                                $('#modalEstudiantes').modal('hide')
-                            }) 
-                        }
-                        
-                    })
-                }else {
-                    toastr.warning('Debe seleccionar al menos una cuota a pagar')
+                let ticket = $('#ticket').val();
+                let boletaFormaPago = $('#boletaFormaPago').val()
+                
+                console.log(boletaFormaPago)
+
+                if (ticket == '') {
+                    toastr.warning('Debe ingresar un número de boleta.')
+                } else {
+                    if(cuotasAPagar[0]) {
+                        ajax({
+                            url: 'api/pagarcuotas',
+                            type: 'POST',
+                            data: {
+                                rut: res.ok._id,
+                                cuotas: JSON.stringify(cuotasAPagar),
+                                ticket: ticket,
+                                formaPago: boletaFormaPago
+                            }
+                        }).then(res=>{
+                            if(res.ok) {
+                                swal({
+                                    title: res.ok,
+                                    backdrop: 'static', 
+                                    keyboard: false,
+                                    text: '',
+                                    type: 'success',
+                                    timer: 5000
+                                }).then(result => {
+                                    $('#modalEstudiantes').modal('hide')
+                                }) 
+                            }
+                            
+                        })
+                    }else {
+                        toastr.warning('Debe seleccionar al menos una cuota a pagar')
+                    }
                 }
-               
+                   
+                
+                
             }) 
         })
         
