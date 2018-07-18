@@ -573,52 +573,66 @@ function modalMatrAlumnos() {
         </div>    
     </div>
       `)
-/*
+
   $('#matrElectivo option:eq(1)').prop('disabled', false);
   $('#matrElectivo2 option:eq(4)').prop('disabled', false);
 
-etp()
-function etp (){
-    $('#etp').on('change', function (e){    
-    let estadpETP= $('#etp').val()
-        if(estadpETP=='No'){
-            $('#matrElectivo option:eq(1)').prop('disabled', false);
-            $('#matrElectivo option:eq(2)').prop('disabled', false);
-        }else{
-            $('#matrElectivo option:eq(1)').prop('disabled', false);
-            $('#matrElectivo option:eq(2)').prop('disabled', true);
-        }
+generalETP()
+
+function generalETP(){
+    etp().then(res => {
+        electivo1 ()
+    })
+}
+$('#etp').on('change', function (e){
+    generalETP()
+    $('#matrElectivo').val('')
+    $('#matrElectivo2').val('')
 })
+$('#matrElectivo').on('change', function (e){
+    generalETP()
+})
+
+function etp (){
+    return new Promise(resolve =>{ 
+        let estadpETP= $('#etp').val()
+            if(estadpETP=='No'){
+                $('#matrElectivo option:eq(1)').prop('disabled', false);
+                $('#matrElectivo option:eq(2)').prop('disabled', false);
+                resolve()
+                let estadoElectivo = $('#matrElectivo').val()
+                if(estadoElectivo=='Historia'||estadoElectivo=='Ciencias'){
+                    $('#matrElectivo2 option:eq(1)').prop('disabled', false);
+                    $('#matrElectivo2 option:eq(2)').prop('disabled', false);
+                    $('#matrElectivo2 option:eq(3)').prop('disabled', false);
+                    $('#matrElectivo2 option:eq(4)').prop('disabled', true);
+                } 
+            }else{
+                $('#matrElectivo option:eq(1)').prop('disabled', false);
+                $('#matrElectivo option:eq(2)').prop('disabled', true);
+                resolve()
+                let estadoElectivo2 = $('#matrElectivo').val()
+                if(estadoElectivo2=='Ciencias'){
+                    $('#matrElectivo2 option:eq(1)').prop('disabled', true);
+                    $('#matrElectivo2 option:eq(2)').prop('disabled', true);
+                    $('#matrElectivo2 option:eq(3)').prop('disabled', true);
+                    $('#matrElectivo2 option:eq(4)').prop('disabled', false);
+                }
+            }  
+    })
+}
+function electivo1 (){
+    return new Promise(resolve =>{ 
+        let estadoETP = $('#etp').val()
+        resolve()
+    })
 }
 
-$('#matrElectivo').on('change', function (e){   
-    let estadoETP = $('#etp').val()
-    let estadoElectivo = $('#matrElectivo').val()
-    console.log(estadoElectivo)
-        if (estadoETP=='No'||estadoElectivo=='Ciencias'){
-            alert("ciencias")
-            $('#matrElectivo2 option:eq(1)').prop('disabled', false); 
-            $('#matrElectivo2 option:eq(2)').prop('disabled', false); 
-            $('#matrElectivo2 option:eq(3)').prop('disabled', false); 
-            $('#matrElectivo2 option:eq(4)').prop('disabled', true); 
-        }if (estadoETP=='No'||estadoElectivo=='Historia'){
-            alert("estadoElectivo")
-           // $('#matrElectivo2').prop('enabled', false)
-
-        }
-           
-           
-})
-
-*/
 generalFunction()
-
 
 $('#boleta').on('keyup', function (e){
     saveTicket()
 })
-
-
 function saveTicket(){
     let ticket = $('#boleta').val()
     if(ticket === ''){
