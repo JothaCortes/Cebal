@@ -269,10 +269,9 @@ const Joined = [
                                     numBoleta:boleta,
                                     credentials:session,
                                     rutAlumno: rutAlumno,
-                                    cuotas:[{num:0, monto:valorMatricula}],
+                                    cuotas:[{num:0, monto:removePoints(valorMatricula)}],
                                     monto: valorMatricula,
-                                    formaPagoMatricula: formaPagoMatricula
-    
+                                    formaPago: formaPagoMatricula
                                 }).then(res2 =>{
                                     if(res2.ok) {
                                         db.insert(student, function (errUpdate, body) {
@@ -634,7 +633,7 @@ function addEnrollmentCounter(credentials) {
     })
 }
 
-function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPagoMatricula}) {
+function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago}) {
     return new Promise(resolve=>{
         console.log('CREANDO BOLETA')
         db.find({
@@ -657,11 +656,11 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                     type: 'boleta',
                     numBoleta: numBoleta,
                     cuotas:cuotas,
-                    monto: monto,
+                    monto: removePoints(monto),
                     rutAlumno: cleanRut(rutAlumno),
                     place:credentials.place,
                     rutCreador: cleanRut(credentials.rut), // usuario que generó la boleta
-                    formaPagoMatricula:formaPagoMatricula
+                    formaPago:formaPago
                 }
                 db.insert(newTicket, function (errUpdate, body) {
                     if (errUpdate) throw errUpdate;

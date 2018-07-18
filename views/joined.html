@@ -486,8 +486,7 @@ function modalMatrAlumnos() {
                                                     <label><i class="fas fa-graduation-cap"></i> Forma de pago *</label> 
                                                 </div>
                                                 <div class="col-md-6" style="margin-top: -10px">
-                                                    <select class="form-control" id="matrFormaPago">
-                                                        <option selected="true" disabled="disabled">seleccione</option>
+                                                    <select class="form-control" id="matrTipoPago">
                                                         <option>Efectivo</option>
                                                         <option>Cheque</option>
                                                         <option>Transferencia</option>
@@ -1110,7 +1109,7 @@ $('#matrEgreso').on('change', function(){
         let totalCuotas    = $('#matrTotalCuotas').val()
         let montoTotal     = $('#matrMontoTotal').val()
         let boleta         = $('#boleta').val()
-        let formaPagoMatricula =$('#matrFormaPago').val()
+        let formaPagoMatricula = $('#matrTipoPago').val()
         
         //fin variables
         ajax({

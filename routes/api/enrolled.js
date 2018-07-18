@@ -212,60 +212,91 @@ const Enrolled = [
   path: '/api/pagarcuotas',
   options: {
       handler: (request, h) => {
-          let rut = request.payload.rut
-          let cuotas = JSON.parse(request.payload.cuotas)
+            let session = request.auth.credentials
+            let rut = request.payload.rut
+            let cuotas = JSON.parse(request.payload.cuotas)
+            let ticket = request.payload.ticket
+            let formaPago = request.patload.formaPago
           
-          return new Promise(resolve=> {
-              db.find({ 
-                "selector": {
-                    '_id': rut,
-                    'type': 'alumnos',
-                }
-              }, function(err, result) {
-                    if (err) throw err;
-    
-                    if(result.docs[0]) {
-                        let student = result.docs[0]
-                        let originalFees = student.matricula.finance.cuotas
-                    
-                        
-                        let res = originalFees.map((el, i, arr) => {
-                            let fil = cuotas.filter(function(el2) {
-                                return el.num == el2
-                            })
-                            if(fil[0]) {
-                                return {
-                                    num: el.num,
-                                    amount: el.amount,
-                                    payday: el.payday,
-                                    status: 'payed',
-                                    payedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS')
-                                }
-                            } else {
-                                return el
-                            }         
-                        });
-                        
-                        student.matricula.finance.cuotas = res
-
-                        db.insert(student, function(errUpdate, body) {
-                            if (errUpdate) throw errUpdate;
-                            
-                            if(cuotas.length > 1) {
-                                resolve({ok: 'Cuotas pagadas correctamente'});
-                            } else {
-                                resolve({ok: 'Cuota pagada correctamente'})
-                            }  
-                        });
-                        //console.log(alumno, originalFees, cuotas)
+            return new Promise(resolve=> {
+                db.find({ 
+                    "selector": {
+                        '_id': rut,
+                        'type': 'alumnos',
                     }
-              }); 
-          })
+                }, function(err, result) {
+                        if (err) throw err;
+        
+                        if(result.docs[0]) {
+                            let student = result.docs[0]
+                            let originalFees = student.matricula.finance.cuotas
+                            let toTicket = []
+
+                            let res = originalFees.map((el, i, arr) => {
+                                let fil = cuotas.filter(function(el2) {
+                                    return el.num == el2
+                                })
+                                if(fil[0]) {
+
+                                    toTicket.push({
+                                        num: el.num,
+                                        monto: el.amount
+                                    })
+
+                                    return {
+                                        num: el.num,
+                                        amount: el.amount,
+                                        payday: el.payday,
+                                        status: 'payed',
+                                        payedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS')
+                                    }
+                                } else {
+                                    return el
+                                }         
+                            });
+                            
+                            console.log(toTicket)
+                            let resMonto = toTicket.reduce((numb, el, i)=>{
+                                return numb += parseInt(el.monto) 
+                            }, 0) 
+                            
+                            student.matricula.finance.cuotas = res
+
+                            crearBoleta({
+                                numBoleta: ticket,
+                                credentials: session,
+                                rutAlumno: rut,
+                                cuotas: toTicket,
+                                monto: resMonto,
+                                formaPago: formaPago // efectivo, cheque, transferencia
+                            }).then(res2=> {
+                                db.insert(student, function(errUpdate, body) {
+                                    if (errUpdate) throw errUpdate;
+                                    
+                                    if(res2.ok) {
+                                        if(cuotas.length > 1) {
+                                            resolve({ok: 'Cuotas pagadas correctamente'});
+                                        } else {
+                                            resolve({ok: 'Cuota pagada correctamente'})
+                                        }  
+                                    } else {
+                                        resolve({err: res2.err})
+                                    }
+                                    
+                                });
+                            })
+                            
+                            //console.log(alumno, originalFees, cuotas)
+                        }
+                }); 
+            })
       },
       validate: {
           payload: Joi.object().keys({
               rut: Joi.string().required(),
-              cuotas: Joi.string().required()
+              cuotas: Joi.string().required(),
+              ticket: Joi.string().required(),
+              formaPago: Joi.string().required()
           })
       }
   }
@@ -273,5 +304,54 @@ const Enrolled = [
 
 
 ];
+
+function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago}) {
+    return new Promise(resolve=>{
+        console.log('CREANDO BOLETA')
+        db.find({
+            selector: {
+                _id: {
+                    $gte: null
+                },
+                type: "boleta",
+                numBoleta: numBoleta
+            }
+        }, function (err, result) {
+            if (err) throw err;
+            if(result.docs[0]) {
+                console.log('YA EXISTE LA BOLETA')
+                resolve({err: "ya existe la boleta "+ numBoleta})
+            }else{
+                console.log('No existe la boleta... creando')
+                let newTicket = {
+                    _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                    type: 'boleta',
+                    numBoleta: numBoleta,
+                    cuotas:cuotas,
+                    monto: monto,
+                    rutAlumno: cleanRut(rutAlumno),
+                    place:credentials.place,
+                    rutCreador: cleanRut(credentials.rut), // usuario que generó la boleta
+                    formaPago: formaPago
+                }
+                db.insert(newTicket, function (errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ok:newTicket});
+                });
+            }
+        });
+    })
+}
+
+const cleanRut = (rut) => {
+    var replace1 = rut.split('.').join('');
+    var replace2 = replace1.replace('-', '');
+    return replace2;
+}
+
+const removePoints = (amount) => {
+    var replace = amount.split('.').join('');
+    return replace;
+}
 
 export default Enrolled;

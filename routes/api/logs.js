@@ -36,17 +36,16 @@ const Logs = [
                     }
                   });
       
-                  resolve(filterLogs);
+                  resolve({ok:filterLogs});
                 } else {
-                  resolve({
-                    error: 'NO EXISTEN LOGS EN EL SISTEMA'
-                  })
+                  resolve({ err: 'NO EXISTEN LOGS EN EL SISTEMA'})
                 }
               })
             })
         }
     }
 },
+
 { // crear un log
     method: 'POST',
     path: '/api/log',
@@ -70,6 +69,7 @@ const Logs = [
         }
 
         let credentials = {
+          rut: session.rut,
           email: session.email,
           name: session.name,
           lastname: session.lastname,
@@ -80,6 +80,7 @@ const Logs = [
           let logData = {
             _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
             type: 'log',
+            userRut: credentials.rut,
             userEmail: credentials.email,
             userName: credentials.name + ' ' + credentials.lastname,
             role: credentials.role,
@@ -129,7 +130,7 @@ const Logs = [
         }
 
         if (user) {
-          query.selector.userEmail = user
+          query.selector.userRut = cleanRut(user)
         }
 
         if (startDate && endDate) {
@@ -140,6 +141,7 @@ const Logs = [
         db.find(query, (err, result) => {
           if (err) throw err
 
+          console.log(result)
           let filterLogs = result.docs.map(function(log) {
             if (log.img) {
               log.img = log._id.replace(/:/g, 'Q');
@@ -163,5 +165,11 @@ const Logs = [
   }
 }
 ];
+
+const cleanRut = (rut) => {
+  var replace1 = rut.split('.').join('');
+  var replace2 = replace1.replace('-', '');
+  return replace2;
+}
 
 export default Logs;
