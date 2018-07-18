@@ -82,6 +82,7 @@ const Scores = [
         }
     }
 },
+//crear prueba asignada a un curso
 { 
     method: 'POST',
     path: '/api/crearPrueba',

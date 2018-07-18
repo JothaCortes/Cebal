@@ -58,6 +58,12 @@ h5, .h5 {
     background-color: #e46814;
     border-color: #e46814;
 }
+.custom-checkbox .custom-control-input:disabled:checked ~ .custom-control-label::before {
+    background-color: #2780e3;
+}
+.custom-control-input:disabled ~ .custom-control-label::before {
+    background-color: #618db9;
+}
    
 </style>
 
@@ -354,7 +360,7 @@ function modalMatrAlumnos() {
                             <label><i class="fas fa-book"></i> Promedio *</label>
                             <input id="matrPromedio" maxlength="2" type="text" class="form-control border-input solo-numero"  placeholder="Ej: 60">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label ><i class="far fa-calendar-alt"></i> Horario *</label>
                                 <select id="selectHorario">
@@ -362,23 +368,37 @@ function modalMatrAlumnos() {
                                 </select>
                             </div>  
                         </div>
-                        <div class="col-md-4">
+
+                         <div class="col-md-3">
+                            <div class="form-group">
+                                <label><i class="fas fa-graduation-cap"></i>ETP *</label>
+                                <select class="form-control" id="etp">
+                                    <option>Sí</option>
+                                    <option>No</option>
+                                </select> 
+                            </div>  
+                        </div>
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i>Prueba electiva</label>
                                 <select class="form-control" id="matrElectivo">
                                     <option selected="true" disabled="disabled">seleccione</option>
-                                    <option>Ciencias</option>
-                                    <option>Historia</option>
+                                    <option disabled>Ciencias</option>
+                                    <option disabled>Historia</option>
                                 </select> 
                             </div>  
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
-                                <select class="form-control" id="matrElectivo2">
+                                <select class="form-control" id="matrElectivo2" >
                                     <option selected="true" disabled="disabled">seleccione</option>
-                                    <option>Ciencias</option>
-                                    <option>Historia</option>
+                                    <option disabled>Física</option>
+                                    <option disabled>Química</option>
+                                    <option disabled>Biología</option>
+                                    <optgroup label="">
+                                    <option disabled>Historia</option>
+                                    </optgroup>
                                 </select> 
                             </div>  
                         </div>
@@ -554,6 +574,44 @@ function modalMatrAlumnos() {
         </div>    
     </div>
       `)
+/*
+  $('#matrElectivo option:eq(1)').prop('disabled', false);
+  $('#matrElectivo2 option:eq(4)').prop('disabled', false);
+
+etp()
+function etp (){
+    $('#etp').on('change', function (e){    
+    let estadpETP= $('#etp').val()
+        if(estadpETP=='No'){
+            $('#matrElectivo option:eq(1)').prop('disabled', false);
+            $('#matrElectivo option:eq(2)').prop('disabled', false);
+        }else{
+            $('#matrElectivo option:eq(1)').prop('disabled', false);
+            $('#matrElectivo option:eq(2)').prop('disabled', true);
+        }
+})
+}
+
+$('#matrElectivo').on('change', function (e){   
+    let estadoETP = $('#etp').val()
+    let estadoElectivo = $('#matrElectivo').val()
+    console.log(estadoElectivo)
+        if (estadoETP=='No'||estadoElectivo=='Ciencias'){
+            alert("ciencias")
+            $('#matrElectivo2 option:eq(1)').prop('disabled', false); 
+            $('#matrElectivo2 option:eq(2)').prop('disabled', false); 
+            $('#matrElectivo2 option:eq(3)').prop('disabled', false); 
+            $('#matrElectivo2 option:eq(4)').prop('disabled', true); 
+        }if (estadoETP=='No'||estadoElectivo=='Historia'){
+            alert("estadoElectivo")
+           // $('#matrElectivo2').prop('enabled', false)
+
+        }
+           
+           
+})
+
+*/
 generalFunction()
 
 
