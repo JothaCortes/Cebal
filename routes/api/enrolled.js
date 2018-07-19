@@ -216,7 +216,7 @@ const Enrolled = [
             let rut = request.payload.rut
             let cuotas = JSON.parse(request.payload.cuotas)
             let ticket = request.payload.ticket
-            let formaPago = request.patload.formaPago
+            let formaPago = request.payload.formaPago
           
             return new Promise(resolve=> {
                 db.find({ 

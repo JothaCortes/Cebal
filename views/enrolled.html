@@ -41,6 +41,11 @@
     margin-bottom: 0rem;
 }
 
+.actived {
+    background:#1abc9c !important;
+    border-color:#16a085 !important;
+}
+
 </style>
 {{/extend}}
 <div class="col-md-12" >
@@ -865,7 +870,6 @@ function opcionesModal() {
                             <div class="col-md-6" style="margin-top:10px;">
                                 <label style="float:left;"><i class="fa fa-asterisk"></i> Forma de pago *</label>
                                 <select class="form-control" id="boletaFormaPago">
-                                    <option selected="true" disabled="disabled">seleccione</option>
                                     <option>Efectivo</option>
                                     <option>Cheque</option>
                                     <option>Transferencia</option>
@@ -882,10 +886,10 @@ function opcionesModal() {
                 <div class="col-md-12">
                     <div class="row"> 
                         <div class="offset-md-6 col-md-3" style="margin-top:15px;">
-                            <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
+                            <button id="cancel" class="btn btn-secondary btn-block"><i style="color:#e74c3c;" class="fas fa-ban"></i> Cancelar</button>
                         </div>
                         <div class="col-md-3" style="margin-top:15px;">
-                            <button id="save" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
+                            <button id="save" class="btn btn-secondary btn-block"><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar</button>
                         </div>
                     </div>
                 </div>
@@ -934,6 +938,7 @@ function opcionesModal() {
 
             $('.cuotaPay').on('click', function(e){
                 $('#'+e.currentTarget.id).toggleClass( 'active' )
+                $('#'+e.currentTarget.id).toggleClass( 'actived' )
 
                 if($('#'+e.currentTarget.id).hasClass('active')) {
                     cuotasAPagar.push(e.currentTarget.id.split('_')[1])
@@ -947,11 +952,12 @@ function opcionesModal() {
             $('#save').on('click', function(){
                 let ticket = $('#ticket').val();
                 let boletaFormaPago = $('#boletaFormaPago').val()
-                
+                $(this).attr('disabled', true);
                 console.log(boletaFormaPago)
 
                 if (ticket == '') {
                     toastr.warning('Debe ingresar un número de boleta.')
+                    $(this).attr('disabled', false);
                 } else {
                     if(cuotasAPagar[0]) {
                         ajax({
@@ -975,11 +981,15 @@ function opcionesModal() {
                                 }).then(result => {
                                     $('#modalEstudiantes').modal('hide')
                                 }) 
+                            } else if (res.err) {
+                                toastr.warning(res.err)
+                                $(this).attr('disabled', false);
                             }
                             
                         })
                     }else {
                         toastr.warning('Debe seleccionar al menos una cuota a pagar')
+                        $(this).attr('disabled', false);
                     }
                 }
                    

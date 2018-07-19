@@ -20,6 +20,9 @@ import APIlistStudents from './api/listStudents';
 import administrationPanel from './administrationPanel';
 import APIadministrationPanel from './api/administrationPanel';
 
+import Tickets from './tickets';
+
+
 import logs from './logs';
 import APIlogs from './api/logs';
 
@@ -123,6 +126,8 @@ const Routes = [].concat(
 
     listStudents,
     APIlistStudents,
+
+    Tickets,
     
     administrationPanel,
     APIadministrationPanel,
