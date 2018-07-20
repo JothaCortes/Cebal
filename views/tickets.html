@@ -4,6 +4,67 @@
 
 {{/extend}}
 
+<div class="row">
+    <div class="col-md-2 col-xs-12">
+        <!--
+        <br>
+        <button class="btn btn-secondary btn-block" id="pagosEnrolled" disabled>
+            <i style="color:#1abc9c;" class="fa fa-plus"></i> Pagos
+        </button>
+        <button class="btn btn-secondary btn-block" id="modStudentEnrolled" disabled>
+            <i style="color:#f1c40f;" class="fas fa-edit"></i> Modificar
+        </button>
+        <button class="btn btn-dark btn-block" id="optionStudentEnrolled" disabled>
+            <i style="color:#3498db;" class="fas fa-ban"></i> Opciones
+        </button>
+        <button class="btn btn-dark btn-block" id="closeMatrStudentEnrolled" disabled>
+            <i style="color:#e74c3c;" class="fas fa-ban"></i> Cerrar Matrícula
+        </button>
+        -->
+    </div>
+
+    <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+        <table id="tableTickets" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>N°</th>
+                    <th>Rut</th>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th></th>
+                    <th>Domicilio</th>
+                    <th>E-mail</th>
+                    <th>Celular</th>
+                    <th>Apoderado</th>
+                    <th>Parentesco</th>
+                </tr>
+            </thead>
+        </table>
+        <div id="loadingEnrolled">
+            <center>
+                <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                <span class="sr-only">Cargando...</span>
+            </center>
+        </div>
+    </div>
+</div>
+
+<!-- Modal formato-->
+<div class="modal fade" id="modalTickets" tabindex="-1" role="dialog" aria-labelledby="modal_title" style="margin-top: 13px">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="background-color: #ffffff">
+            <div class="modal-header" style="background:#333333; color:#fff">
+                <h5 class="modal-title" id="modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modal_body"></div>
+            <div class="modal-footer" id="modal_footer"></div>
+        </div>
+    </div>
+</div>
 {{#extend "js"}}
 <script>
 
