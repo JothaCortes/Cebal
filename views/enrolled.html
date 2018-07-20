@@ -256,11 +256,28 @@ function reloadTableAlumnosEnrolled() {
         ajax({
             url: 'api/studentsEnrolled'
         }).then(res => {
-            if (res.err) {
-                toastr.warning('No existen alumnos matriculados')
-            } else {
-                datatableAlumnosEnrolled.clear().draw();
-                datatableAlumnosEnrolled.rows.add(res).draw();
+        if (res.err) {
+            toastr.warning('No existen Alumnos')
+        } else {
+            console.log(res)
+            let reformat = res.reduce((arr, el, i) => {
+                    return arr.concat({
+                        numMatricula:el.numMatricula,
+                        _id: el._id,
+                        name: el.name,
+                        lastname1: el.lastname1,
+                        lastname2: el.lastname2,
+                        address: el.address,
+                        email: el.email,
+                        phone: el.phone,
+                        nameAp: el.nameAp,
+                        relationshipAp: el.relationshipAp
+                    })   
+            }, []);
+
+            datatableAlumnosEnrolled.clear().draw();
+            datatableAlumnosEnrolled.rows.add(reformat).draw();
+            $('#loadingEnrolled').empty();
             }
         })
 }
@@ -339,6 +356,329 @@ function reloadTableAlumnosDisabled() {
 }
 //XXXXXXXXXX
 //CERRAR MATRICULA
+//MODIFICAR ESTUDIANTE MATRICULADO
+$('#modStudentEnrolled').on('click', function(){
+    modificarEstModal()
+})
+
+function modificarEstModal() { 
+      $('#modalEstudiantes').modal();
+      $('#modal_title').text('Modificar Estudiante');
+      $('#modal_body').html(`
+      <div class="card">
+                <div class="card-header"><h5>Datos alumno</h5></div>
+                <div class="card-body row">
+        
+                    <div class="col-md-4">
+                        <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut </label>
+                        <input id="rutModAlumno" value="${alumosRowSelectedData._id}" maxlength="12" type="text"  required class="form-control border-input" disabled >
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento </label>   
+                        <input  id="fechaModAlumno"  value="${alumosRowSelectedData.birthday}"   class="form-control" type="text">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad </label>
+                        <input id="ciudadModAlumno" type="text"  required class="form-control border-input" value="{{{ credentials.place }}}" readOnly>
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre </label>
+                        <input id="nombreModAlumno" type="text"  value="${alumosRowSelectedData.name}" class="form-control border-input" >
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"> Apellido paterno </label>
+                        <input id="apellido1ModAlumno"  value="${alumosRowSelectedData.lastname1}" type="text" class="form-control border-input" >
+                    </div>
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;">Apellido materno</label>
+                        <input id="apellido2ModAlumno"  value="${alumosRowSelectedData.lastname2}" type="text" class="form-control border-input">
+                    </div>
+
+                    
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
+                        <input id="correoModAlumno" type="email"  value="${alumosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                        <input id="celularModAlumno" type="text"  value="${alumosRowSelectedData.phone}" class="form-control border-input">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección *</label>
+                        <input id="direccionModAlumno" type="text"  value="${alumosRowSelectedData.address}" class="form-control border-input">
+                    </div>
+                    <!--
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
+                        <input type="file" accept="image/*" class="form-control-file" id="matrImage">
+                    </div>
+                    -->
+                </div>
+            </div>    
+
+            <div class="card" style="margin-top:3px">
+                <div class="card-header"><h5>Datos apoderado</h5></div>
+                <div class="card-body row">        
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
+                        <input id="nombreApoderadoMod" type="text"  value="${alumosRowSelectedData.nameAp}" class="form-control border-input">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;">Parentesco </label>
+                        <input id="parentescoApoderadoMod" type="text" value="${alumosRowSelectedData.parentesco}" class="form-control border-input"  >
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
+                        <input id="trabajoApoderadoMod" type="text" class="form-control border-input" value="${alumosRowSelectedData.workAp}">
+                    </div>
+
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
+                        <input id="celularApoderadoMod" type="text" class="form-control border-input" value="${alumosRowSelectedData.phoneAp}">
+                    </div> 
+                    <div class="col-md-4" style="margin-top:3px;">
+                        <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
+                        <input id="correoApoderadoMod" type="email" aria-describedby="emailHelp" class="form-control border-input" value="${alumosRowSelectedData.emailAp}" >
+                    </div> 
+                </div>
+            </div>
+
+
+
+            <div class="card" style="margin-top:5px">
+                <div class="card-header"><h5>Datos académicos</h5></div>
+            <div class="card-body row">
+                <div style="padding:5px;"> 
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fas fa-school"></i> Colegio </label>
+                            <input id="matrColegio" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.colegio}">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label><i class="far fa-calendar"></i> Egreso </label>
+                                <input id="matrEgreso" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.egreso}" readOnly>
+                            </div>  
+                        </div>
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fab fa-bimobject"></i> Becado </label>
+                            <input id="matrBeca" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.beca}" readOnly>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label><i class="far fa-calendar-check"></i> Año de egreso </label>
+                                <input id="matrAñoEgreso" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.añoEgreso}" readOnly>
+                            </div>  
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label><i class="fas fa-graduation-cap"></i> Cursando </label>
+                                <input id="matrCurso" type="text"  required class="form-control border-input" readOnly value="${alumosRowSelectedData.cursando}" >
+                            </div>  
+                        </div>
+                        <div class="col-md-4">
+                            <label><i class="fas fa-book"></i> Promedio </label>
+                            <input id="matrPromedio" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumosRowSelectedData.promedio}" readOnly>
+                        </div>
+
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label ><i class="far fa-calendar-alt"></i> Horario</label>
+                                <select id="matrHorario">
+                                    <option>${alumosRowSelectedData.horario}</option>
+                                </select>
+                            </div>  
+                        </div>
+                       
+
+                         <div class="col-md-3">
+                            <div class="form-group">
+                                <label><i class="fas fa-graduation-cap"></i>ETP </label>
+                                <input id="matrETP" maxlength="2" type="text" class="form-control border-input solo-numero" disabled value="${alumosRowSelectedData.etp}" >
+                            </div>  
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label><i class="fas fa-graduation-cap"></i>Prueba electiva</label>
+                                <input id="matrElectivo" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumosRowSelectedData.electivo}" readOnly>
+                            </div>  
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
+                                <input id="matrElectivo2" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumosRowSelectedData.electivo2}" readOnly>
+                            </div>  
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card" style="margin-top:5px">
+        <div class="card-header"><h5>Datos de matrícula</h5></div>
+        <div class="card-body row">
+            <div style="padding:5px;"> 
+                <div class="row">
+                    <div class="col-md-3" >
+                        <label style="float:left;"><i class="far fa-calendar"></i> Fecha de matrícula </label>
+                        <input  id="matrFechaMatricula"  class="form-control" type="text" value="${alumosRowSelectedData.fechaMatricula}" readOnly>
+                    </div>
+                    <div class="col-md-3">
+                        <label><i class="fas fa-book"></i> Día de cobro </label>
+                        <input id="matrDiaCobro" type="text" class="form-control border-input solo-numero" value="4" readOnly>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label><i class="fas fa-graduation-cap"></i> Tipo de curso </label>
+                            <input  id="matrTipoCurso"  class="form-control" type="text" value="${alumosRowSelectedData.tipoCurso}" readOnly>
+                        </div>  
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label><i class="fas fa-graduation-cap"></i> Forma de pago </label>
+                            <input  id="matrFormaPago"  class="form-control" type="text" value="${alumosRowSelectedData.formaP}" readOnly>
+                        </div>  
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <h4>Descuentos</h4><br>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label><i class="fas fa-graduation-cap"></i> Descuento 1</label>
+                                        <input  id="matrDescuento1"  class="form-control" type="text" readOnly value="${alumosRowSelectedData.descuento1}">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label><i class="fas fa-graduation-cap"></i> Descuento 2</label>
+                                        <input  id="matrDescuento2"  class="form-control" type="text" readOnly value="${alumosRowSelectedData.descuento2}">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div class="row"> 
+            <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                <button id="cancelarModAlum" class="btn btn-secondary btn-block"><i style="color:#f1c40f;" class="fas fa-ban"></i> Cancelar</button>
+            </div>
+            <div class="col-md-3" style="margin-top:15px;">
+                <button id="modificarAlumnoCebal" class="btn btn-secondary btn-block" ><i style="color:#3498db;" class="fas fa-cloud"></i> Modificar</button>
+            </div>
+        </div>                       
+      `)
+
+let selects = {
+    place:[],
+    horario: [],
+}
+ajax({ // cargar horarios
+    url:'/api/horariosCebalTraerEnrroled'
+    }).then(res => {
+        console.log(res)
+        selects.place = res.filter(function(el) {
+            return el.place == '{{{credentials.place}}}'
+        })
+        console.log(selects.place)
+        let horario = selects.place.reduce((arr, el, i) => {
+            return arr.concat({
+                id: i,
+                text: el.horary
+            })   
+        }, []);
+
+        $('#matrHorario').select2({
+            placeholder:'seleccione',
+            width:'100%',
+            data: horario
+        });
+    });  
+
+//cerrar modal editar alumnos
+$('#cancelarModAlum').on('click', function(){
+    $('#modalEstudiantes').modal('hide')
+})
+//editar los datos de los alumnos
+$('#modificarAlumnoCebal').on('click', function(){
+
+    let birthday   = $('#fechaModAlumno').val();
+    let name    = $('#nombreModAlumno').val();
+    let lastname1  = $('#apellido1ModAlumno').val();
+    let lastname2  = $('#apellido2ModAlumno').val();
+    let email     = $('#correoModAlumno').val();
+    let phone    = $('#celularModAlumno').val();
+    let address  = $('#direccionModAlumno').val();
+
+    let nameAp     = $('#nombreApoderadoMod').val();
+    let relationshipAp = $('#parentescoApoderadoMod').val();
+    let workAp    = $('#trabajoApoderadoMod').val();
+    let phoneAp    = $('#celularApoderadoMod').val();
+    let emailAp     = $('#correoApoderadoMod').val();
+
+    let colegio    = $('#matrColegio').val();
+    let horario    = $('#matrHorario').select2('data')[0].text;
+    console.log("horario cliente",horario)
+            ajax({
+                url: 'api/modStudentEnrroledCebal',
+                type: 'POST',
+                data: {
+                    id: alumosRowSelectedData._id,
+                    birthday: birthday,
+                    name: name,
+                    lastname1: lastname1,
+                    lastname2: lastname2,
+                    email: email,
+                    phone: phone,
+                    address:  address,
+                    nameAp: nameAp,
+                    relationshipAp: relationshipAp,
+                    workAp: workAp,
+                    phoneAp: phoneAp,
+                    emailAp: emailAp,
+                    colegio: colegio,
+                    horario: horario,
+                }
+            }).then(res => {
+                if (res.error) {
+                    toastr.error(res.error)
+                } else {
+                    swal({
+                        title: 'Alumno modificado correctamente!',
+                        text: res.ok,
+                        backdrop: 'static',
+                        keyboard: false,
+                        type: 'success',
+                        timer: 3000
+                    }).then(result => {
+                        reloadTableAlumnosEnrolled()
+                        $('#modalEstudiantes').modal('hide')
+                        
+                    })
+
+
+                }
+            })
+    })
+};
+
+ //iniciar select de horarios
+
 $('#closeMatrStudentEnrolled').on('click', function(){
     console.log(alumosRowSelectedData)
     swal({
