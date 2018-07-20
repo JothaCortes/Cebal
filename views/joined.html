@@ -1115,6 +1115,7 @@ $('#matrEgreso').on('change', function(){
         let montoTotal     = $('#matrMontoTotal').val()
         let boleta         = $('#boleta').val()
         let formaPagoMatricula = $('#matrTipoPago').val()
+        let etp            = $('#etp').val()
         
         //fin variables
         ajax({
@@ -1129,6 +1130,7 @@ $('#matrEgreso').on('change', function(){
                 curso         :curso,
                 promedio      :promedio,
                 horario       :horario,
+                etp           :etp,
                 electivo      :electivo,
                 electivo2     :electivo2,
                 fechaMatricula:fechaMatricula,

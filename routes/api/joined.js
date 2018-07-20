@@ -173,6 +173,7 @@ const Joined = [
             let curso          = request.payload.curso;
             let promedio       = request.payload.promedio;
             let horario        = request.payload.horario;
+            let etp            = request.payload.etp;
             let electivo       = request.payload.electivo;
             let electivo2      = request.payload.electivo2;
             let fechaMatricula = request.payload.fechaMatricula;
@@ -200,6 +201,7 @@ const Joined = [
                 curso, 
                 promedio, 
                 horario,
+                etp,
                 electivo,
                 electivo2,
                 fechaMatricula,
@@ -246,6 +248,7 @@ const Joined = [
                                     curso          :curso,
                                     promedio       :promedio,
                                     horario        :horario,
+                                    etp            :etp,
                                     electivo       :electivo,
                                     electivo2      :electivo2,
                                     fechaMatricula :fechaMatricula,
@@ -301,6 +304,7 @@ const Joined = [
                 curso: Joi.string().allow(''),
                 promedio: Joi.string().required(),
                 horario: Joi.string().required(),
+                etp: Joi.string().required(),
                 electivo: Joi.string().allow(''),
                 electivo2: Joi.string().allow(''),
                 fechaMatricula: Joi.string().required(),

@@ -45,20 +45,30 @@ const Enrolled = [
                                 workAp: el.workAp,
                                 phoneAp: el.phoneAp,
                                 city: el.city,
-
-                                colegio:el.matricula.colegio,
-                                añoEgreso:el.matricula.añoEgreso,
-                                promedio:el.matricula.promedio,
-                                horario:el.matricula.horario,
-                                electivo:el.matricula.electivo,
-                                electivo2:el.matricula.electivo2,
                                 apoderado: el.nameAp,
                                 parentesco: el.relationshipAp,
                                 workAp: el.workAp,
                                 phoneAp:el.phoneAp,
+                                emailAp: el.emailAp,
+
+                                egreso:el.matricula.estadoEgreso,
+                                beca:el.matricula.beca,
+                                colegio:el.matricula.colegio,
+                                añoEgreso:el.matricula.añoEgreso,
+                                cursando:el.matricula.curso,
+                                promedio:el.matricula.promedio,
+                                horario:el.matricula.horario,
+                                etp: el.matricula.etp,
+                                electivo:el.matricula.electivo,
+                                electivo2:el.matricula.electivo2,
+                                
+                                fechaMatricula:el.matricula.fechaMatricula,
                                 date: el.matricula.date,
                                 tipoCurso: el.matricula.tipoCurso,
                                 formaP: el.matricula.finance.formaPago,
+
+                                descuento1: el.matricula.finance.descuento,
+                                descuento2: el.matricula.finance.descuento2,
                                 
                                 numCuotas:el.matricula.finance.numCuotas,
                                 montoCuota:el.matricula.finance.montoCuota,
@@ -77,7 +87,135 @@ const Enrolled = [
             });
         }
     }
-},    //API TRAER ALUMNOS RETIRED A TABLE
+},
+//Obtener Horarios 
+{ 
+    method: 'GET',
+    path: '/api/horariosCebalTraerEnrroled', 
+    options: {
+        handler: (request, h) => {
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'type': 'horarios',
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                                year: el.year,
+                                place: el.place,
+                                horary: el.horary
+                            })
+                        }, []) 
+
+                        resolve(res);
+                    } else {
+                        resolve({ err: 'no existen horarios' });
+                    }
+                });
+            });
+        }
+    }
+},
+//API MODIFICAR ALUMNOS ENRROLED
+{
+    method: 'POST',
+    path: '/api/modStudentEnrroledCebal',
+    options: {
+        handler: (request, h) => {
+            let id = request.payload.id;
+            let birthday = request.payload.birthday;
+            let name = request.payload.name;
+            let lastname1 = request.payload.lastname1;
+            let lastname2 = request.payload.lastname2;
+          
+            let email = request.payload.email;
+            let phone = request.payload.phone;
+            let address = request.payload.address;
+
+            let nameAp = request.payload.nameAp;
+            let relationshipAp = request.payload.relationshipAp;
+            let workAp = request.payload.workAp;
+            let phoneAp = request.payload.phoneAp;
+            let emailAp = request.payload.emailAp;
+
+            let colegio = request.payload.colegio;
+            let horario = request.payload.horario;
+            console.log("horario ",horario)
+
+            let modAlumnosCebalObj = {};
+
+            return new Promise(resolve => {
+                db.find({
+                    "selector": {
+                        "_id": id,
+                        "type": "alumnos",
+                        "status": "enrolled"
+                    },
+                    "limit": 1
+                }, function (err, result) {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        console.log(result)
+                        modAlumnosCebalObj = result.docs[0];
+                        modAlumnosCebalObj.birthday = birthday;
+                        modAlumnosCebalObj.name = name;
+                        modAlumnosCebalObj.lastname1 = lastname1;
+                        modAlumnosCebalObj.lastname2 = lastname2;
+                        
+                        modAlumnosCebalObj.email = email;
+                        modAlumnosCebalObj.phone = phone;
+                        modAlumnosCebalObj.address = address;
+                        modAlumnosCebalObj.nameAp = nameAp;
+                        modAlumnosCebalObj.relationshipAp = relationshipAp;
+                        modAlumnosCebalObj.workAp = workAp;
+                        modAlumnosCebalObj.phoneAp = phoneAp;
+                        modAlumnosCebalObj.emailAp = emailAp;
+
+                        modAlumnosCebalObj.matricula.colegio = colegio;
+                        modAlumnosCebalObj.matricula.horario = horario;
+
+                        db.insert(modAlumnosCebalObj, function (errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+
+                            resolve({ ok: 'Alumno  modificado correctamente' });
+                        });
+                    } else {
+                        resolve({ error: 'El Alumno  no existe' });
+                    }
+                });
+            });
+        },
+        validate: {
+            payload: Joi.object().keys({
+                id: Joi.string(),
+                birthday: Joi.string().allow(''),
+                name: Joi.string().allow(''),
+                lastname1: Joi.string().allow(''),
+                lastname2: Joi.string().allow(''),
+                email: Joi.string().allow(''),
+                phone: Joi.string().allow(''),
+                address: Joi.string().allow(''),
+                nameAp: Joi.string().allow(''),
+                relationshipAp: Joi.string().allow(''),
+                workAp: Joi.string().allow(''),
+                phoneAp: Joi.string().allow(''),
+                emailAp: Joi.string().allow(''),
+                colegio: Joi.string().allow(''),
+                horario: Joi.string()
+            })
+        }
+    }
+},
+//API TRAER ALUMNOS RETIRED A TABLE
 { 
     method: 'GET',
     path: '/api/studentsDisabled', 
