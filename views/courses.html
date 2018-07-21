@@ -147,6 +147,7 @@ let coursesRowSelected;
 let datatableCourseClose;
 let cursosCloseRowSelectedData;
 let cursosCloseRowSelected;
+let cursoSelect = '';
 
 let datatableAlumnosEnrolled;
 let alumosRowSelectedData;
@@ -261,8 +262,10 @@ function chargeTableCoursesClose() {
             datatableCourseClose.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
             cursosCloseRowSelectedData = datatableCourseClose.row($(this)).data();
-            cursosCloseRowSelected = datatableCourseClose.row($(this));         
+            cursosCloseRowSelected = datatableCourseClose.row($(this));
+            cursoSelect = cursosCloseRowSelectedData._id       
             console.log(cursosCloseRowSelectedData)
+            console.log(cursoSelect)
 
             $('#seeStudentsCourse').prop('disabled', false);
             $('#openCourse').prop('disabled', false);
@@ -580,6 +583,115 @@ $('#cancelModCourse').on('click', function () {
 })
 };
 //xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+//MOSTRAR ALUMNOS DE UN CURSO CERRADO
+$('#seeStudentsCourse').on('click', function () {
+    modalMostrarAlumnosCursoCerrado();
+})  
+
+function  modalMostrarAlumnosCursoCerrado(){ 
+    alumnosaAsignar = [];
+    $('#modalCourses').modal();
+    $('#modal_title').text('Lista de alumnos');
+    $('#modal_body').html(`
+    <div class="container-fluid">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+                        <div class="row">
+                            <div class="col-md-2 col-xs-12">
+                                <button class="btn btn-secondary btn-block" id="printListAlumns" disabled>
+                                    <i style="color:#1abc9c;" class="fa fa-plus" aria-hidden="true" ></i> Imprimir lista
+                                </button>
+                                <button class="btn btn-secondary btn-block" id="alumnoExit" >
+                                    <i style="color:#e74c3c;" class="fas fa-trash-alt"></i> Retirar alumno
+                                </button>
+                            </div>
+                            <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                                <table id="tableAlumnosCurso" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Rut</th>
+                                            <th>Nombre</th>
+                                            <th>Apellidos</th>
+                                            <th></th>
+                                            <th>Horario</th>
+                                            <th>Tipo</th>
+                                            <th>Promedio</th>
+                                            <th>Colegio</th>
+                                            <th>Electivo 1</th>
+                                            <th>Electivo 2</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>    
+                        </div>
+                    </div>
+                </div> 
+            </div> 
+    `)
+jQuery(document).ready(function ($) {
+    chargeTableAlumnosCurso()
+});
+ //cargar alumnos enrolled en dataTable
+ function chargeTableAlumnosCurso() {
+        datatableAlumnosEnrolled = $('#tableAlumnosCurso')
+        .DataTable({            
+                    "iDisplayLength": 100,
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "responsive": true,
+                    "columns": [
+                        { "data": "_id"},
+                        { "data": "name" },
+                        { "data": "lastname1"},
+                        { "data": "lastname2"},
+                        { "data": "horario"},
+                        { "data": "tipoCurso"},
+                        { "data": "promedio"},
+                        { "data": "colegio"},
+                        { "data": "electivo"},
+                        { "data": "electivo2"}               
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/alumnosporcurso',
+                        type: 'POST',
+                        data: {idCurso: cursoSelect}
+                    }).then(res => {
+                        if (res.err) {
+                            toastr.warning('No existen Alumnos para asignar')
+                        } else if(res.ok) {
+                            datatableAlumnosEnrolled.rows.add(res.ok).draw();
+                            $('#loadingCourseAsignar').empty();
+                        }      
+                    })
+                }
+        });   
+     /*   
+     $('#tableAlumnosCurso tbody').on('click', 'tr', function () {
+        
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+            $('#asignar').prop('disabled', true);
+            let rowTodelete = datatableAlumnosEnrolled.row($(this)).data();
+
+            alumnosaAsignar = alumnosaAsignar.filter(function(el) {
+                return el !== rowTodelete._id
+            })
+        } else {
+            $(this).addClass('selected');
+            $('#asignar').prop('disabled', false);
+            alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
+            alumnosaAsignar.push(alumosRowSelectedData._id)
+        }
+    }); */
+}
+$('#asignar').on('click', function () {
+    asignarAlumnosACurso()
+})     
+}
+//ASIGNAR ALUMNOS A UN CURSO
 $('#asignarCourse').on('click', function () {
     modalAsignarCurso();
 })  

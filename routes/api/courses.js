@@ -206,14 +206,15 @@ const Courses = [
         }
     }
 },
-//NO BORRAR
+
+
 //Mostrar alumnos por horario del curso seleccionado
-/*{
+{
     method: 'POST',
-    path: '/api/alumnosporhorario2',
+    path: '/api/alumnosporcurso',
     options: {
         handler: (request, h) => {
-           // let horario = request.payload.horario;
+            let idCurso = request.payload.idCurso;
             return new Promise(resolve => {
                 db.find({
                     selector: {
@@ -221,13 +222,8 @@ const Courses = [
                             $gte: null
                         },
                         type: 'alumnos',
-                        $not: {
-                            statusCourse: 'assigned'
-                        },
-                        /*
-                        matricula: {
-                            horario: horario
-                        }
+                        statusCourse: 'assigned',
+                        courseSend: idCurso 
                     }
                 }, function (err, result) {
                     if (err) throw err;
@@ -252,18 +248,18 @@ const Courses = [
                         console.log(result)
                         resolve({ok: res})
                     } else {
-                        resolve({ err: `No se encuentran alumnos con horario`/* ${horario}`});
+                        resolve({ err: `No se encuentran alumnos`});
                     }
                 });
             });
         },
         validate: {
             payload: Joi.object().keys({
-               // horario: Joi.string()
+                idCurso: Joi.string()
             })
         }
     }
-},   */
+},   
 //GUARDAR ALUMNOS EN UN CURSO
 { 
     method: 'POST',
@@ -292,7 +288,7 @@ const Courses = [
                                 })
                             }, [])
                             console.log(alumnosReduce)
-                            changeStudentCourseStatus(alumnos).then(res=>{
+                            changeStudentCourseStatus(alumnos, curso).then(res=>{
                                 if(res.ok) {
                                     let addToCourse = result.docs[0]
                                     if (!addToCourse.alumnos){
@@ -518,7 +514,8 @@ options: {
 
 ];
 
-function changeStudentCourseStatus(alumnos){
+function changeStudentCourseStatus(alumnos, curso){
+   
     return new Promise(resolve => {
         db.find({
             'selector': {
@@ -531,10 +528,11 @@ function changeStudentCourseStatus(alumnos){
             if (err) throw err;
 
             if (result.docs[0]) {
-                //console.log(result.docs)
+                console.log(result.docs)
 
                 let alumnosReduce = result.docs.reduce((arr, el, i)=>{
                     el.statusCourse = 'assigned'
+                    el.courseSend = curso
                     return arr.concat(el)
                 }, []) 
 
@@ -547,7 +545,10 @@ function changeStudentCourseStatus(alumnos){
             } else {
                 resolve({ err: 'no existen alumnos' });
             }
+            
         });
+        
     });
+   
 }
 export default Courses;

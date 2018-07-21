@@ -113,7 +113,8 @@ const Joined = [
                 workAp         :trabajoAp,
                 phoneAp        :celularAp, 
                 emailAp        :correoAp,
-                statusCourse   :''
+                statusCourse   :'',
+                courseSend     :'',
             }
             
             return new Promise(resolve => {
