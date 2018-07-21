@@ -695,7 +695,39 @@ $('#matrPromedio').on('change', function (e){
       validarValorPromedio()
 })
 
+//FORMA DE PAGO  typePayStatus
+function wayToPay(){
+    return new Promise(resolve =>{
+        let selectedTypePay = $('#matrFormaPago').val();
 
+        console.log("Forma de pago",selectedTypePay)
+
+        if (selectedTypePay == 'Contado') {
+            let tipoAnualIntensivo = $('#matrTipoCurso').val();
+            
+            if(tipoAnualIntensivo =='Anual'){
+                typePayStatus = 1;
+                allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.20;
+                allValues.montoPorCuota = allValues.totalCuotas;
+                allValues.cantidadCuotas = 1
+                resolve()
+
+            }else if(tipoAnualIntensivo === 'Intensivo'){
+                typePayStatus = 1;
+                allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.10;
+                allValues.montoPorCuota = allValues.totalCuotas;
+                allValues.cantidadCuotas = 1
+                resolve()
+            }
+
+           
+        }else if(selectedTypePay === 'Cuotas'){
+            typePayStatus = 0
+            allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
+            resolve()
+        }
+    })
+}
   
    
 
@@ -924,34 +956,7 @@ function calcularMontoTotal(){
     $('#matrMontoTotal').val(number_format(Math.floor(montoTotalFinish)))
    
 }
-//FORMA DE PAGO  typePayStatus
-function wayToPay(){
-    return new Promise(resolve =>{
-        let selectedTypePay = $('#matrFormaPago').val();
-        let tipoAnualIntensivo = $('#matrTipoCurso').val();
 
-        console.log("tipo",tipoAnualIntensivo)
-        console.log("Forma de pago",selectedTypePay)
-        if (selectedTypePay === 'Contado'||tipoAnualIntensivo === 'Anual') {
-            typePayStatus = 1;
-
-           allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.20;
-           allValues.montoPorCuota = allValues.totalCuotas;
-           allValues.cantidadCuotas = 1
-            resolve()
-        }/*else if(selectedTypePay === 'Contado'||tipoAnualIntensivo === 'Intensivo'){
-            typePayStatus = 1;
-            allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.10;
-            allValues.montoPorCuota = allValues.totalCuotas;
-            allValues.cantidadCuotas = 1
-            resolve()
-       }*/else if(selectedTypePay === 'Cuotas'){
-            typePayStatus = 0
-            allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
-            resolve()
-        }
-    })
-}
 //TRAER NUMERO DE CUOTAS
 function numberQuotesCebal (){
     return new Promise(resolve =>{
