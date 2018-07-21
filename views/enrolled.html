@@ -260,18 +260,51 @@ function reloadTableAlumnosEnrolled() {
             toastr.warning('No existen Alumnos')
         } else {
             console.log(res)
-            let reformat = res.reduce((arr, el, i) => {
+            let reformat = res.ok.reduce((arr, el, i) => {
                     return arr.concat({
-                        numMatricula:el.numMatricula,
                         _id: el._id,
+                        numMatricula: el.numMatricula,
+                        status: el.status,
+                        birthday:el.birthday,  
                         name: el.name,
                         lastname1: el.lastname1,
                         lastname2: el.lastname2,
-                        address: el.address,
                         email: el.email,
                         phone: el.phone,
+                        address: el.address,
                         nameAp: el.nameAp,
-                        relationshipAp: el.relationshipAp
+                        relationshipAp: el.relationshipAp,
+                        workAp: el.workAp,
+                        phoneAp: el.phoneAp,
+                        city: el.city,
+                        apoderado: el.nameAp,
+                        parentesco: el.relationshipAp,
+                        workAp: el.workAp,
+                        phoneAp:el.phoneAp,
+                        emailAp: el.emailAp,
+
+                        egreso:el.estadoEgreso,
+                        beca:el.beca,
+                        colegio:el.colegio,
+                        añoEgreso:el.añoEgreso,
+                        cursando:el.curso,
+                        promedio:el.promedio,
+                        horario:el.horario,
+                        etp: el.etp,
+                        electivo:el.electivo,
+                        electivo2:el.electivo2,
+                        
+                        fechaMatricula:el.fechaMatricula,
+                        date: el.date,
+                        tipoCurso: el.tipoCurso,
+                        formaP: el.formaPago,
+
+                        descuento1: el.matricula.finance.descuento,
+                        descuento2: el.matricula.finance.descuento2,
+                        numCuotas:el.numCuotas,
+                        montoCuota:el.montoCuota,
+                        totalCuotas:el.totalCuotas,
+                        montoTotal: el.montoTotal,
                     })   
             }, []);
 
@@ -410,7 +443,7 @@ function modificarEstModal() {
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección *</label>
+                        <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección </label>
                         <input id="direccionModAlumno" type="text"  value="${alumosRowSelectedData.address}" class="form-control border-input">
                     </div>
                     <!--

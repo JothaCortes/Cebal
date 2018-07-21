@@ -75,7 +75,6 @@ const Enrolled = [
                                 totalCuotas:el.matricula.finance.totalCuotas,
                                 montoTotal: el.matricula.finance.montoTotal,
 
-                                numMatricula: el.matricula.numMatricula
                             })
                         }, []) 
 

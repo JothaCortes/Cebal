@@ -383,7 +383,7 @@ function modalMatrAlumnos() {
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
                                 <select class="form-control" id="matrElectivo2" >
-                                    <option selected="true" disabled="disabled">seleccione</option>
+                                    <option>seleccione</option>
                                     <option disabled>Física</option>
                                     <option disabled>Química</option>
                                     <option disabled>Biología</option>
@@ -600,7 +600,7 @@ function etp (){
                 } 
             }else{
                 $('#matrElectivo option:eq(1)').prop('disabled', false);
-                $('#matrElectivo option:eq(2)').prop('disabled', true);
+                $('#matrElectivo option:eq(2)').prop('disabled', false);
                 resolve()
                 let estadoElectivo2 = $('#matrElectivo').val()
                 if(estadoElectivo2=='Ciencias'){
@@ -928,15 +928,24 @@ function calcularMontoTotal(){
 function wayToPay(){
     return new Promise(resolve =>{
         let selectedTypePay = $('#matrFormaPago').val();
-        //console.log(selectedTypePay)
-        if (selectedTypePay === 'Contado') {
+        let tipoAnualIntensivo = $('#matrTipoCurso').val();
+
+        console.log("tipo",tipoAnualIntensivo)
+        console.log("Forma de pago",selectedTypePay)
+        if (selectedTypePay === 'Contado'||tipoAnualIntensivo === 'Anual') {
             typePayStatus = 1;
 
            allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.20;
            allValues.montoPorCuota = allValues.totalCuotas;
            allValues.cantidadCuotas = 1
             resolve()
-        } else if(selectedTypePay === 'Cuotas'){
+        }/*else if(selectedTypePay === 'Contado'||tipoAnualIntensivo === 'Intensivo'){
+            typePayStatus = 1;
+            allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.10;
+            allValues.montoPorCuota = allValues.totalCuotas;
+            allValues.cantidadCuotas = 1
+            resolve()
+       }*/else if(selectedTypePay === 'Cuotas'){
             typePayStatus = 0
             allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
             resolve()
@@ -1061,7 +1070,7 @@ $('#matrFecha').daterangepicker({
             ],
             "firstDay": 1
         },
-        drops: "up",
+        drops: "down",
         singleDatePicker: true,
         showDropdowns: true
     });

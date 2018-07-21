@@ -83,13 +83,95 @@ const Courses = [
         }
     }
 },
-//Mostrar alumnos por horario del curso seleccionado
-{
-    method: 'POST',
-    path: '/api/alumnosporhorario',
+{ 
+    method: 'GET',
+    path: '/api/alumnosporhorario', 
     options: {
         handler: (request, h) => {
-            let horario = request.payload.horario;
+            let credentials = request.auth.credentials;
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'city': credentials.place,
+                        'type': 'alumnos',
+                        'status': 'enrolled',
+                        $not: {
+                            statusCourse: 'assigned'
+                        }
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                                numMatricula: el.matricula.numMatricula,
+                                status: el.status,
+                                birthday:el.birthday,  
+                                name: el.name,
+                                lastname1: el.lastname1,
+                                lastname2: el.lastname2,
+                                email: el.email,
+                                phone: el.phone,
+                                address: el.address,
+                                nameAp: el.nameAp,
+                                relationshipAp: el.relationshipAp,
+                                workAp: el.workAp,
+                                phoneAp: el.phoneAp,
+                                city: el.city,
+                                apoderado: el.nameAp,
+                                parentesco: el.relationshipAp,
+                                workAp: el.workAp,
+                                phoneAp:el.phoneAp,
+                                emailAp: el.emailAp,
+
+                                egreso:el.matricula.estadoEgreso,
+                                beca:el.matricula.beca,
+                                colegio:el.matricula.colegio,
+                                añoEgreso:el.matricula.añoEgreso,
+                                cursando:el.matricula.curso,
+                                promedio:el.matricula.promedio,
+                                horario:el.matricula.horario,
+                                etp: el.matricula.etp,
+                                electivo:el.matricula.electivo,
+                                electivo2:el.matricula.electivo2,
+                                
+                                fechaMatricula:el.matricula.fechaMatricula,
+                                date: el.matricula.date,
+                                tipoCurso: el.matricula.tipoCurso,
+                                formaP: el.matricula.finance.formaPago,
+
+                                descuento1: el.matricula.finance.descuento,
+                                descuento2: el.matricula.finance.descuento2,
+                                
+                                numCuotas:el.matricula.finance.numCuotas,
+                                montoCuota:el.matricula.finance.montoCuota,
+                                totalCuotas:el.matricula.finance.totalCuotas,
+                                montoTotal: el.matricula.finance.montoTotal,
+
+                            })
+                        }, []) 
+
+                        resolve({ ok: res });
+                    } else {
+                        resolve({ err: 'no existen alumnos' });
+                    }
+                });
+            });
+        }
+    }
+},
+//Mostrar alumnos por horario del curso seleccionado
+/*{
+    method: 'POST',
+    path: '/api/alumnosporhorario2',
+    options: {
+        handler: (request, h) => {
+           // let horario = request.payload.horario;
             return new Promise(resolve => {
                 db.find({
                     selector: {
@@ -100,6 +182,7 @@ const Courses = [
                         $not: {
                             statusCourse: 'assigned'
                         },
+                        /*
                         matricula: {
                             horario: horario
                         }
@@ -127,18 +210,18 @@ const Courses = [
                         console.log(result)
                         resolve({ok: res})
                     } else {
-                        resolve({ err: `No se encuentran alumnos con horario ${horario}`});
+                        resolve({ err: `No se encuentran alumnos con horario`/* ${horario}`});
                     }
                 });
             });
         },
         validate: {
             payload: Joi.object().keys({
-                horario: Joi.string()
+               // horario: Joi.string()
             })
         }
     }
-},
+},   */
 //GUARDAR ALUMNOS EN UN CURSO
 { 
     method: 'POST',
