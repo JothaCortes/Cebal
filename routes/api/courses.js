@@ -44,7 +44,7 @@ const Courses = [
     }
 },
 
-{ //TRAER CURSOS
+{ //TRAER CURSOS ENABLED
     method: 'GET',
     path: '/api/cursosCebal', 
     options: {
@@ -83,6 +83,47 @@ const Courses = [
         }
     }
 },
+{ //TRAER CURSOS DISABLED (CURSOS CERRADOS)
+    method: 'GET',
+    path: '/api/cursosCebalClose', 
+    options: {
+        handler: (request, h) => {
+            let credentials = request.auth.credentials;
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'city': credentials.place,
+                        'type': 'courses',
+                        'status': 'close'
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                               // status: el.status,
+                                name: el.name,
+                                year: el.year,
+                                horary: el.horary,
+                                city: el.city
+                            })
+                        }, []) 
+
+                        resolve(res);
+                    } else {
+                        resolve({ err: 'no existen cursos' });
+                    }
+                });
+            });
+        }
+    }
+},
+//TRAER ALUMNOS A CURSO SELECCIONADO
 { 
     method: 'GET',
     path: '/api/alumnosporhorario', 
@@ -165,6 +206,7 @@ const Courses = [
         }
     }
 },
+//NO BORRAR
 //Mostrar alumnos por horario del curso seleccionado
 /*{
     method: 'POST',
@@ -363,6 +405,80 @@ const Courses = [
         }
     }
 },
+{ // Abrir un curso
+method: 'DELETE',
+path: '/api/abrirCurso',
+options: {
+    handler: (request, h) => {
+        let id = request.payload.id;
+        let name = request.payload.name;
+        let cursoOpenData = {};
+
+        return new Promise(resolve=>{
+            db.find({ 
+            "selector": {
+                '_id': id,
+                'type': 'courses',
+                'status': 'close',
+                'name':name
+            },
+            "limit":1
+        }, function(err, result) {
+            if (err) throw err;
+            cursoOpenData = result.docs[0];
+            cursoOpenData.status = 'enabled';
+            db.insert(cursoOpenData, function(errUpdate, body) {
+                if (errUpdate) throw errUpdate;
+                resolve({ok: 'Curso '+ cursoOpenData.name +' habilitado correctamente'}); 
+            });  
+            });
+        }); 
+    },
+    validate: {
+        payload: Joi.object().keys({
+            id: Joi.string(),
+            name: Joi.string()
+        })
+    }
+}
+},
+{ // cerrar un curso
+    method: 'DELETE',
+    path: '/api/cerrarCurso',
+    options: {
+        handler: (request, h) => {
+            let id = request.payload.id;
+            let name = request.payload.name;
+            let cursoData = {};
+  
+            return new Promise(resolve=>{
+              db.find({ 
+                "selector": {
+                    '_id': id,
+                    'type': 'courses',
+                    'status': 'enabled',
+                    'name':name
+                },
+                "limit":1
+            }, function(err, result) {
+                if (err) throw err;
+                cursoData = result.docs[0];
+                cursoData.status = 'close';
+                db.insert(cursoData, function(errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ok: 'Curso '+ cursoData.name +' deshabilitado correctamente'}); 
+                });  
+              });
+            }); 
+        },
+        validate: {
+            payload: Joi.object().keys({
+                id: Joi.string(),
+                name: Joi.string()
+            })
+        }
+    }
+  },
 //Obtener Horarios 
 { 
     method: 'GET',

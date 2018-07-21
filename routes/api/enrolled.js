@@ -303,7 +303,7 @@ const Enrolled = [
                 db.insert(studentData, function(errUpdate, body) {
                     if (errUpdate) throw errUpdate;
   
-                    resolve({ok: 'Estudiante '+ studentData.name +' deshabilitado correctamente'}); 
+                    resolve({ok: 'Matrícula de estudiante '+ studentData.name +' cerrada correctamente'}); 
                 });  
               });
             }); 
