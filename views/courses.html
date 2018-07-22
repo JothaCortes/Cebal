@@ -602,7 +602,7 @@ function  modalMostrarAlumnosCursoCerrado(){
                                 <button class="btn btn-secondary btn-block" id="printListAlumns" disabled>
                                     <i style="color:#1abc9c;" class="fa fa-plus" aria-hidden="true" ></i> Imprimir lista
                                 </button>
-                                <button class="btn btn-secondary btn-block" id="alumnoExit" >
+                                <button class="btn btn-secondary btn-block" id="alumnoExit" disabled>
                                     <i style="color:#e74c3c;" class="fas fa-trash-alt"></i> Retirar alumno
                                 </button>
                             </div>
@@ -632,11 +632,21 @@ function  modalMostrarAlumnosCursoCerrado(){
 jQuery(document).ready(function ($) {
     chargeTableAlumnosCurso()
 });
- //cargar alumnos enrolled en dataTable
+ //cargar alumnos asignados a un curso en tabla
  function chargeTableAlumnosCurso() {
-        datatableAlumnosEnrolled = $('#tableAlumnosCurso')
+    datatableAlumnosIntoCourse = $('#tableAlumnosCurso')
         .DataTable({            
                     "iDisplayLength": 100,
+                    "dom": 'Bfrtip',
+                    "buttons": [{
+                        extend: 'pdfHtml5',
+                        customize: (doc) => {
+                        doc.content.splice(1, 0, {
+                           alignment: 'center',
+                           text:(`Listado de alumnos del curso: `+ cursosCloseRowSelectedData.name),
+                        });
+                        }
+                    }],
                     "oLanguage": {
                         "sSearch": "Buscar :"
                     },
@@ -662,35 +672,67 @@ jQuery(document).ready(function ($) {
                         if (res.err) {
                             toastr.warning('No existen Alumnos para asignar')
                         } else if(res.ok) {
-                            datatableAlumnosEnrolled.rows.add(res.ok).draw();
+                            datatableAlumnosIntoCourse.rows.add(res.ok).draw();
                             $('#loadingCourseAsignar').empty();
                         }      
                     })
                 }
         });   
-     /*   
-     $('#tableAlumnosCurso tbody').on('click', 'tr', function () {
         
+     $('#tableAlumnosCurso tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
-            $('#asignar').prop('disabled', true);
-            let rowTodelete = datatableAlumnosEnrolled.row($(this)).data();
-
-            alumnosaAsignar = alumnosaAsignar.filter(function(el) {
-                return el !== rowTodelete._id
-            })
+            $('#alumnoExit').prop('disabled', true);
+            
         } else {
+            datatableAlumnosIntoCourse.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
-            $('#asignar').prop('disabled', false);
-            alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
-            alumnosaAsignar.push(alumosRowSelectedData._id)
+            alumosRowSelectedData = datatableAlumnosIntoCourse.row($(this)).data();
+            alumnosRowSelected = datatableAlumnosIntoCourse.row($(this));
+            console.log(alumosRowSelectedData)
+            $('#alumnoExit').prop('disabled', false);
+       
         }
-    }); */
+    }); 
 }
-$('#asignar').on('click', function () {
-    asignarAlumnosACurso()
-})     
+//Quitar alumno de un curso
+$('#alumnoExit').on('click', function () {
+    let id = alumosRowSelectedData._id
+    console.log(id)
+    
+    swal({
+      title: '¿Estás seguro de retirar este alumno?',
+      text: '',
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Retirar',
+      cancelButtonText: 'cancelar',
+      confirmButtonClass: 'btn btn-danger',
+      cancelButtonClass: 'btn btn-primary',
+      buttonsStyling: false
+    }).then(function (action) {
+        if (action.value) {
+            $.ajax({
+                url: '/api/retirarAlumno',
+                type: 'DELETE',
+                data: {
+                id
+            }    
+        }).then((data) => {
+            if (data.ok) {
+                toastr.success(data.ok); 
+                alumnosRowSelected.remove().draw();
+                //reloadTableCourseClose()
+            }
+        });
+        }
+	}); 
+        
+})
 }
+
 //ASIGNAR ALUMNOS A UN CURSO
 $('#asignarCourse').on('click', function () {
     modalAsignarCurso();

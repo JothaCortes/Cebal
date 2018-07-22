@@ -243,6 +243,7 @@ const Courses = [
                                 electivo:el.matricula.electivo,
                                 electivo2:el.matricula.electivo2,
                                 tipoCurso: el.matricula.tipoCurso
+                              
                             })
                         }, []) 
                         console.log(result)
@@ -316,6 +317,43 @@ const Courses = [
         }
     }
 },
+
+{ // retirar alumno de un curso
+    method: 'DELETE',
+    path: '/api/retirarAlumno',
+    options: {
+        handler: (request, h) => {
+            let id = request.payload.id;
+            let alumnosData = {};
+            console.log(alumnosData)
+  
+            return new Promise(resolve=>{
+              db.find({ 
+                "selector": {
+                    '_id': id,
+                    'type': 'alumnos',
+                    'status': 'enrolled'
+                },
+                "limit":1
+            }, function(err, result) {
+                if (err) throw err;
+                alumnosData = result.docs[0];
+                alumnosData.statusCourse = '';
+                alumnosData.courseSend = '';
+                db.insert(alumnosData, function(errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ok: 'Alumno '+ alumnosData.name +' retirado correctamente'}); 
+                });  
+              });
+            }); 
+        },
+        validate: {
+            payload: Joi.object().keys({
+                id: Joi.string()
+            })
+        }
+    }
+  },
 //ELIMINAR CURSO
 { 
     method: 'DELETE',
