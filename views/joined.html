@@ -170,6 +170,7 @@ h5, .h5 {
     let alumosRowSelectedData;
     let alumnosRowSelected;
     let average = 'normal';
+    let chequeStatus = 0;
     jQuery(document).ready(function ($) {
         chargeTableAlumnos();
     });
@@ -278,6 +279,7 @@ function reloadRepairTableAlumnos() {
 }
 //MATRICULAR UN ALUMNO
 function modalMatrAlumnos() { 
+    chequeStatus = 0;
     console.log(alumosRowSelectedData)
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Ingresar matrícula');
@@ -383,7 +385,7 @@ function modalMatrAlumnos() {
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
                                 <select class="form-control" id="matrElectivo2" >
-                                    <option selected="true" disabled="disabled">seleccione</option>
+                                    <option>seleccione</option>
                                     <option disabled>Física</option>
                                     <option disabled>Química</option>
                                     <option disabled>Biología</option>
@@ -409,7 +411,44 @@ function modalMatrAlumnos() {
                     </div>
                     <div class="col-md-3">
                         <label><i class="fas fa-book"></i> Día de cobro *</label>
-                        <input id="matrDiaCobro" placeholder="Ej: 5" maxlength="2" type="text" class="form-control border-input solo-numero" value="4" readOnly>
+                        <!--<input id="matrDiaCobro" placeholder="Ej: 5" maxlength="2" type="text" class="form-control border-input solo-numero">-->
+
+
+                        <select class="custom-select" id="matrDiaCobro">
+                            <option value="0" disabled>0</option>
+                            <option value="01">01</option>
+                            <option value="02">02</option> 
+                            <option value="03">03</option> 
+                            <option value="04">04</option> 
+                            <option value="05">05</option> 
+                            <option value="06">06</option> 
+                            <option value="07">07</option> 
+                            <option value="08">08</option> 
+                            <option value="09">09</option> 
+                            <option value="10">10</option> 
+                            <option value="11">11</option> 
+                            <option value="12">12</option> 
+                            <option value="13">13</option> 
+                            <option value="14">14</option> 
+                            <option value="15">15</option> 
+                            <option value="16">16</option>
+                            <option value="17">17</option> 
+                            <option value="18">18</option> 
+                            <option value="19">19</option> 
+                            <option value="20">20</option> 
+                            <option value="21">21</option> 
+                            <option value="22">22</option> 
+                            <option value="23">23</option> 
+                            <option value="24">24</option> 
+                            <option value="25">25</option> 
+                            <option value="26">26</option> 
+                            <option value="27">27</option> 
+                            <option value="28">28</option> 
+                        </select>
+
+
+
+
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
@@ -483,6 +522,7 @@ function modalMatrAlumnos() {
                                                         <option>Transferencia</option>
                                                     </select> 
                                                 </div>
+                                                <div id="ifCheque"></div>
                                                 <div class="col-md-4">
                                                     <label><i class="fas fa-graduation-cap"></i> N° Boleta *</label>
                                                 </div>
@@ -565,6 +605,71 @@ function modalMatrAlumnos() {
     </div>
       `)
 
+    $('#matrTipoPago').on('change', function() {
+        if($(this).val() == 'Cheque') {
+            chequeStatus = 1;
+            $('#ifCheque').html(`
+                <div class="col-md-12" style="margin-top:10px;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label style="float:left;"> Banco *</label>
+                            <input id="chequeBanco" type="text" value="" placeholder="Nombre del banco" class="form-control border-input">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="float:left;"> Nº Serie *</label>
+                            <input id="chequeNum" type="text" value="" placeholder="Número de serie del cheque" class="form-control border-input">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="float:left;"> Monto cheque *</label>
+                            <input id="chequeMonto" type="text" value="" placeholder="Monto del cheque" class="form-control border-input">
+                        </div> 
+                        <div class="col-md-6">
+                            <label style="float:left;"> Fecha pago *</label>
+                            <input id="chequeFecha" type="text" value="" placeholder="Fecha de pago del cheque" class="form-control border-input">
+                        </div>
+                        
+                    </div>
+                </div>
+                <br>
+            `)
+            $('#chequeFecha').daterangepicker({
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "daysOfWeek": [
+                    "Dom",
+                    "Lun",
+                    "Mar",
+                    "Mie",
+                    "Jue",
+                    "Vie",
+                    "Sab"
+                    ],
+                    "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                    ],
+                    "firstDay": 1
+                },
+                drops: "up",
+                singleDatePicker: true,
+                showDropdowns: true
+            });
+        } else {
+            $('#ifCheque').empty()
+            chequeStatus = 0;
+        }
+    })
+
   $('#matrElectivo option:eq(1)').prop('disabled', false);
   $('#matrElectivo2 option:eq(4)').prop('disabled', false);
 
@@ -600,7 +705,7 @@ function etp (){
                 } 
             }else{
                 $('#matrElectivo option:eq(1)').prop('disabled', false);
-                $('#matrElectivo option:eq(2)').prop('disabled', true);
+                $('#matrElectivo option:eq(2)').prop('disabled', false);
                 resolve()
                 let estadoElectivo2 = $('#matrElectivo').val()
                 if(estadoElectivo2=='Ciencias'){
@@ -695,7 +800,39 @@ $('#matrPromedio').on('change', function (e){
       validarValorPromedio()
 })
 
+//FORMA DE PAGO  typePayStatus
+function wayToPay(){
+    return new Promise(resolve =>{
+        let selectedTypePay = $('#matrFormaPago').val();
 
+        console.log("Forma de pago",selectedTypePay)
+
+        if (selectedTypePay == 'Contado') {
+            let tipoAnualIntensivo = $('#matrTipoCurso').val();
+            
+            if(tipoAnualIntensivo =='Anual'){
+                typePayStatus = 1;
+                allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.20;
+                allValues.montoPorCuota = allValues.totalCuotas;
+                allValues.cantidadCuotas = 1
+                resolve()
+
+            }else if(tipoAnualIntensivo === 'Intensivo'){
+                typePayStatus = 1;
+                allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.10;
+                allValues.montoPorCuota = allValues.totalCuotas;
+                allValues.cantidadCuotas = 1
+                resolve()
+            }
+
+           
+        }else if(selectedTypePay === 'Cuotas'){
+            typePayStatus = 0
+            allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
+            resolve()
+        }
+    })
+}
   
    
 
@@ -817,7 +954,7 @@ function beca(){
         }else if (beca === 'No'){
             statusBeca = 0
             $('#matrFormaPago').prop('disabled', false)
-            $('#matrDiaCobro').val('4')
+            $('#matrDiaCobro').val('04') // Puede ser cualquier día pero por defecto 4
             $('#matrDiaCobro').prop('disabled', false)
             resolve()
         }
@@ -924,25 +1061,7 @@ function calcularMontoTotal(){
     $('#matrMontoTotal').val(number_format(Math.floor(montoTotalFinish)))
    
 }
-//FORMA DE PAGO  typePayStatus
-function wayToPay(){
-    return new Promise(resolve =>{
-        let selectedTypePay = $('#matrFormaPago').val();
-        //console.log(selectedTypePay)
-        if (selectedTypePay === 'Contado') {
-            typePayStatus = 1;
 
-           allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.20;
-           allValues.montoPorCuota = allValues.totalCuotas;
-           allValues.cantidadCuotas = 1
-            resolve()
-        } else if(selectedTypePay === 'Cuotas'){
-            typePayStatus = 0
-            allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
-            resolve()
-        }
-    })
-}
 //TRAER NUMERO DE CUOTAS
 function numberQuotesCebal (){
     return new Promise(resolve =>{
@@ -1061,7 +1180,7 @@ $('#matrFecha').daterangepicker({
             ],
             "firstDay": 1
         },
-        drops: "up",
+        drops: "down",
         singleDatePicker: true,
         showDropdowns: true
     });
@@ -1090,7 +1209,7 @@ $('#matrEgreso').on('change', function(){
 
   
 //GUARDAR MATRICULA
-    $('#guardarNuevoAlumno2').on('click', function () {
+    $('#guardarNuevoAlumno2').on('click', function () {  
         //Variables desde modal
         let alumnoRut      = $('#modRut').val()
         let colegio        = $('#matrColegio').val()
@@ -1117,59 +1236,168 @@ $('#matrEgreso').on('change', function(){
         let formaPagoMatricula = $('#matrTipoPago').val()
         let etp            = $('#etp').val()
         
-        //fin variables
-        ajax({
-            url: '/api/nuevaMatricula',
-            type: 'POST',
-            data: {
-                rutAlumno     :alumnoRut,
-                colegio       :colegio,
-                estadoEgreso  :estadoEgreso,
-                beca          :beca,
-                anoEgreso     :anoEgreso,
-                curso         :curso,
-                promedio      :promedio,
-                horario       :horario,
-                etp           :etp,
-                electivo      :electivo,
-                electivo2     :electivo2,
-                fechaMatricula:fechaMatricula,
-                diaCobro      :diaCobro ,
-                tipoCurso     :tipoCurso,
-                formaPago     :formaPago,
-                descuento     :descuento,
-                descuento2    :descuento2,
-                valorMatricula:valorMatricula,
-                numCuotas     :numCuotas,
-                montoCuota    :montoCuota,
-                totalCuotas   :totalCuotas,
-                montoTotal    :montoTotal,
-                boleta        :boleta,
-                formaPagoMatricula:formaPagoMatricula
-            } 
-      
-           
-            //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
-        }).then(res => {
-            console.log(res)
-            if(res.err){
-                toastr.warning(res.err)
+
+        if(chequeStatus == 1) {
+            let chequeBanco = $('#chequeBanco').val()
+            let chequeNum   = $('#chequeNum').val()
+            let chequeMonto = $('#chequeMonto').val()
+            let chequeFecha = $('#chequeFecha').val()
+            let chequeValidateCounter = 0;
+            let cheque = {}
+
+            if(chequeBanco.length > 0) { // 1
+                cheque.banco = chequeBanco
+                chequeValidateCounter++
             } else {
-                swal({
-                    title: 'Agregado!',
-                    backdrop: 'static', 
-                    keyboard: false,
-                    text: res.ok,
-                    type: 'success',
-                    timer: 10000
+                toastr.warning('Ingrese el nombre del banco del cheque')
+            }
+
+            if(chequeNum.length > 0) { // 2
+                cheque.num = chequeNum
+                chequeValidateCounter++
+            } else {
+                toastr.warning('Ingrese el número de serie del cheque')
+            }
+
+            if(chequeMonto.length > 0) { // 3
+                cheque.monto = chequeMonto
+                chequeValidateCounter++
+            } else {
+                toastr.warning('Ingrese el monto del cheque')
+            }
+
+            if(chequeFecha.length > 0) { // 4
+                cheque.date = chequeFecha
+                chequeValidateCounter++
+            } else {
+                toastr.warning('Ingrese Fecha de pago del cheque')
+            }            
+            
+            if(chequeValidateCounter == 4) {
+                //fin variables
+                ajax({
+                    url: '/api/nuevaMatricula',
+                    type: 'POST',
+                    data: {
+                        rutAlumno     :alumnoRut,
+                        colegio       :colegio,
+                        estadoEgreso  :estadoEgreso,
+                        beca          :beca,
+                        anoEgreso     :anoEgreso,
+                        curso         :curso,
+                        promedio      :promedio,
+                        horario       :horario,
+                        etp           :etp,
+                        electivo      :electivo,
+                        electivo2     :electivo2,
+                        fechaMatricula:fechaMatricula,
+                        diaCobro      :diaCobro ,
+                        tipoCurso     :tipoCurso,
+                        formaPago     :formaPago,
+                        descuento     :descuento,
+                        descuento2    :descuento2,
+                        valorMatricula:valorMatricula,
+                        numCuotas     :numCuotas,
+                        montoCuota    :montoCuota,
+                        totalCuotas   :totalCuotas,
+                        montoTotal    :montoTotal,
+                        boleta        :boleta,
+                        formaPagoMatricula:formaPagoMatricula,
+                        cheque: JSON.stringify(cheque)
+                    } 
+            
+                
+                    //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
+                }).then(res => {
+                    console.log(res)
+                    if(res.err){
+                        toastr.warning(res.err)
+                    } else {
+
+                        screenLog({
+                            id: 'modal_body',
+                            form: 'Matricular alumno',
+                            action: `Se ha matriculado el alumno de rut ${rutFunc(alumnoRut)} en {{credentials.place}}`,
+                            type: 'matrStudent'
+                        })
+
+                        swal({
+                            title: 'Agregado!',
+                            backdrop: 'static', 
+                            keyboard: false,
+                            text: res.ok,
+                            type: 'success',
+                            timer: 10000
+                        }).then(result => {
+                            $('#modalEstudiantes').modal('hide')
+                            reloadRepairTableAlumnos()
+                        })
+                    }
+                })
+            } else {
+                //$('#save').attr('disabled', false);
+            }
+            
+        } else {
+            ajax({
+                url: '/api/nuevaMatricula',
+                type: 'POST',
+                data: {
+                    rutAlumno     :alumnoRut,
+                    colegio       :colegio,
+                    estadoEgreso  :estadoEgreso,
+                    beca          :beca,
+                    anoEgreso     :anoEgreso,
+                    curso         :curso,
+                    promedio      :promedio,
+                    horario       :horario,
+                    etp           :etp,
+                    electivo      :electivo,
+                    electivo2     :electivo2,
+                    fechaMatricula:fechaMatricula,
+                    diaCobro      :diaCobro ,
+                    tipoCurso     :tipoCurso,
+                    formaPago     :formaPago,
+                    descuento     :descuento,
+                    descuento2    :descuento2,
+                    valorMatricula:valorMatricula,
+                    numCuotas     :numCuotas,
+                    montoCuota    :montoCuota,
+                    totalCuotas   :totalCuotas,
+                    montoTotal    :montoTotal,
+                    boleta        :boleta,
+                    formaPagoMatricula:formaPagoMatricula
+                } 
+                //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
+            }).then(res => {
+                console.log(res)
+                if(res.err){
+                    toastr.warning(res.err)
+                } else {
+
+                    screenLog({
+                        id: 'modal_body',
+                        form: 'Matricular alumno',
+                        action: `Se ha matriculado el alumno de rut ${rutFunc(alumnoRut)} en {{credentials.place}}`,
+                        type: 'matrStudent'
+                    })
+
+                    swal({
+                        title: 'Agregado!',
+                        backdrop: 'static', 
+                        keyboard: false,
+                        text: res.ok,
+                        type: 'success',
+                        timer: 10000
                     }).then(result => {
                         $('#modalEstudiantes').modal('hide')
                         reloadRepairTableAlumnos()
-
                     })
                 }
             })
-        })
+        }
+        
+    })
  //iniciar select de horarios
 let selects = {
         place:[],
@@ -1207,6 +1435,7 @@ $('#agregarEstudiante').on('click', function () {
     nuevoEstudiante();
 })
     function nuevoEstudiante() { 
+        
       $('#modalEstudiantes').modal();
       $('#modal_title').text('Ingreso de nuevo alumno');
       $('#modal_body').html(`
@@ -1385,6 +1614,7 @@ $('#agregarEstudiante').on('click', function () {
     })
 
     $('#guardarNuevoAlumno2').on('click', function () {
+        
         //Variables desde modal
             let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
             let nuevoAlumnoCiudad    = $('#ciudadNuevoAlumno').val()
@@ -1468,6 +1698,13 @@ $('#agregarEstudiante').on('click', function () {
                 }).then(res => {
                     console.log(res)
                     if(res.ok) {
+                        screenLog({
+                            id: 'modal_body',
+                            form: 'Nuevo alumno no matriculado',
+                            action: `Se ha agregado el alumno ${nuevoAlumnoNombre} ${nuevoAlumnoApellido1} de rut ${rutFunc(nuevoAlumnoRut)} en {{credentials.place}}`,
+                            type: 'newStudent'
+                        })
+
                         swal({
                             title: 'Agregado!',
                             backdrop: 'static', 
@@ -1776,13 +2013,20 @@ function modEstudiante() {
                         phoneAp: mod_phoneAp,
                         emailAp: mod_correoAp
                     }
-                }).then(res => {
-                    if (res.error) {
+                }).then(res2 => {
+                    if (res2.error) {
                         toastr.error(res.error)
                     } else {
+                        screenLog({
+                            id: 'modal_body',
+                            form: 'Modificar alumno no matriculado',
+                            action: `Se ha modificado el alumno ${mod_name} ${mod_Lastname1} de rut ${rutFunc(res.ok._id)} en {{credentials.place}}`,
+                            type: 'modStudent'
+                        })
+
                         swal({
                             title: 'Registro modificado correctamente!',
-                            text: res.ok,
+                            text: res2.ok,
                             backdrop: 'static',
                             keyboard: false,
                             type: 'success',

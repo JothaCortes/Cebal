@@ -64,6 +64,14 @@ const Logs = [
             break;
           case type = 'createSchedule':
             img = true
+          case type = 'newStudent':
+            img = true
+          case type = 'modStudent':
+            img = true
+          case type = 'matrStudent':
+            img = true
+          case type = 'pagarCuota':
+            img = true
           default:
             break;
         }

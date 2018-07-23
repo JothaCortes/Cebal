@@ -44,7 +44,7 @@ const Courses = [
     }
 },
 
-{ //TRAER CURSOS
+{ //TRAER CURSOS ENABLED
     method: 'GET',
     path: '/api/cursosCebal', 
     options: {
@@ -83,13 +83,138 @@ const Courses = [
         }
     }
 },
+{ //TRAER CURSOS DISABLED (CURSOS CERRADOS)
+    method: 'GET',
+    path: '/api/cursosCebalClose', 
+    options: {
+        handler: (request, h) => {
+            let credentials = request.auth.credentials;
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'city': credentials.place,
+                        'type': 'courses',
+                        'status': 'close'
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                               // status: el.status,
+                                name: el.name,
+                                year: el.year,
+                                horary: el.horary,
+                                city: el.city
+                            })
+                        }, []) 
+
+                        resolve(res);
+                    } else {
+                        resolve({ err: 'no existen cursos' });
+                    }
+                });
+            });
+        }
+    }
+},
+//TRAER ALUMNOS A CURSO SELECCIONADO
+{ 
+    method: 'GET',
+    path: '/api/alumnosporhorario', 
+    options: {
+        handler: (request, h) => {
+            let credentials = request.auth.credentials;
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'city': credentials.place,
+                        'type': 'alumnos',
+                        'status': 'enrolled',
+                        $not: {
+                            statusCourse: 'assigned'
+                        }
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                                numMatricula: el.matricula.numMatricula,
+                                status: el.status,
+                                birthday:el.birthday,  
+                                name: el.name,
+                                lastname1: el.lastname1,
+                                lastname2: el.lastname2,
+                                email: el.email,
+                                phone: el.phone,
+                                address: el.address,
+                                nameAp: el.nameAp,
+                                relationshipAp: el.relationshipAp,
+                                workAp: el.workAp,
+                                phoneAp: el.phoneAp,
+                                city: el.city,
+                                apoderado: el.nameAp,
+                                parentesco: el.relationshipAp,
+                                workAp: el.workAp,
+                                phoneAp:el.phoneAp,
+                                emailAp: el.emailAp,
+
+                                egreso:el.matricula.estadoEgreso,
+                                beca:el.matricula.beca,
+                                colegio:el.matricula.colegio,
+                                añoEgreso:el.matricula.añoEgreso,
+                                cursando:el.matricula.curso,
+                                promedio:el.matricula.promedio,
+                                horario:el.matricula.horario,
+                                etp: el.matricula.etp,
+                                electivo:el.matricula.electivo,
+                                electivo2:el.matricula.electivo2,
+                                
+                                fechaMatricula:el.matricula.fechaMatricula,
+                                date: el.matricula.date,
+                                tipoCurso: el.matricula.tipoCurso,
+                                formaP: el.matricula.finance.formaPago,
+
+                                descuento1: el.matricula.finance.descuento,
+                                descuento2: el.matricula.finance.descuento2,
+                                
+                                numCuotas:el.matricula.finance.numCuotas,
+                                montoCuota:el.matricula.finance.montoCuota,
+                                totalCuotas:el.matricula.finance.totalCuotas,
+                                montoTotal: el.matricula.finance.montoTotal,
+
+                            })
+                        }, []) 
+
+                        resolve({ ok: res });
+                    } else {
+                        resolve({ err: 'no existen alumnos' });
+                    }
+                });
+            });
+        }
+    }
+},
+
+
 //Mostrar alumnos por horario del curso seleccionado
 {
     method: 'POST',
-    path: '/api/alumnosporhorario',
+    path: '/api/alumnosporcurso',
     options: {
         handler: (request, h) => {
-            let horario = request.payload.horario;
+            let idCurso = request.payload.idCurso;
             return new Promise(resolve => {
                 db.find({
                     selector: {
@@ -97,12 +222,8 @@ const Courses = [
                             $gte: null
                         },
                         type: 'alumnos',
-                        $not: {
-                            statusCourse: 'assigned'
-                        },
-                        matricula: {
-                            horario: horario
-                        }
+                        statusCourse: 'assigned',
+                        courseSend: idCurso 
                     }
                 }, function (err, result) {
                     if (err) throw err;
@@ -122,23 +243,24 @@ const Courses = [
                                 electivo:el.matricula.electivo,
                                 electivo2:el.matricula.electivo2,
                                 tipoCurso: el.matricula.tipoCurso
+                              
                             })
                         }, []) 
                         console.log(result)
                         resolve({ok: res})
                     } else {
-                        resolve({ err: `No se encuentran alumnos con horario ${horario}`});
+                        resolve({ err: `No se encuentran alumnos`});
                     }
                 });
             });
         },
         validate: {
             payload: Joi.object().keys({
-                horario: Joi.string()
+                idCurso: Joi.string()
             })
         }
     }
-},
+},   
 //GUARDAR ALUMNOS EN UN CURSO
 { 
     method: 'POST',
@@ -167,7 +289,7 @@ const Courses = [
                                 })
                             }, [])
                             console.log(alumnosReduce)
-                            changeStudentCourseStatus(alumnos).then(res=>{
+                            changeStudentCourseStatus(alumnos, curso).then(res=>{
                                 if(res.ok) {
                                     let addToCourse = result.docs[0]
                                     if (!addToCourse.alumnos){
@@ -195,6 +317,43 @@ const Courses = [
         }
     }
 },
+
+{ // retirar alumno de un curso
+    method: 'DELETE',
+    path: '/api/retirarAlumno',
+    options: {
+        handler: (request, h) => {
+            let id = request.payload.id;
+            let alumnosData = {};
+            console.log(alumnosData)
+  
+            return new Promise(resolve=>{
+              db.find({ 
+                "selector": {
+                    '_id': id,
+                    'type': 'alumnos',
+                    'status': 'enrolled'
+                },
+                "limit":1
+            }, function(err, result) {
+                if (err) throw err;
+                alumnosData = result.docs[0];
+                alumnosData.statusCourse = '';
+                alumnosData.courseSend = '';
+                db.insert(alumnosData, function(errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ok: 'Alumno '+ alumnosData.name +' retirado correctamente'}); 
+                });  
+              });
+            }); 
+        },
+        validate: {
+            payload: Joi.object().keys({
+                id: Joi.string()
+            })
+        }
+    }
+  },
 //ELIMINAR CURSO
 { 
     method: 'DELETE',
@@ -280,6 +439,80 @@ const Courses = [
         }
     }
 },
+{ // Abrir un curso
+method: 'DELETE',
+path: '/api/abrirCurso',
+options: {
+    handler: (request, h) => {
+        let id = request.payload.id;
+        let name = request.payload.name;
+        let cursoOpenData = {};
+
+        return new Promise(resolve=>{
+            db.find({ 
+            "selector": {
+                '_id': id,
+                'type': 'courses',
+                'status': 'close',
+                'name':name
+            },
+            "limit":1
+        }, function(err, result) {
+            if (err) throw err;
+            cursoOpenData = result.docs[0];
+            cursoOpenData.status = 'enabled';
+            db.insert(cursoOpenData, function(errUpdate, body) {
+                if (errUpdate) throw errUpdate;
+                resolve({ok: 'Curso '+ cursoOpenData.name +' habilitado correctamente'}); 
+            });  
+            });
+        }); 
+    },
+    validate: {
+        payload: Joi.object().keys({
+            id: Joi.string(),
+            name: Joi.string()
+        })
+    }
+}
+},
+{ // cerrar un curso
+    method: 'DELETE',
+    path: '/api/cerrarCurso',
+    options: {
+        handler: (request, h) => {
+            let id = request.payload.id;
+            let name = request.payload.name;
+            let cursoData = {};
+  
+            return new Promise(resolve=>{
+              db.find({ 
+                "selector": {
+                    '_id': id,
+                    'type': 'courses',
+                    'status': 'enabled',
+                    'name':name
+                },
+                "limit":1
+            }, function(err, result) {
+                if (err) throw err;
+                cursoData = result.docs[0];
+                cursoData.status = 'close';
+                db.insert(cursoData, function(errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ok: 'Curso '+ cursoData.name +' deshabilitado correctamente'}); 
+                });  
+              });
+            }); 
+        },
+        validate: {
+            payload: Joi.object().keys({
+                id: Joi.string(),
+                name: Joi.string()
+            })
+        }
+    }
+  },
 //Obtener Horarios 
 { 
     method: 'GET',
@@ -319,7 +552,8 @@ const Courses = [
 
 ];
 
-function changeStudentCourseStatus(alumnos){
+function changeStudentCourseStatus(alumnos, curso){
+   
     return new Promise(resolve => {
         db.find({
             'selector': {
@@ -332,10 +566,11 @@ function changeStudentCourseStatus(alumnos){
             if (err) throw err;
 
             if (result.docs[0]) {
-                //console.log(result.docs)
+                console.log(result.docs)
 
                 let alumnosReduce = result.docs.reduce((arr, el, i)=>{
                     el.statusCourse = 'assigned'
+                    el.courseSend = curso
                     return arr.concat(el)
                 }, []) 
 
@@ -348,7 +583,10 @@ function changeStudentCourseStatus(alumnos){
             } else {
                 resolve({ err: 'no existen alumnos' });
             }
+            
         });
+        
     });
+   
 }
 export default Courses;
