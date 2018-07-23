@@ -72,6 +72,9 @@
                         <button class="btn btn-dark btn-block" id="optionStudentEnrolled" disabled>
                             <i style="color:#3498db;" class="fas fa-ban"></i> Opciones
                         </button>
+                        <button class="btn btn-dark btn-block" id="observationsEnrolled" disabled>
+                            <i style="color:#9b59b6;" class="fas fa-list-ul"></i> Observaciones
+                        </button>
                         <button class="btn btn-dark btn-block" id="closeMatrStudentEnrolled" disabled>
                             <i style="color:#e74c3c;" class="fas fa-ban"></i> Cerrar Matrícula
                         </button>
@@ -237,6 +240,7 @@ let alumosRowSelectedDataDisabled;
             $('#optionStudentEnrolled').prop('disabled', true);
             $('#modStudentEnrolled').prop('disabled', true);
             $('#closeMatrStudentEnrolled').prop('disabled', true);
+            $('#observationsEnrolled').prop('disabled', true);
         } else {
             datatableAlumnosEnrolled.$('tr.selected').removeClass('selected');
 
@@ -248,8 +252,17 @@ let alumosRowSelectedDataDisabled;
             $('#optionStudentEnrolled').prop('disabled', false);
             $('#modStudentEnrolled').prop('disabled', false);
             $('#closeMatrStudentEnrolled').prop('disabled', false);
+            $('#observationsEnrolled').prop('disabled', false);
         }
     });
+}
+
+function disableAll() {
+    $('#pagosEnrolled').prop('disabled', true);
+    $('#optionStudentEnrolled').prop('disabled', true);
+    $('#modStudentEnrolled').prop('disabled', true);
+    $('#closeMatrStudentEnrolled').prop('disabled', true);
+    $('#observationsEnrolled').prop('disabled', true);
 }
 //DATATABLE FINAL recargar
 function reloadTableAlumnosEnrolled() {
@@ -311,6 +324,7 @@ function reloadTableAlumnosEnrolled() {
             datatableAlumnosEnrolled.clear().draw();
             datatableAlumnosEnrolled.rows.add(reformat).draw();
             $('#loadingEnrolled').empty();
+
             }
         })
 }
@@ -710,6 +724,146 @@ $('#modificarAlumnoCebal').on('click', function(){
     })
 };
 
+$('#observationsEnrolled').on('click', function(){
+    ajax({
+        url:'api/getObservations',
+        type: 'POST',
+        data: {
+            rut: alumosRowSelectedData._id
+        }
+    }).then(res=>{
+        let creatingObservationStatus = 0;
+
+        $('#modalEstudiantes').modal();
+        $('#modal_title').text(`Observaciones de ${alumosRowSelectedData.name} ${alumosRowSelectedData.lastname1}`);
+
+        $('#modal_body').html(`
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-dark btn-block" id="newObservation">
+                        <i style="color:#3498db;" class="fa fa-plus"></i> Nueva observación
+                    </button>
+                </div>
+                <div class="col-md-6">
+                </div>
+            </div>
+            <div class="row" id="newObservationDiv"></div>
+            <br>
+        `)
+
+        if(res.ok.observations && res.ok.observations.length > 0) {
+            let reverseObservations = res.ok.observations.reverse()
+            let observationsHTML = reverseObservations.reduce((txt, el, i) => {
+                return txt += `
+                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                    <h5>${el.title}</h5>
+                    <small>${moment(el.date).format('DD/MM/YYYY hh:mm')}</small>
+                    </div>
+                    <p class="mb-1">${el.text}</p>      
+                </a>
+                ` 
+            }, '');
+
+            $('#modal_body').append(`
+                <div class="list-group" id="observationsList">
+                    ${observationsHTML}
+                </div>
+            `)
+        } else {
+            toastr.warning('Este alumno no tiene observaciones')
+        }
+
+        $('#newObservation').on('click', function(){
+            if(creatingObservationStatus == 0) {
+                $('#newObservationDiv').html(`
+                <div class="jumbotron col-md-12">
+                
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Título de la observación</label>
+                                <input placeholder="Título de la observación" type="text" id="newObservationTitle" class="form-control">
+                            </div>
+                        </div>
+                        <div class="col-md-8"></div>
+                        
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Observación</label>
+                                <textarea placeholder="Texto de la observación" class="form-control" id="newObservationText" rows="3"></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <button class="btn btn-dark" id="createObservation">
+                                <i style="color:#1abc9c;" class="fa fa-plus"></i> Crear observación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `)
+
+                creatingObservationStatus = 1;
+
+                $('#createObservation').on('click', function(){
+                    let newObservationTitleValidate = $('#newObservationTitle').val()
+                    let newObservationTextValidate = $('#newObservationText').val()
+                    
+                    let validateCounter = 0;
+
+                    if(newObservationTitleValidate.length > 0) {
+                        validateCounter++
+                    } else {
+                        toastr.warning('Debe agregar un título a la observación')
+                    }
+
+                    if(newObservationTextValidate.length > 0) {
+                        validateCounter++
+                    } else {
+                        toastr.warning('Debe agregar texto a la observación')
+                    }
+                    
+                    if(validateCounter == 2) {
+                        $('#newObservationDiv').empty() 
+                        let creatingObservationStatus = 0;
+                        
+                        ajax({
+                            url: 'api/createObservation',
+                            type: 'POST',
+                            data: {
+                                rut: alumosRowSelectedData._id,
+                                title: newObservationTitleValidate,
+                                text: newObservationTextValidate
+                            }
+                        }).then(res=> {
+                            if(res.ok) {
+                                $('#observationsList').prepend(`
+                                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                                    <div class="d-flex w-100 justify-content-between">
+                                    <h5>${res.ok.title}</h5>
+                                    <small>${moment(res.ok.date).format('DD/MM/YYYY hh:mm')}</small>
+                                    </div>
+                                    <p class="mb-1">${res.ok.text}</p>      
+                                </a>
+                                `)
+
+                                $('#createObservation').attr('disabled', false);
+                            }
+                        })
+                    }
+                    
+                })
+            } else {
+                $('#newObservationDiv').empty()
+                creatingObservationStatus = 0;
+            }
+            
+        })
+        
+    })
+})
+
  //iniciar select de horarios
 
 $('#closeMatrStudentEnrolled').on('click', function(){
@@ -722,26 +876,28 @@ $('#closeMatrStudentEnrolled').on('click', function(){
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Cerrar',
-      cancelButtonText: 'cancelar',
+      confirmButtonText: 'Cerrar Matrícula',
+      cancelButtonText: 'Cancelar',
       confirmButtonClass: 'btn btn-danger',
       cancelButtonClass: 'btn btn-primary',
       buttonsStyling: false
     }).then(function (action) {
         if (action.value) {
-		$.ajax({
-            url: '/api/deshabilitarAlumno',
-            type: 'DELETE',
-            data: {
-            estudianteDes
-          }    
-        }).then((data) => {
-            if (data.ok) {
-                toastr.success(data.ok); 
-                alumnosRowSelected.remove().draw();
-            }
-        });
-    }
+            console.log(action)
+            ajax({
+                url: '/api/deshabilitarAlumno',
+                type: 'DELETE',
+                data: {
+                    estudianteDes
+                }
+            }).then(res=> {
+                if (res.ok) {
+                    toastr.success(res.ok); 
+                    alumnosRowSelected.remove().draw();
+                    disableAll()
+                }
+            })
+        }
 	});
 });
 //XXXXXXXXXXXXXXXXXXXXX
@@ -1108,7 +1264,6 @@ function opcionesModal() {
 
     $('#pagosEnrolled').on('click', function(){
         pagosModal();
-
     })
 
     function pagosModal() {
@@ -1121,6 +1276,7 @@ function opcionesModal() {
             console.log(res)
             let maxCuotas = alumosRowSelectedData.numCuotas
             let montoTotal = 0
+            let chequeStatus = 0
 
             let listCuotas = res.ok.matricula.finance.cuotas.reduce((txt, el, i)=>{
                 let thisList = ''
@@ -1221,11 +1377,14 @@ function opcionesModal() {
                                     <option>Transferencia</option>
                                 </select> 
                             </div>
+    
+                            
                             <div class="col-md-6" style="margin-top:10px"> 
                                 <label style="float:left;"><i class="fa fa-asterisk"></i> Número de boleta *</label>
                                 <input id="ticket" type="text" value="" placeholder="Debe agregar un número de boleta" class="form-control border-input solo-numero">
                             </div>
                         </div>
+                        <div id="ifCheque"></div>
                     </div>
                     
                 </div>
@@ -1294,6 +1453,70 @@ function opcionesModal() {
                     }
                 }
             }) 
+
+            $('#boletaFormaPago').on('change', function(){
+                if($(this).val() == 'Cheque') {
+                    chequeStatus = 1;
+                    $('#ifCheque').html(`
+                        <div class="col-md-12" style="margin-top:10px;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label style="float:left;"> Banco *</label>
+                                    <input id="chequeBanco" type="text" value="" placeholder="Nombre del banco" class="form-control border-input">
+                                </div>
+                                <div class="col-md-6">
+                                    <label style="float:left;"> Nº Serie *</label>
+                                    <input id="chequeNum" type="text" value="" placeholder="Número de serie del cheque" class="form-control border-input">
+                                </div>
+                                <div class="col-md-6">
+                                    <label style="float:left;"> Monto cheque *</label>
+                                    <input id="chequeMonto" type="text" value="" placeholder="Monto del cheque" class="form-control border-input">
+                                </div> 
+                                <div class="col-md-6">
+                                    <label style="float:left;"> Fecha pago *</label>
+                                    <input id="chequeFecha" type="text" value="" placeholder="Fecha de pago del cheque" class="form-control border-input">
+                                </div>
+                                
+                            </div>
+                        </div>
+                    `)
+                    $('#chequeFecha').daterangepicker({
+                        "locale": {
+                            "format": "DD/MM/YYYY",
+                            "daysOfWeek": [
+                            "Dom",
+                            "Lun",
+                            "Mar",
+                            "Mie",
+                            "Jue",
+                            "Vie",
+                            "Sab"
+                            ],
+                            "monthNames": [
+                            "Enero",
+                            "Febrero",
+                            "Marzo",
+                            "Abril",
+                            "Mayo",
+                            "Junio",
+                            "Julio",
+                            "Agosto",
+                            "Septiembre",
+                            "Octubre",
+                            "Noviembre",
+                            "Diciembre"
+                            ],
+                            "firstDay": 1
+                        },
+                        drops: "up",
+                        singleDatePicker: true,
+                        showDropdowns: true
+                    });
+                } else {
+                    $('#ifCheque').empty()
+                    chequeStatus = 0;
+                }
+            })
             
             $('#save').on('click', function(){
                 let ticket = $('#ticket').val();
@@ -1306,33 +1529,129 @@ function opcionesModal() {
                     $(this).attr('disabled', false);
                 } else {
                     if(cuotasAPagar[0]) {
-                        ajax({
-                            url: 'api/pagarcuotas',
-                            type: 'POST',
-                            data: {
-                                rut: res.ok._id,
-                                cuotas: JSON.stringify(cuotasAPagar),
-                                ticket: ticket,
-                                formaPago: boletaFormaPago
+                        let cheque = {}
+
+                        if(chequeStatus == 1) {
+                            let chequeBanco = $('#chequeBanco').val()
+                            let chequeNum   = $('#chequeNum').val()
+                            let chequeMonto = $('#chequeMonto').val()
+                            let chequeFecha = $('#chequeFecha').val()
+                            let chequeValidateCounter = 0;
+
+                            if(chequeBanco.length > 0) { // 1
+                                cheque.banco = chequeBanco
+                                chequeValidateCounter++
+                            } else {
+                                toastr.warning('Ingrese el nombre del banco del cheque')
                             }
-                        }).then(res=>{
-                            if(res.ok) {
-                                swal({
-                                    title: res.ok,
-                                    backdrop: 'static', 
-                                    keyboard: false,
-                                    text: '',
-                                    type: 'success',
-                                    timer: 5000
-                                }).then(result => {
-                                    $('#modalEstudiantes').modal('hide')
-                                }) 
-                            } else if (res.err) {
-                                toastr.warning(res.err)
-                                $(this).attr('disabled', false);
+
+                            if(chequeNum.length > 0) { // 2
+                                cheque.num = chequeNum
+                                chequeValidateCounter++
+                            } else {
+                                toastr.warning('Ingrese el número de serie del cheque')
+                            }
+
+                            if(chequeMonto.length > 0) { // 3
+                                cheque.monto = chequeMonto
+                                chequeValidateCounter++
+                            } else {
+                                toastr.warning('Ingrese el monto del cheque')
+                            }
+
+                            if(chequeFecha.length > 0) { // 4
+                                cheque.date = chequeFecha
+                                chequeValidateCounter++
+                            } else {
+                                toastr.warning('Ingrese Fecha de pago del cheque')
+                            }            
+                            
+                            if(chequeValidateCounter == 4) {
+                                ajax({
+                                    url: 'api/pagarcuotas',
+                                    type: 'POST',
+                                    data: {
+                                        rut: res.ok._id,
+                                        cuotas: JSON.stringify(cuotasAPagar),
+                                        ticket: ticket,
+                                        formaPago: boletaFormaPago,
+                                        cheque: JSON.stringify(cheque)
+                                    }
+                                }).then(res2=>{
+                                    if(res2.ok) {
+                                        let txtCuotas = cuotasAPagar.reduce((txt, el, i) => {
+                                            return txt += `${el}, `
+                                        }, '');
+                                        
+                                        screenLog({
+                                            id: 'modal_body',
+                                            form: 'Pagar cuotas',
+                                            action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPago} en {{credentials.place}}`,
+                                            type: 'pagarCuota'
+                                        })
+                                        
+                                        swal({
+                                            title: res2.ok,
+                                            backdrop: 'static', 
+                                            keyboard: false,
+                                            text: '',
+                                            type: 'success',
+                                            timer: 5000
+                                        }).then(result => {
+                                            $('#modalEstudiantes').modal('hide')
+                                        }) 
+                                    } else if (res2.err) {
+                                        toastr.warning(res2.err)
+                                        $(this).attr('disabled', false);
+                                    }
+                                    
+                                })
+                            } else {
+                                $('#save').attr('disabled', false);
                             }
                             
-                        })
+                        } else {
+                            ajax({
+                                url: 'api/pagarcuotas',
+                                type: 'POST',
+                                data: {
+                                    rut: res.ok._id,
+                                    cuotas: JSON.stringify(cuotasAPagar),
+                                    ticket: ticket,
+                                    formaPago: boletaFormaPago
+                                }
+                            }).then(res2=>{
+                                if(res2.ok) {
+                                    let txtCuotas = cuotasAPagar.reduce((txt, el, i) => {
+                                        return txt += `${el}, `
+                                    }, '');
+                                    
+                                    screenLog({
+                                        id: 'modal_body',
+                                        form: 'Pagar cuotas',
+                                        action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPago} en {{credentials.place}}`,
+                                        type: 'pagarCuota'
+                                    })
+                                    
+                                    swal({
+                                        title: res2.ok,
+                                        backdrop: 'static', 
+                                        keyboard: false,
+                                        text: '',
+                                        type: 'success',
+                                        timer: 5000
+                                    }).then(result => {
+                                        $('#modalEstudiantes').modal('hide')
+                                    }) 
+                                } else if (res2.err) {
+                                    toastr.warning(res2.err)
+                                    $(this).attr('disabled', false);
+                                }
+                                
+                            })
+                        }
+
+                        
                     }else {
                         toastr.warning('Debe seleccionar al menos una cuota a pagar')
                         $(this).attr('disabled', false);

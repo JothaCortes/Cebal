@@ -192,7 +192,14 @@ const Joined = [
 
             let boleta         = request.payload.boleta;
             let formaPagoMatricula = request.payload.formaPagoMatricula;
+            let cheque
 
+            if(request.payload.cheque) {
+                cheque = JSON.parse(request.payload.cheque)
+                console.log(cheque)
+            }
+
+            /*
             console.log({
                 rutAlumno, 
                 colegio, 
@@ -218,7 +225,7 @@ const Joined = [
                 montoTotal, // monto total (matricula + cuotas)
                 boleta,
                 formaPagoMatricula
-            })
+            })*/
             
             return new Promise(resolve => {
                 db.find({
@@ -275,7 +282,8 @@ const Joined = [
                                     rutAlumno: rutAlumno,
                                     cuotas:[{num:0, monto:removePoints(valorMatricula)}],
                                     monto: valorMatricula,
-                                    formaPago: formaPagoMatricula
+                                    formaPago: formaPagoMatricula,
+                                    cheque: cheque
                                 }).then(res2 =>{
                                     if(res2.ok) {
                                         db.insert(student, function (errUpdate, body) {
@@ -320,7 +328,8 @@ const Joined = [
                 totalCuotas: Joi.string().required(), 
                 montoTotal: Joi.string().required(),
                 boleta: Joi.string().required(),
-                formaPagoMatricula : Joi.string().required()
+                formaPagoMatricula : Joi.string().required(),
+                cheque: Joi.string().allow(''),
             })
         }
     }
@@ -638,7 +647,7 @@ function addEnrollmentCounter(credentials) {
     })
 }
 
-function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago}) {
+function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago, cheque}) {
     return new Promise(resolve=>{
         console.log('CREANDO BOLETA')
         db.find({
@@ -667,10 +676,19 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                     rutCreador: cleanRut(credentials.rut), // usuario que generó la boleta
                     formaPago:formaPago
                 }
-                db.insert(newTicket, function (errUpdate, body) {
-                    if (errUpdate) throw errUpdate;
-                    resolve({ok:newTicket});
-                });
+                
+                if (cheque) {
+                    newTicket.cheque = cheque
+                    db.insert(newTicket, function (errUpdate, body) {
+                        if (errUpdate) throw errUpdate;
+                        resolve({ok:newTicket});
+                    });
+                } else {
+                    db.insert(newTicket, function (errUpdate, body) {
+                        if (errUpdate) throw errUpdate;
+                        resolve({ok:newTicket});
+                    });
+                }
             }
         });
     })

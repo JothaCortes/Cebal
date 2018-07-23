@@ -2,6 +2,7 @@ import Joi from 'joi';
 import cloudant from '../../config/db.js';
 import moment from 'moment-timezone'
 import configEnv from '../../config/env_status.js';
+import { validate, clean, format }  from 'rut.js'
 
 let db = cloudant.db.use(configEnv.db)
 
@@ -30,7 +31,7 @@ const Enrolled = [
                     if (result.docs[0]) {
                         let res = result.docs.reduce((arr, el, i)=>{
                             return arr.concat({
-                                _id: el._id,
+                                _id: format(el._id),
                                 numMatricula: el.matricula.numMatricula,
                                 status: el.status,
                                 birthday:el.birthday,  
@@ -288,7 +289,7 @@ const Enrolled = [
             return new Promise(resolve=>{
               db.find({ 
                 "selector": {
-                    '_id': id,
+                    '_id': cleanRut(id),
                     'type': 'alumnos',
                     'status': 'enrolled'
                 },
@@ -325,7 +326,7 @@ const Enrolled = [
             return new Promise(resolve=> {
                 db.find({ 
                     "selector": {
-                        '_id': rut,
+                        '_id': cleanRut(rut),
                         'type': 'alumnos',
                     }
                 }, function(err, result) {
@@ -354,11 +355,17 @@ const Enrolled = [
             let cuotas = JSON.parse(request.payload.cuotas)
             let ticket = request.payload.ticket
             let formaPago = request.payload.formaPago
-          
+            let cheque
+
+            if(request.payload.cheque) {
+                cheque = JSON.parse(request.payload.cheque)
+                console.log(cheque)
+            }
+
             return new Promise(resolve=> {
                 db.find({ 
                     "selector": {
-                        '_id': rut,
+                        '_id': cleanRut(rut),
                         'type': 'alumnos',
                     }
                 }, function(err, result) {
@@ -402,10 +409,11 @@ const Enrolled = [
                             crearBoleta({
                                 numBoleta: ticket,
                                 credentials: session,
-                                rutAlumno: rut,
+                                rutAlumno: cleanRut(rut),
                                 cuotas: toTicket,
                                 monto: resMonto,
-                                formaPago: formaPago // efectivo, cheque, transferencia
+                                formaPago: formaPago, // efectivo, cheque, transferencia
+                                cheque: cheque
                             }).then(res2=> {
                                 db.insert(student, function(errUpdate, body) {
                                     if (errUpdate) throw errUpdate;
@@ -433,16 +441,102 @@ const Enrolled = [
               rut: Joi.string().required(),
               cuotas: Joi.string().required(),
               ticket: Joi.string().required(),
-              formaPago: Joi.string().required()
+              formaPago: Joi.string().required(),
+              cheque: Joi.string().allow(''),
           })
       }
   }
-}
+},
+{
+    method: 'POST',
+    path: '/api/getObservations',
+    options: {
+        handler: (request, h) => {
+            let rut = request.payload.rut;
+            
+            return new Promise(resolve=> {
+                db.find({ 
+                    "selector": {
+                        '_id': cleanRut(rut),
+                        'type': 'alumnos',
+                    }
+                }, function(err, result) {
+                    if (err) throw err;
+      
+                    if(result.docs[0]) {
+                        resolve({ok:result.docs[0]})
+                    }
+                }); 
+            })
+        },
+        validate: {
+            payload: Joi.object().keys({
+                rut: Joi.string().required()
+            })
+        }
+    }
+},
+{
+    method: 'POST',
+    path: '/api/createObservation',
+    options: {
+        handler: (request, h) => {
+            let rut = request.payload.rut;
+            let title = request.payload.title;
+            let text = request.payload.text;
+            
+            return new Promise(resolve=> {
+                db.find({ 
+                    "selector": {
+                        '_id': cleanRut(rut),
+                        'type': 'alumnos',
+                    }
+                }, function(err, result) {
+                    if (err) throw err;
+      
+                    if(result.docs[0]) {
+                        let student = result.docs[0]
+                        let obj = {
+                            date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                            title: title,
+                            text: text
+                        }
+                    
+                        if(student.observations) {
+                            student.observations.push(obj)
 
+                            db.insert(student, function (errUpdate, body) {
+                                if (errUpdate) throw errUpdate;
+                                resolve({ok:obj})
+                            });
+
+                            
+                        }else {
+                            student.observations = [obj]
+
+                            db.insert(student, function (errUpdate, body) {
+                                if (errUpdate) throw errUpdate;
+                                resolve({ok:obj})
+                            });
+                        }
+                        
+                    }
+                }); 
+            })
+        },
+        validate: {
+            payload: Joi.object().keys({
+                rut: Joi.string().required(),
+                title: Joi.string().required(),
+                text: Joi.string().required()
+            })
+        }
+    }
+}
 
 ];
 
-function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago}) {
+function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago, cheque}) {
     return new Promise(resolve=>{
         console.log('CREANDO BOLETA')
         db.find({
@@ -460,6 +554,7 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                 resolve({err: "ya existe la boleta "+ numBoleta})
             }else{
                 console.log('No existe la boleta... creando')
+                
                 let newTicket = {
                     _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                     type: 'boleta',
@@ -471,10 +566,21 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                     rutCreador: cleanRut(credentials.rut), // usuario que generó la boleta
                     formaPago: formaPago
                 }
-                db.insert(newTicket, function (errUpdate, body) {
-                    if (errUpdate) throw errUpdate;
-                    resolve({ok:newTicket});
-                });
+
+                if (cheque) {
+                    newTicket.cheque = cheque
+                    db.insert(newTicket, function (errUpdate, body) {
+                        if (errUpdate) throw errUpdate;
+                        resolve({ok:newTicket});
+                    });
+                } else {
+                    db.insert(newTicket, function (errUpdate, body) {
+                        if (errUpdate) throw errUpdate;
+                        resolve({ok:newTicket});
+                    });
+                }
+                
+                
             }
         });
     })
