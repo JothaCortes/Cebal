@@ -96,7 +96,7 @@ const Joined = [
             //console.log(img)
 
             let alumnObject = {
-                _id: cleanRut(rut),
+                _id: ktoK(cleanRut(rut)),
                 date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'), // fecha de creacion
                 type: 'alumnos',
                 status: 'joined',
@@ -727,6 +727,11 @@ const cleanRut = (rut) => {
     var replace1 = rut.split('.').join('');
     var replace2 = replace1.replace('-', '');
     return replace2;
+}
+
+const ktoK = (rut) => {
+    let replace1 = rut.replace('k', 'K');
+    return replace1
 }
 
 const removePoints = (amount) => {

@@ -321,17 +321,18 @@ const Enrolled = [
     path: '/api/getCuotas',
     options: {
         handler: (request, h) => {
-            let rut = request.payload.rut;
-            
+            let rut = cleanRut(request.payload.rut);
+            console.log(rut)
             return new Promise(resolve=> {
                 db.find({ 
                     "selector": {
-                        '_id': cleanRut(rut),
+                        '_id': rut,
                         'type': 'alumnos',
                     }
                 }, function(err, result) {
                     if (err) throw err;
-      
+                    
+                    console.log(result)
                     if(result.docs[0]) {
                         resolve({ok:result.docs[0]})
                     }
@@ -591,6 +592,7 @@ const cleanRut = (rut) => {
     var replace2 = replace1.replace('-', '');
     return replace2;
 }
+
 
 const removePoints = (amount) => {
     var replace = amount.split('.').join('');

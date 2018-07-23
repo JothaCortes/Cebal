@@ -1267,9 +1267,10 @@ function opcionesModal() {
     })
 
     function pagosModal() {
+        console.log('enviando pago')
         let cuotasAPagar = []
         ajax({
-            url: 'api/getCuotas',
+            url: '/api/getCuotas',
             type: 'POST',
             data:{rut: alumosRowSelectedData._id}
         }).then(res=>{
