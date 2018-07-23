@@ -13,7 +13,7 @@ const administrationPanel = {
                 admin = 'ok'
             }            
 
-            return h.view('administrationPanel', { credentials: credentials, admin});
+            return h.view('administrationPanel', { credentials: credentials, admin: 'ok'});
         }
     }
 };
