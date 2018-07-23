@@ -638,7 +638,18 @@ jQuery(document).ready(function ($) {
         .DataTable({            
                     "iDisplayLength": 100,
                     "dom": 'Bfrtip',
-                    "buttons": [{
+                    "buttons": [ {
+                        extend: 'excelHtml5',
+                        title:'Listado de Alumnos', 
+                        messageTop: (`Curso: `+ cursosCloseRowSelectedData.name),
+                        text: 'Exportar Excel',
+                        exportOptions: {
+                            modifier: {
+                                page: 'current',
+                            }
+                        }
+                    },
+                    {
                         extend: 'pdfHtml5',
                         customize: (doc) => {
                         doc.content.splice(1, 0, {
