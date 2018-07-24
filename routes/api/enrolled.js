@@ -148,14 +148,14 @@ const Enrolled = [
 
             let colegio = request.payload.colegio;
             let horario = request.payload.horario;
-            console.log("horario ",horario)
+            console.log("id alumno server",id)
 
             let modAlumnosCebalObj = {};
 
             return new Promise(resolve => {
                 db.find({
                     "selector": {
-                        "_id": id,
+                        "_id": cleanRut(id),
                         "type": "alumnos",
                         "status": "enrolled"
                     },
@@ -164,7 +164,7 @@ const Enrolled = [
                     if (err) throw err;
 
                     if (result.docs[0]) {
-                        console.log(result)
+                        console.log("res",result)
                         modAlumnosCebalObj = result.docs[0];
                         modAlumnosCebalObj.birthday = birthday;
                         modAlumnosCebalObj.name = name;

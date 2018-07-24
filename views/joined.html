@@ -249,6 +249,20 @@ h5, .h5 {
         }
     });
 }
+//reload matricula
+function reloadRepairTableAlumnos2() {
+        ajax({
+            url: 'api/studentsCebal'
+        }).then(res => {
+            console.log(res)
+            if (res.err) {
+                toastr.warning('No existen alumnos')
+            } else {
+                datatableAlumnos.clear().draw();
+                datatableAlumnos.rows.add(res).draw();
+            }
+        })
+}
 //DATATABLE FINAL recargar
 function reloadRepairTableAlumnos() {
     ajax({

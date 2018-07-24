@@ -14,8 +14,8 @@ import APICourses  from './api/courses';
 import Scores      from './scores';
 import APIScores   from './api/scores';
 
-import listStudents from './listStudents';
-import APIlistStudents from './api/listStudents';
+import listStudents from './horary';
+import APIlistStudents from './api/horary';
 
 import administrationPanel from './administrationPanel';
 import APIadministrationPanel from './api/administrationPanel';

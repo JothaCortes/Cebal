@@ -33,7 +33,7 @@ max-width: 1400px;
                 <div class="col-md-2 col-xs-12">
                         
                         <button class="btn btn-secondary btn-block" id="newCourse">
-                            <i style="color:#1abc9c;" class="fa fa-plus" aria-hidden="true" ></i> Agregar
+                            <i style="color:#1abc9c;" class="fa fa-plus" aria-hidden="true" ></i> Nuevo curso
                         </button>
                         <button class="btn btn-secondary btn-block" id="modCourse" disabled>
                             <i style="color:#f1c40f;" class="fas fa-edit"></i> Modificar
@@ -179,6 +179,7 @@ jQuery(document).ready(function ($) {
                     }).then(res => {
                         if (res.err) {
                             toastr.warning('No existen cursos')
+                            $('#loadingCourse').empty();
                         } else {
                             datatableCourse.rows.add(res).draw();
                             $('#loadingCourse').empty();
@@ -219,6 +220,7 @@ function reloadTableCourse() {
         } else {
             datatableCourse.clear().draw();
             datatableCourse.rows.add(res).draw();
+            $('#loadingCourse').empty();
         }
     })
 }
@@ -243,7 +245,7 @@ function chargeTableCoursesClose() {
                         url: 'api/cursosCebalClose'
                     }).then(res => {
                         if (res.err) {
-                           // toastr.warning('No existen cursos')
+                            $('#loadingCourseCerrado').empty();
                         } else {
                             datatableCourseClose.rows.add(res).draw();
                             $('#loadingCourseCerrado').empty();
@@ -318,6 +320,8 @@ $('#openCourse').on('click', function () {
                 toastr.success(data.ok); 
                 cursosCloseRowSelected.remove().draw();
                 reloadTableCourse()
+                $('#seeStudentsCourse').prop('disabled', true);
+                $('#openCourse').prop('disabled', true);
             }
         });
         }
@@ -355,6 +359,11 @@ $('#closeCourse').on('click', function () {
                 toastr.success(data.ok); 
                 coursesRowSelected.remove().draw();
                 reloadTableCourseClose()
+                $('#modCourse').prop('disabled', true);
+                $('#deletCourse').prop('disabled', true);
+                $('#asignarCourse').prop('disabled', true);
+                $('#closeCourse').prop('disabled', true);
+
             }
         });
         }
@@ -850,7 +859,21 @@ $('#cancelarHide').on('click', function () {
         }
     });
 }
-
+//reload malumnos a asignar
+function reloadAlumnostabla() {
+        ajax({
+            url: 'api/alumnosporhorario'
+        }).then(res => {
+            console.log(res)
+            if (res.err) {
+                toastr.warning('No existen alumnos')
+            } else {
+                datatableAlumnosEnrolled.clear().draw();
+                datatableAlumnosEnrolled.rows.add(res).draw();
+                $('#loadingCourseAsignar').empty();
+            }
+        })
+}
 
 
 $('#asignar').on('click', function () {
@@ -876,9 +899,7 @@ function asignarAlumnosACurso(){
                         type: 'success',
                         timer: 3000
                     }).then(result => {
-                        //reloadTableAlumnosEnrolled()
-                        $('#modalCourses').modal('hide')
-                        
+                        $('#modalCourses').modal('hide')  
                     })
         })
     }else{

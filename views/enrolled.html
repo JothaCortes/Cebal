@@ -185,6 +185,7 @@ let alumosRowSelectedData;
 let alumnosRowSelected;
 let datatableAlumnosDisabled;
 let alumosRowSelectedDataDisabled;
+let place = '{{{credentials.place}}}';
 
     jQuery(document).ready(function ($) {
         chargeTableAlumnos();
@@ -215,17 +216,11 @@ let alumosRowSelectedDataDisabled;
                 initComplete: function (settings, json) {
                     ajax({
                         url: 'api/studentsEnrolled'
+                        
                     }).then(res => {
                         if (res.err) {
                             toastr.warning('No existen Alumnos matriculados')
                         } else if(res.ok) {
-                            /*
-                            let res2 = res.ok.map((el, i, arr) => {
-                                
-                                return rutFunc(el._id)     
-                            });
-                            console.log(res2)
-                            */
                             datatableAlumnosEnrolled.rows.add(res.ok).draw();
                             $('#loadingEnrolled').empty();
                         }      
@@ -273,56 +268,8 @@ function reloadTableAlumnosEnrolled() {
             toastr.warning('No existen Alumnos')
         } else {
             console.log(res)
-            let reformat = res.ok.reduce((arr, el, i) => {
-                    return arr.concat({
-                        _id: el._id,
-                        numMatricula: el.numMatricula,
-                        status: el.status,
-                        birthday:el.birthday,  
-                        name: el.name,
-                        lastname1: el.lastname1,
-                        lastname2: el.lastname2,
-                        email: el.email,
-                        phone: el.phone,
-                        address: el.address,
-                        nameAp: el.nameAp,
-                        relationshipAp: el.relationshipAp,
-                        workAp: el.workAp,
-                        phoneAp: el.phoneAp,
-                        city: el.city,
-                        apoderado: el.nameAp,
-                        parentesco: el.relationshipAp,
-                        workAp: el.workAp,
-                        phoneAp:el.phoneAp,
-                        emailAp: el.emailAp,
-
-                        egreso:el.estadoEgreso,
-                        beca:el.beca,
-                        colegio:el.colegio,
-                        añoEgreso:el.añoEgreso,
-                        cursando:el.curso,
-                        promedio:el.promedio,
-                        horario:el.horario,
-                        etp: el.etp,
-                        electivo:el.electivo,
-                        electivo2:el.electivo2,
-                        
-                        fechaMatricula:el.fechaMatricula,
-                        date: el.date,
-                        tipoCurso: el.tipoCurso,
-                        formaP: el.formaPago,
-
-                        descuento1: el.matricula.finance.descuento,
-                        descuento2: el.matricula.finance.descuento2,
-                        numCuotas:el.numCuotas,
-                        montoCuota:el.montoCuota,
-                        totalCuotas:el.totalCuotas,
-                        montoTotal: el.montoTotal,
-                    })   
-            }, []);
-
             datatableAlumnosEnrolled.clear().draw();
-            datatableAlumnosEnrolled.rows.add(reformat).draw();
+            datatableAlumnosEnrolled.rows.add(res.ok).draw();
             $('#loadingEnrolled').empty();
 
             }
@@ -366,25 +313,14 @@ function chargeTableAlumnosDisabled() {
                     })
                 }
         });   
-        
-    
-
      $('#tableDisabledAlumns tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
-           /* $('#pagosEnrolled').prop('disabled', true);
-            $('#optionStudentEnrolled').prop('disabled', true);
-            $('#modStudentEnrolled').prop('disabled', true);
-            $('#closeMatrStudentEnrolled').prop('disabled', true);*/
         } else {
             datatableAlumnosDisabled.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
             alumosRowSelectedDataDisabled = datatableAlumnosDisabled.row($(this)).data();
             console.log(alumosRowSelectedDataDisabled)
-           /* $('#pagosEnrolled').prop('disabled', false);
-            $('#optionStudentEnrolled').prop('disabled', false);
-            $('#modStudentEnrolled').prop('disabled', false);
-            $('#closeMatrStudentEnrolled').prop('disabled', false);*/
         }
     });
 }
@@ -663,7 +599,7 @@ $('#cancelarModAlum').on('click', function(){
 })
 //editar los datos de los alumnos
 $('#modificarAlumnoCebal').on('click', function(){
-
+    let id = alumosRowSelectedData._id;
     let birthday   = $('#fechaModAlumno').val();
     let name    = $('#nombreModAlumno').val();
     let lastname1  = $('#apellido1ModAlumno').val();
@@ -680,12 +616,11 @@ $('#modificarAlumnoCebal').on('click', function(){
 
     let colegio    = $('#matrColegio').val();
     let horario    = $('#matrHorario').select2('data')[0].text;
-    console.log("horario cliente",horario)
             ajax({
                 url: 'api/modStudentEnrroledCebal',
                 type: 'POST',
                 data: {
-                    id: alumosRowSelectedData._id,
+                    id: id,
                     birthday: birthday,
                     name: name,
                     lastname1: lastname1,
@@ -713,12 +648,11 @@ $('#modificarAlumnoCebal').on('click', function(){
                         type: 'success',
                         timer: 3000
                     }).then(result => {
+                        $('#modalEstudiantes').modal('hide')  
+                       
+                        //location.reload()
                         reloadTableAlumnosEnrolled()
-                        $('#modalEstudiantes').modal('hide')
-                        
                     })
-
-
                 }
             })
     })
@@ -932,12 +866,12 @@ function opcionesModal() {
         </div class="row">
             <div class="col-md-12">
                 <div class="info-box">
-                    <span class="info-box-icon bg-info elevation-1" style="background-color: #ef3f3f !important;"><i class="fas fa-book"></i></span>
+                    <span class="info-box-icon bg-info elevation-1" style="background-color: #3498db !important;"><i class="fas fa-book"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text"><h5><a class="dropdown-item"> Documentos del Alumno</a></h5></span>
                         <div class="row">
                             <div class="offset-md-1 col-md-4">
-                                <button id="certificadoMatr" type="button" class="btn btn-outline-primary">Ficha matrícula</button>
+                                <button id="printPDF" type="button" class="btn btn-outline-primary">Ficha matrícula</button>
                             </div>
                             <div class="offset-md-3 col-md-4">
                                 <button id="certificadoRegular" type="button" class="btn btn-outline-primary">Alumno regular</button>
@@ -949,8 +883,9 @@ function opcionesModal() {
         </div>
        
      `)
-    
+    /*
      $('#certificadoMatr').on('click', function () {
+
          defaultModalHTML = $('#modal_body').html()
          $('#modal_body').empty()
       
@@ -1132,6 +1067,46 @@ function opcionesModal() {
         $('#Atrás').on('click', function () {
             $('#modal_body').html(defaultModalHTML)
         })
+*/  
+$('#certificadoRegular').on('click', function () {
+            var doc = new jsPDF();
+            doc.setDrawColor(0, 0, 0);
+            doc.setFontSize(16);
+            doc.setFontType("bold")
+            doc.text(65,75,"Certificado de alumno regular");
+            doc.line(65, 77, 145, 77);
+
+            doc.addImage(logoCebal, 'JPEG', 20, 40, 40, 15);
+
+            doc.setFontType("normal");
+            doc.setFontSize(12);
+            doc.text(37,92,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumosRowSelectedData.name} `+ `${alumosRowSelectedData.lastname1} `+`${alumosRowSelectedData.lastname2} `+`,Rut `+`${alumosRowSelectedData._id}`+` es alumno(a)`);
+            doc.text(37,102,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumosRowSelectedData.numMatricula}`+`, año 2018.`)
+            doc.text(37,120,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
+            
+
+            doc.setFontSize(14);
+            doc.setFontType("bold")
+            doc.text(120,250,"Ricardo Bravo Méndez");
+            doc.text(136,257,"Director");
+
+
+            doc.setFontType("italic");
+            doc.setFontSize(9);
+            if (place==='Curicó'){
+                doc.text(35,275,"Dirección: Manuel Montt #358, Curicó - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
+            }else if(place==='Parral'){
+                doc.text(35,275,"Dirección: Urrutia #405, Parral - Contacto: parral@cebal.cl - Fono: 73 2462307 - www.cebal.cl");
+            }else if (place==='Linares'){
+                doc.text(35,275,"Dirección: Manuel Rodriguez #315, Linares - Contacto: linares@cebal.cl - Fono: 73 2214675 - www.cebal.cl");
+            }
+           
+            doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
+            doc.save(`Certificado alumno regular `+ ` ${alumosRowSelectedData.name}.pdf`);
+        })
+
+        
+
         $('#printPDF').on('click', function () {
             var doc = new jsPDF();
             doc.setDrawColor(0, 0, 0);
@@ -1177,7 +1152,7 @@ function opcionesModal() {
             doc.text(40,115,"Domicilio");
             doc.setFontType("normal");
             doc.text(85,115,alumosRowSelectedData.address);
-
+            
             doc.setFontType("bold");
             doc.text(40,122,"Celular");
             doc.setFontType("normal");
@@ -1253,13 +1228,20 @@ function opcionesModal() {
             
             doc.setFontType("italic");
             doc.setFontSize(9);
-            doc.text(35,270,"Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
-            doc.text(70,275,"Preuniversitario CEBAL - Sólido en P.S.U");
-            doc.save(`FichaMatricula`+ `${alumosRowSelectedData.name}.pdf`);
+            if (place==='Curicó'){
+                doc.text(35,275,"Dirección: Manuel Montt #358, Curicó - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
+            }else if(place==='Parral'){
+                doc.text(35,275,"Dirección: Urrutia #405, Parral - Contacto: parral@cebal.cl - Fono: 73 2462307 - www.cebal.cl");
+            }else if (place==='Linares'){
+                doc.text(35,275,"Dirección: Manuel Rodriguez #315, Linares - Contacto: linares@cebal.cl - Fono: 73 2214675 - www.cebal.cl");
+            }
+           
+            doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
+            doc.save(`FichaMatricula `+ ` ${alumosRowSelectedData.name}.pdf`);
         })
 
-     })
-    };
+     }
+    
 
 
     $('#pagosEnrolled').on('click', function(){
