@@ -98,22 +98,42 @@ const Scores = [
             return new Promise(resolve => {
                 db.find({
                     selector: {
-                        _id: idCurso,
-                        status: 'enabled'
+                        type: 'alumnos',
+                        courseSend: idCurso,
+                        statusCourse: 'assigned'
                       },
-                      limit: 1
                 }, (err, result) => {
                     if (err) throw err;
 
                     if (result.docs[0]) {
+                    let ensayo = {
+                        idCurso : idCurso,
+                        nombreCurso : nombreCurso,
+                        materia :materia,
+                        nombrePrueba: nombrePrueba,
+                        fechaPrueba: fechaPrueba,
+                        nombreDocente: nombreDocente
+                    }
                     console.log(result.docs[0])
-                        //resolve({ err: `El rut ${result.docs[0]._id} ya existe en el sistema` });
+                    let alumnosReduce = result.docs.reduce((arr, el, i)=>{
+                      if (el.ensayos){
+                          el.ensayos.push(ensayo)
+
+                          
+                            return arr.concat(el)
+
+                      }else{
+                          el.ensayos =[ensayo]
+                          return arr.concat(el)
+                      }
+                    }, [])
+                    console.log("reduce",alumnosReduce)
+                    db.bulk({docs:alumnosReduce}, function(er) {
+                        if (err) throw err;
+                        resolve({ok: 'Ensayo creado correctamente'})
+                    }); 
                     } else {
-                        /*
-                        db.insert(alumnObject, function (errUpdate, body) {
-                            if (errUpdate) throw errUpdate;
-                            resolve({ ok: alumnObject });
-                        }); */
+                        resolve({ err: 'No se ha podido crear el ensayo' });
                     }
                 });
     

@@ -23,18 +23,15 @@
         <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
             <div class="row">
                 <div class="col-md-2 col-xs-12">
-                        <br>
-                        <button class="btn btn-primary btn-block" id="nuevaPrueba" style="margin-top: 20px">
-                            <i class="fa fa-plus"></i> Agregar
-                        </button>
-                        <br>
-                        <button class="btn btn-success btn-block" id="modCourse" disabled>
-                            <i class="fas fa-edit"></i> Modificar
-                        </button>
-                        <br>
-                        <button class="btn btn-danger btn-block" id="deletCourse" disabled>
-                            <i class="fas fa-ban"></i> Eliminar
-                        </button>
+                    <button class="btn btn-secondary btn-block" id="nuevaPrueba">
+                        <i style="color:#1abc9c;" class="fa fa-plus" aria-hidden="true" ></i> Agregar
+                    </button>
+                    <button class="btn btn-secondary btn-block" id="" disabled>
+                        <i style="color:#f1c40f;" class="fas fa-edit"></i> Modificar
+                    </button>
+                    <button class="btn btn-secondary btn-block" id="" disabled>
+                        <i style="color:#e74c3c;" class="fas fa-trash-alt"></i> Eliminar
+                    </button>
                     </div>
                     <div class="col-md-10 col-xs-12 box-shadows table-responsive">
                         <table id="tableScores" class="display nowrap table table-condensed" cellspacing="0" width="100%">
@@ -134,9 +131,7 @@ function modalnuevaPrueba() {
                 <div class="row">
                     <div class="col-md-4">
                         <label ><i class="far fa-calendar-alt"></i> Año</label>
-                        <select class="form-control" id="selectyear" disabled>
-                            <option>2018</option>
-                        </select>
+                        <input class="form-control" id="selectyear" type="text" value="${moment().format('YYYY')}" readOnly>
                     </div>
                     <div class="col-md-4">
                         <label style="float:left;"><i class="far fa-clock"></i> Horario</label>
@@ -154,8 +149,6 @@ function modalnuevaPrueba() {
             </div>
             </div>
         </div>
-                
-
         <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
             <div class="card-header"><h5>Datos prueba</h5></div>
             <div class="card-body">
@@ -186,15 +179,20 @@ function modalnuevaPrueba() {
         </div>
         <div class="col-md-12">
             <div class="row"> 
-                <div class="offset-md-6 col-md-3" style="margin-top:15px;">
-                    <button id="cancel" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Cancelar</button>
-                </div>
-                <div class="col-md-3" style="margin-top:15px;">
-                    <button id="saveScore" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Guardar</button>
-                </div>
+            <div class="offset-md-3 col-md-3" style="margin-top:15px;">
+                <button id="cancel" class="btn btn-secondary btn-block"><i style="color:#f1c40f;" class="fas fa-ban"></i> Cancelar</button>
+            </div>
+            <div class="col-md-3" style="margin-top:15px;">
+                <button id="saveScore" class="btn btn-secondary btn-block" disabled><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar</button>
+            </div>
         </div>
         </div>     
     `)
+    $('#namePrueba').on('change', function() {
+        $('#saveScore').prop('disabled', false)
+    })
+
+
  $('#cancel').on('click', function () {
     $('#modalScores').modal('hide')
  })
@@ -271,7 +269,7 @@ ajax({ // cargar cursos
                     text: el.name
                 })   
             },[]);
-            console.log(nameCourseSelect)
+            console.log("nombre cursos",nameCourseSelect)
             $('#selectname').empty()
             $('#selectname').select2({
                     placeholder:'seleccione',
@@ -281,11 +279,12 @@ ajax({ // cargar cursos
         }); 
         $('#selectname').on('change', function (e) {
             let selectedNameCourse = $('#selectname').select2('data')[0].text;
+           
             let courseSelected2 = res.filter(function(el){
                 return el.name == selectedNameCourse
             })
             courseSelected = courseSelected2[0]._id
-            console.log(courseSelected)
+            console.log("id del curso",courseSelected)
         })
     });  
 
@@ -298,15 +297,6 @@ $('#saveScore').on('click', function () {
    let fechaPrueba   = $('#initDatePrueba').val()
    let nombreDocente = $('#nameDocente').val()
 
-    console.log({
-        idCurso,
-        nombreCurso,
-        materia,
-        nombrePrueba,
-        fechaPrueba,
-        nombreDocente 
-    })
- 
     ajax({
         url:'api/crearPrueba',
         type:'POST',
@@ -319,7 +309,17 @@ $('#saveScore').on('click', function () {
             nombreDocente 
         }
     }).then(res=>{
-        console.log(res)
+         swal({
+                title: 'Agregado!',
+                backdrop: 'static', 
+                keyboard: false,
+                text: res.ok,
+                type: 'success',
+                timer: 60000
+            }).then(result => {
+                $('#modalScores').modal('hide')
+               // reloadTableHorarios()
+            })
     })
 })
 };

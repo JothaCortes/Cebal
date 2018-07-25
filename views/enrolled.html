@@ -1073,22 +1073,23 @@ $('#certificadoRegular').on('click', function () {
             doc.setDrawColor(0, 0, 0);
             doc.setFontSize(16);
             doc.setFontType("bold")
-            doc.text(65,75,"Certificado de alumno regular");
-            doc.line(65, 77, 145, 77);
-
+            doc.text(66,83,"Certificado de alumno regular");
+            doc.line(66, 85, 145, 85);
             doc.addImage(logoCebal, 'JPEG', 20, 40, 40, 15);
 
             doc.setFontType("normal");
+            doc.setFontSize(10);
+            doc.text(130,40, moment().format('dddd DD [de] MMMM [de] YYYY'));
             doc.setFontSize(12);
-            doc.text(37,92,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumosRowSelectedData.name} `+ `${alumosRowSelectedData.lastname1} `+`${alumosRowSelectedData.lastname2} `+`,Rut `+`${alumosRowSelectedData._id}`+` es alumno(a)`);
-            doc.text(37,102,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumosRowSelectedData.numMatricula}`+`, año 2018.`)
-            doc.text(37,120,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
+            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumosRowSelectedData.name} `+ `${alumosRowSelectedData.lastname1} `+`${alumosRowSelectedData.lastname2} `+`,Rut `+`${alumosRowSelectedData._id}`+` es alumno(a)`);
+            doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumosRowSelectedData.numMatricula}`+`, año `+moment().format('YYYY'));
+            doc.text(37,128,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
             
 
             doc.setFontSize(14);
             doc.setFontType("bold")
-            doc.text(120,250,"Ricardo Bravo Méndez");
-            doc.text(136,257,"Director");
+            doc.text(79,250,"Ricardo Bravo Méndez");
+            doc.text(95,257,"Director");
 
 
             doc.setFontType("italic");
@@ -1103,7 +1104,9 @@ $('#certificadoRegular').on('click', function () {
            
             doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
             doc.save(`Certificado alumno regular `+ ` ${alumosRowSelectedData.name}.pdf`);
+        
         })
+
 
         
 

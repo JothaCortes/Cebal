@@ -198,35 +198,6 @@ const Joined = [
                 cheque = JSON.parse(request.payload.cheque)
                 console.log(cheque)
             }
-
-            /*
-            console.log({
-                rutAlumno, 
-                colegio, 
-                estadoEgreso,
-                beca, 
-                anoEgreso, 
-                curso, 
-                promedio, 
-                horario,
-                etp,
-                electivo,
-                electivo2,
-                fechaMatricula,
-                diaCobro,
-                tipoCurso,
-                formaPago,
-                descuento,
-                descuento2,
-                valorMatricula,
-                montoCuota, // monto que cuesta cada cuota
-                numCuotas, // numero total de cuotas
-                totalCuotas, // costo total de las cuotas
-                montoTotal, // monto total (matricula + cuotas)
-                boleta,
-                formaPagoMatricula
-            })*/
-            
             return new Promise(resolve => {
                 db.find({
                     'selector': {
@@ -475,7 +446,7 @@ const Joined = [
         return new Promise(resolve => {
           db.find({
             selector: {
-              _id: estudianteDelete
+              _id: cleanRut(estudianteDelete)
             },
             limit: 1
           }, (err, result) => {

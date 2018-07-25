@@ -770,7 +770,6 @@ function generalFunction(){
                             beca().then(res =>{
                                 calcularMontoTotal()
                                 $('#loadingFData').empty()
-
                                 let ticket = $('#boleta').val()
                                 if(ticket !== ''){
                                     $('#guardarNuevoAlumno2').attr('disabled', false);
@@ -811,7 +810,7 @@ $('#matrPromedio').on('keyup', function (e){
 })
 
 $('#matrPromedio').on('change', function (e){
-      validarValorPromedio()
+    validarValorPromedio()
 })
 
 //FORMA DE PAGO  typePayStatus
@@ -830,7 +829,6 @@ function wayToPay(){
                 allValues.montoPorCuota = allValues.totalCuotas;
                 allValues.cantidadCuotas = 1
                 resolve()
-
             }else if(tipoAnualIntensivo === 'Intensivo'){
                 typePayStatus = 1;
                 allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.10;
@@ -838,10 +836,9 @@ function wayToPay(){
                 allValues.cantidadCuotas = 1
                 resolve()
             }
-
-           
         }else if(selectedTypePay === 'Cuotas'){
             typePayStatus = 0
+            allValues.cantidadCuotas = 9
             allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
             resolve()
         }
@@ -968,7 +965,7 @@ function beca(){
         }else if (beca === 'No'){
             statusBeca = 0
             $('#matrFormaPago').prop('disabled', false)
-            $('#matrDiaCobro').val('04') // Puede ser cualquier día pero por defecto 4
+            $('#matrDiaCobro').val('01') // Puede ser cualquier día pero por defecto 4
             $('#matrDiaCobro').prop('disabled', false)
             //$('#matrFormaPago').val('Cuotas')
             resolve()
@@ -1749,7 +1746,7 @@ $('#agregarEstudiante').on('click', function () {
 //BOTON ELIMINAR ESTUDIANTE
 $('#EliminarEstudiante').on('click', function () {
     swal({
-      title: '¿Estás seguro de eliminar el registro?',
+        title: '¿Estás seguro de eliminar el registro?',
       text: '',
       type: 'warning',
       showCancelButton: true,
@@ -1769,7 +1766,7 @@ $('#EliminarEstudiante').on('click', function () {
             estudianteDelete: alumosRowSelectedData._id
           }  
         }).then((data) => {
-            
+            console.log(estudianteDelete)
             if (data.ok) {
                 toastr.success(data.ok); 
                 alumnosRowSelected.remove().draw();

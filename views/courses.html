@@ -369,21 +369,9 @@ $('#closeCourse').on('click', function () {
         }
 	}); 
 })
-
-
 $('#newCourse').on('click', function () {
     modalNewCourse();
 })
-
-$('#asignar').on('click', function () {
-    modalAsignarCurso();
-})
-function modalAsignarCurso() { 
-    $('#modalCourses').modal();
-    $('#modal_title').text('Asignar curso');
-    $('#modal_body').html(`
-    
-    `)}
 
 function modalNewCourse() { 
     $('#modalCourses2').modal();
@@ -396,13 +384,7 @@ function modalNewCourse() {
         </div>
             <div class="offset-md-2 col-md-8" style="margin-top:10px;">
                 <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
-                    <select class="form-control" id="yearCourse">
-                        <option selected="true" disabled="disabled">seleccione</option>
-                        <option>2018</option>
-                        <option>2019</option>
-                        <option>2020</option>
-                        <option>2021</option>
-                    </select>
+                <input class="form-control" id="yearCourse" type="text" value="${moment().format('YYYY')}" readOnly>    
             </div>
             <div class="offset-md-2 col-md-8" style="margin-top:10px;">
                 <label style="float:left;"><i class="fas fa-clock"></i> Horario</label>

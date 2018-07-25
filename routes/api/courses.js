@@ -2,6 +2,7 @@ import Joi from 'joi';
 import cloudant from '../../config/db.js';
 import moment from 'moment-timezone'
 import configEnv from '../../config/env_status.js';
+//import { validate, clean, format }  from 'rut.js';
 
 let db = cloudant.db.use(configEnv.db)
 
@@ -558,7 +559,7 @@ function changeStudentCourseStatus(alumnos, curso){
         db.find({
             'selector': {
                 '_id': {
-                    '$in': alumnos
+                    '$in':alumnos
                 },
                 'type': 'alumnos',
             }
@@ -589,4 +590,10 @@ function changeStudentCourseStatus(alumnos, curso){
     });
    
 }
+const cleanRut = (rut) => {
+    var replace1 = rut.split('.').join('');
+    var replace2 = replace1.replace('-', '');
+    return replace2;
+}
+
 export default Courses;
