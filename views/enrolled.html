@@ -1101,8 +1101,13 @@ $('#certificadoRegular').on('click', function () {
             }else if (place==='Linares'){
                 doc.text(35,275,"Dirección: Manuel Rodriguez #315, Linares - Contacto: linares@cebal.cl - Fono: 73 2214675 - www.cebal.cl");
             }
-           
             doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
+
+            doc.setFontSize(8)
+            doc.setFont('times')
+            doc.setFontType('normal')
+            doc.setTextColor(100)
+            doc.text(35, 290, `Generado por {{{credentials.name}}}`+` {{{credentials.lastname}}}`)
             doc.save(`Certificado alumno regular `+ ` ${alumosRowSelectedData.name}.pdf`);
         
         })

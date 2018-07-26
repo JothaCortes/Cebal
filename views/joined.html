@@ -226,10 +226,10 @@ h5, .h5 {
             }
         });   
         
-        $('#table tbody').on('click', 'button.see1', function (){
+        /*$('#table tbody').on('click', 'button.see1', function (){
             //var data_see1 = datatableAlumnos.row($(this).parents("tr")).data();
          alert("Ver puntajes")
-        } );
+        } ); */
 
      $('#table tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
@@ -595,6 +595,7 @@ function modalMatrAlumnos() {
                                         </div>
                                         
                                         <div id="loadingFData"></div>
+                                        <div id="errMessages2"></div>
                                         
                                     </div>
                                 </div> 
@@ -1220,7 +1221,7 @@ $('#matrEgreso').on('change', function(){
    
 
   
-//GUARDAR MATRICULA
+//GUARDAR MATRICULA jota
     $('#guardarNuevoAlumno2').on('click', function () {  
         //Variables desde modal
         let alumnoRut      = $('#modRut').val()
@@ -1247,8 +1248,26 @@ $('#matrEgreso').on('change', function(){
         let boleta         = $('#boleta').val()
         let formaPagoMatricula = $('#matrTipoPago').val()
         let etp            = $('#etp').val()
-        
+        /*
+        let validateCounter2 = 0 
+        let errMsg2 = '';
+        $('#errMessages2').empty();
 
+        if (colegio.length > 0){
+            validateCounter2++
+        }else{
+            errMsg2 += '<br> Debe ingresar el nombre del colegio.'
+        }
+        if(pomedio.length >0){
+            validateCounter2++
+        }else{
+            errMsg2 += '<br> Debe ingresar el promedio del alumno.'
+        }
+        if(horario.length >0){
+            validateCounter2++
+        }else{
+            errMsg2 += '<br> Debe seleccionar un horario.'
+        } */
         if(chequeStatus == 1) {
             let chequeBanco = $('#chequeBanco').val()
             let chequeNum   = $('#chequeNum').val()
@@ -1317,8 +1336,6 @@ $('#matrEgreso').on('change', function(){
                         formaPagoMatricula:formaPagoMatricula,
                         cheque: JSON.stringify(cheque)
                     } 
-            
-                
                     //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
                 }).then(res => {
                     console.log(res)
