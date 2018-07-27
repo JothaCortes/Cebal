@@ -369,22 +369,22 @@ function modificarEstModal() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre </label>
-                        <input id="nombreModAlumno" type="text"  value="${alumosRowSelectedData.name}" class="form-control border-input" >
+                        <input id="nombreModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.name}" class="form-control border-input" >
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"> Apellido paterno </label>
-                        <input id="apellido1ModAlumno"  value="${alumosRowSelectedData.lastname1}" type="text" class="form-control border-input" >
+                        <input id="apellido1ModAlumno"  value="${alumosRowSelectedData.lastname1}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" >
                     </div>
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Apellido materno</label>
-                        <input id="apellido2ModAlumno"  value="${alumosRowSelectedData.lastname2}" type="text" class="form-control border-input">
+                        <input id="apellido2ModAlumno"  value="${alumosRowSelectedData.lastname2}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input">
                     </div>
 
                     
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="correoModAlumno" type="email"  value="${alumosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
+                        <input id="correoModAlumno" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -394,7 +394,7 @@ function modificarEstModal() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección </label>
-                        <input id="direccionModAlumno" type="text"  value="${alumosRowSelectedData.address}" class="form-control border-input">
+                        <input id="direccionModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.address}" class="form-control border-input">
                     </div>
                     <!--
                     <div class="col-md-4" style="margin-top:3px;">
@@ -411,17 +411,17 @@ function modificarEstModal() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
-                        <input id="nombreApoderadoMod" type="text"  value="${alumosRowSelectedData.nameAp}" class="form-control border-input">
+                        <input id="nombreApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.nameAp}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Parentesco </label>
-                        <input id="parentescoApoderadoMod" type="text" value="${alumosRowSelectedData.parentesco}" class="form-control border-input"  >
+                        <input id="parentescoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.parentesco}" class="form-control border-input"  >
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
-                        <input id="trabajoApoderadoMod" type="text" class="form-control border-input" value="${alumosRowSelectedData.workAp}">
+                        <input id="trabajoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" value="${alumosRowSelectedData.workAp}">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -430,7 +430,7 @@ function modificarEstModal() {
                     </div> 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="correoApoderadoMod" type="email" aria-describedby="emailHelp" class="form-control border-input" value="${alumosRowSelectedData.emailAp}" >
+                        <input id="correoApoderadoMod" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" class="form-control border-input" value="${alumosRowSelectedData.emailAp}" >
                     </div> 
                 </div>
             </div>
@@ -444,7 +444,7 @@ function modificarEstModal() {
                     <div class="row">
                         <div class="col-md-4">
                             <label style="float:left;"><i class="fas fa-school"></i> Colegio </label>
-                            <input id="matrColegio" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.colegio}">
+                            <input id="matrColegio" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" required class="form-control border-input" value="${alumosRowSelectedData.colegio}">
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
@@ -717,7 +717,7 @@ $('#observationsEnrolled').on('click', function(){
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Título de la observación</label>
-                                <input placeholder="Título de la observación" type="text" id="newObservationTitle" class="form-control">
+                                <input placeholder="Título de la observación" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" id="newObservationTitle" class="form-control">
                             </div>
                         </div>
                         <div class="col-md-8"></div>
@@ -725,7 +725,7 @@ $('#observationsEnrolled').on('click', function(){
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Observación</label>
-                                <textarea placeholder="Texto de la observación" class="form-control" id="newObservationText" rows="3"></textarea>
+                                <textarea placeholder="Texto de la observación" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control" id="newObservationText" rows="3"></textarea>
                             </div>
                         </div>
                         
@@ -1655,6 +1655,11 @@ $('#certificadoRegular').on('click', function () {
         })
         
     };
+
+function aMays(e, elemento) {
+    tecla=(document.all) ? e.keyCode : e.which; 
+    elemento.value = elemento.value.toUpperCase();
+}
 </script>
 {{/extend}}
 

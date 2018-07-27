@@ -380,7 +380,7 @@ function modalNewCourse() {
     <div class="row">
         <div class="offset-md-2 col-md-8">
             <label><i class="fas fa-users"></i> Nombre</label>
-            <input id="nameCourse" type="text" class="form-control border-input" placeholder="Ingrese nombre del curso">
+            <input id="nameCourse" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" placeholder="Ingrese nombre del curso">
         </div>
             <div class="offset-md-2 col-md-8" style="margin-top:10px;">
                 <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
@@ -514,11 +514,11 @@ function modalModCourse() {
     <div class="row">
         <div class="offset-md-2 col-md-8">
             <label><i class="fas fa-users"></i> Nombre</label>
-            <input id="nameModCourse" type="text" class="form-control border-input" value="${cursosRowSelectedData.name}">
+            <input id="nameModCourse" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" value="${cursosRowSelectedData.name}">
         </div>
             <div class="offset-md-2 col-md-8" style="margin-top:10px;">
                 <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
-                <input id="yearModCourse" type="text" class="form-control border-input" value="${cursosRowSelectedData.year}">
+                <input id="yearModCourse" type="text" class="form-control border-input" value="${cursosRowSelectedData.year}" readOnly>
             </div>
             <div class="offset-md-2 col-md-8" style="margin-top:10px;">
                 <label style="float:left;"><i class="fas fa-clock"></i> Horario</label>
@@ -889,7 +889,10 @@ function asignarAlumnosACurso(){
     }
   
 }
-
+function aMays(e, elemento) {
+    tecla=(document.all) ? e.keyCode : e.which; 
+    elemento.value = elemento.value.toUpperCase();
+}
     
 </script>
 {{/extend}}

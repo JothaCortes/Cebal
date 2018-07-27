@@ -315,7 +315,7 @@ function modalMatrAlumnos() {
                     <div class="row">
                         <div class="col-md-4">
                             <label style="float:left;"><i class="fas fa-school"></i> Colegio *</label>
-                            <input id="matrColegio" type="text"  required class="form-control border-input" placeholder="Ingrese nombre colegio">
+                            <input id="matrColegio" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" required class="form-control border-input" placeholder="Ingrese nombre colegio">
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
@@ -1258,16 +1258,17 @@ $('#matrEgreso').on('change', function(){
         }else{
             errMsg2 += '<br> Debe ingresar el nombre del colegio.'
         }
-        if(pomedio.length >0){
+        if(promedio.length > 0){
             validateCounter2++
         }else{
             errMsg2 += '<br> Debe ingresar el promedio del alumno.'
         }
-        if(horario.length >0){
+        if(horario.length > 0){
             validateCounter2++
         }else{
             errMsg2 += '<br> Debe seleccionar un horario.'
-        } */
+        } 
+          */
         if(chequeStatus == 1) {
             let chequeBanco = $('#chequeBanco').val()
             let chequeNum   = $('#chequeNum').val()
@@ -1489,22 +1490,22 @@ $('#agregarEstudiante').on('click', function () {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre *</label>
-                        <input id="nombreNuevoAlumno" type="text"  required class="form-control border-input"  placeholder="Ingrese Nombre">
+                        <input id="nombreNuevoAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" required class="form-control border-input"  placeholder="Ingrese Nombre">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"> Apellido paterno *</label>
-                        <input id="apellido1NuevoAlumno" type="text" class="form-control border-input"  placeholder="Ingrese primer apellido" >
+                        <input id="apellido1NuevoAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input"  placeholder="Ingrese primer apellido" >
                     </div>
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Apellido materno</label>
-                        <input id="apellido2NuevoAlumno" type="text" class="form-control border-input" placeholder="Ingrese segundo apellido">
+                        <input id="apellido2NuevoAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" placeholder="Ingrese segundo apellido">
                     </div>
 
                     
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="correoNuevoAlumno" type="email" aria-describedby="emailHelp" class="form-control border-input"  value="" placeholder="Ingrese correo">
+                        <input id="correoNuevoAlumno" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" class="form-control border-input"  value="" placeholder="Ingrese correo">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1514,7 +1515,7 @@ $('#agregarEstudiante').on('click', function () {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección *</label>
-                        <input id="direccionNuevoAlumno" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección">
+                        <input id="direccionNuevoAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input"  value="" placeholder="Ingrese dirección">
                     </div>
                     <!--
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1531,17 +1532,17 @@ $('#agregarEstudiante').on('click', function () {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado *</label>
-                        <input id="nombreApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese nombre apoderado">
+                        <input id="nombreApoderado" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input"  value="" placeholder="Ingrese nombre apoderado">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Parentesco *</label>
-                        <input id="parentescoApoderado" type="text" class="form-control border-input"  value="" placeholder="Parentesco apoderado">
+                        <input id="parentescoApoderado" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input"  value="" placeholder="Parentesco apoderado">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
-                        <input id="trabajoApoderado" type="text" class="form-control border-input"  value="" placeholder="Ingrese dirección de trabajo">
+                        <input id="trabajoApoderado" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input"  value="" placeholder="Ingrese dirección de trabajo">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1550,7 +1551,7 @@ $('#agregarEstudiante').on('click', function () {
                     </div> 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="correoApoderado" type="email" aria-describedby="emailHelp" class="form-control border-input" placeholder="Ingrese correo apoderado">
+                        <input id="correoApoderado" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" class="form-control border-input" placeholder="Ingrese correo apoderado">
                     </div> 
                 </div>
             </div>
@@ -1857,22 +1858,22 @@ function modEstudiante() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre *</label>
-                        <input id="modName" type="text" value="${getName}"  required class="form-control border-input">
+                        <input id="modName" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getName}"  required class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"> Apellido paterno *</label>
-                        <input id="modLastname1" type="text" value="${getLastname1}" class="form-control border-input" >
+                        <input id="modLastname1" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getLastname1}" class="form-control border-input" >
                     </div>
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Apellido materno</label>
-                        <input id="modLastname2" type="text" value="${getLastname2}"  class="form-control border-input">
+                        <input id="modLastname2" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getLastname2}"  class="form-control border-input">
                     </div>
 
                 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="modCorreo" type="email" aria-describedby="emailHelp" value="${getEmail}" class="form-control border-input">
+                        <input id="modCorreo" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" value="${getEmail}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1882,7 +1883,7 @@ function modEstudiante() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección *</label>
-                        <input id="modAddress" type="text" value="${getAddress}" class="form-control border-input">
+                        <input id="modAddress" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getAddress}" class="form-control border-input">
                     </div>
                     <!--
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1898,17 +1899,17 @@ function modEstudiante() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado *</label>
-                        <input id="modNameAp" type="text" value="${getNameAp}" class="form-control border-input">
+                        <input id="modNameAp" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getNameAp}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Parentesco *</label>
-                        <input id="modRelationAp" type="text" value="${getRelationshipAp}" class="form-control border-input">
+                        <input id="modRelationAp" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getRelationshipAp}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
-                        <input id="modWork" type="text" value="${getWorkAp}" class="form-control border-input">
+                        <input id="modWork" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getWorkAp}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1917,7 +1918,7 @@ function modEstudiante() {
                     </div> 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="modCorreoAp" type="email"  value="${getCorreoAp}" class="form-control border-input">
+                        <input id="modCorreoAp" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getCorreoAp}" class="form-control border-input">
                     </div> 
                 </div>
             </div>   
@@ -2080,6 +2081,10 @@ function modEstudiante() {
     })
 };
 
+function aMays(e, elemento) {
+    tecla=(document.all) ? e.keyCode : e.which; 
+    elemento.value = elemento.value.toUpperCase();
+}
  // test
 
 </script>

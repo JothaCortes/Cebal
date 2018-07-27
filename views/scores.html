@@ -7,6 +7,9 @@
     color:#333333;
     padding: 0.2rem 1.25rem;
   }
+  .modal-lg2 {
+max-width: 1400px;
+}
 </style>
 {{/extend}}
 
@@ -32,16 +35,19 @@
                     <button class="btn btn-secondary btn-block" id="" disabled>
                         <i style="color:#e74c3c;" class="fas fa-trash-alt"></i> Eliminar
                     </button>
+                    <button class="btn btn-secondary btn-block" id="checkEnsayo" disabled>
+                            <i style="color:#3965AC;" class="fas fa-clipboard-check"></i> Corregir ensayo
+                        </button>
                     </div>
                     <div class="col-md-10 col-xs-12 box-shadows table-responsive">
                         <table id="tableScores" class="display nowrap table table-condensed" cellspacing="0" width="100%">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th>
-                                    <th>Fecha</th>
-                                    <th>Materia</th>
-                                    <th>Horario</th>
                                     <th>Curso</th>
+                                    <th>Materia</th>
+                                    <th>Descripción</th>
+                                    <th>Docente</th>
+                                    <th>Fecha</th>
                                 </tr>
                             </thead>
                         </table>
@@ -114,9 +120,106 @@
         </div>
     </div>
 </div>
+<!-- Modal formato-->
+<div class="modal fade" id="modalEnsayo" tabindex="-1" role="dialog" aria-labelledby="modal_title" >
+        <div class="modal-dialog modal-lg2" role="document">
+            <div class="modal-content" style="background-color: #ffffff">
+                <div class="modal-header" style="background:#333333; color:#fff">
+                    <h5 class="modal-title" id="modal_title2"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modal_body2"></div>
+                <div class="modal-footer" id="modal_footer2"></div>
+            </div>
+        </div>
+    </div>
 {{#extend "js"}}
 <script>
     let courseSelected ='';
+
+
+let datatable;
+let datatableEnsayos;
+let ensayosRowSelectedData;
+let ensayoRowSelected;
+
+ let datatableAlumnosEnsayos;
+ let ensayos2RowSelectedData;
+ let ensayo2RowSelected;
+
+
+jQuery(document).ready(function ($) {
+    chargeTableEnsayos() 
+});
+//cargar ensayos en dataTable
+    function chargeTableEnsayos() {
+       
+        datatableEnsayos = $('#tableScores')
+        .DataTable({            
+                    "iDisplayLength": 11,
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "order": [[0, "desc"]],
+                    "responsive": true,
+                    "columns": [
+                        { "data": "nombreCurso"},
+                        { "data": "materia"},
+                        { "data": "nombrePrueba"},   
+                        { "data": "nombreDocente"},
+                        { "data": "fechaPrueba"}            
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/ensayosTraer'
+                    }).then(res => {
+                        if (res.err) {
+                            toastr.warning('No existen cursos')
+                            $('#loadingScores').empty();
+                        } else {
+                            datatableEnsayos.rows.add(res).draw();
+                            $('#loadingScores').empty();
+                        }      
+                    })
+            }
+        });   
+   
+     $('#tableScores tbody').on('click', 'tr', function () {
+      
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected'); 
+            $('#checkEnsayo').prop('disabled', true);
+           // $('#deletCourse').prop('disabled', true);
+        } else {
+            datatableEnsayos.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            ensayosRowSelectedData = datatableEnsayos.row($(this)).data();
+            ensayoRowSelected = datatableEnsayos.row($(this));
+            ensayoSelect = ensayosRowSelectedData._id   
+            console.log(ensayosRowSelectedData)
+            console.log("idEnsayo",ensayoSelect)
+            $('#checkEnsayo').prop('disabled', false);
+           // $('#deletCourse').prop('disabled', false);
+           
+        }
+    });
+}
+//DATATABLE FINAL recargar
+function reloadTableEnsayos() {
+    ajax({
+        url: 'api/ensayosTraer'
+    }).then(res => {
+        if (res.err) {
+            toastr.warning('No existen ensayos')
+        } else {
+            datatableEnsayos.clear().draw();
+            datatableEnsayos.rows.add(res).draw();
+            $('#loadingScores').empty();
+        }
+    })
+}
 
 $('#nuevaPrueba').on('click', function () {
     modalnuevaPrueba();
@@ -164,7 +267,7 @@ function modalnuevaPrueba() {
                     </div>
                     <div class="col-md-4"> 
                         <label><i class="far fa-list-alt"></i> Nombre o descripción</label>
-                        <input class="form-control" id="namePrueba" type="text">
+                        <input class="form-control" id="namePrueba" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)">
                     </div>
                     <div class="col-md-4">
                         <label><i class="fas fa-calendar-alt"></i> fecha </label>
@@ -172,7 +275,7 @@ function modalnuevaPrueba() {
                     </div>
                     <div class="col-md-4"> 
                         <label><i class="fas fa-user-tie"></i> Docente</label>
-                        <input class="form-control" id="nameDocente" type="text">
+                        <input class="form-control" id="nameDocente" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)">
                     </div>
                 </div>
             </div>
@@ -288,7 +391,7 @@ ajax({ // cargar cursos
         })
     });  
 
-
+//Guardar un nuevo ensayo
 $('#saveScore').on('click', function () {
    let idCurso       = courseSelected
    let nombreCurso   = $('#selectname').select2('data')[0].text;
@@ -318,11 +421,127 @@ $('#saveScore').on('click', function () {
                 timer: 60000
             }).then(result => {
                 $('#modalScores').modal('hide')
-               // reloadTableHorarios()
+                reloadTableEnsayos()
             })
     })
 })
 };
+
+$('#checkEnsayo').on('click', function () {
+    modalChekcEnsayo();
+})
+function  modalChekcEnsayo() { 
+    $('#modalEnsayo').modal();
+    $('#modal_title2').text('CORREGIR ENSAYO: '+ ensayosRowSelectedData.nombrePrueba);
+    $('#modal_body2').html(`
+    
+    <div class="container-fluid">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
+                        <div class="row">
+                            <div class="col-md-2 col-xs-12">
+                                <button class="btn btn-secondary btn-block" id="printListAlumns" disabled>
+                                    <i style="color:#1abc9c;" class="fa fa-plus" aria-hidden="true" ></i> Imprimir lista
+                                </button>
+                                <button class="btn btn-secondary btn-block" id="alumnoExit" disabled>
+                                    <i style="color:#e74c3c;" class="fas fa-trash-alt"></i> Retirar alumno
+                                </button>
+                            </div>
+                            <div class="col-md-10 col-xs-12 box-shadows table-responsive">
+                                <table id="tableEnsayos" class="display nowrap table table-condensed" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Alumno</th>
+                                            <th>Apellidos</th>
+                                            <th></th>
+                                            <th>Materia</th>
+                                            <th>Descripción</th>
+                                            <th>Fecha</th>
+                                            <th>Puntaje</th>
+
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>    
+                        </div>
+                    </div>
+                </div> 
+            </div> 
+    
+    
+    `)
+jQuery(document).ready(function ($) {
+    chargeTableAlumnosEnsayos()
+});
+ //cargar alumnos asignados a un curso en tabla
+ function chargeTableAlumnosEnsayos() {
+    datatableAlumnosEnsayos = $('#tableEnsayos')
+        .DataTable({            
+                    "iDisplayLength": 100,
+                    "dom": 'Bfrtip',
+                    "buttons": [ {
+                        extend: 'excelHtml5',
+                        title:'Listado de Alumnos', 
+                        messageTop: (`Ensayo: `+ ensayosRowSelectedData.nombrePrueba),
+                        text: 'Exportar Excel',
+                        exportOptions: {
+                            modifier: {
+                                page: 'current',
+                            }
+                        }
+                    }
+                   ],
+                    "oLanguage": {
+                        "sSearch": "Buscar :"
+                    },
+                    "responsive": true,
+                    "columns": [
+                        { "data": "name"},
+                        { "data": "lastname1"},
+                        { "data": "lastname2"},
+                        { "data" : "materia"}, 
+                        { "data" : "nombreCurso"},   
+                        { "data" : "fechaPrueba"},
+                        { "data" : " nombreDocente"}            
+                    ],
+                initComplete: function (settings, json) {
+                    ajax({
+                        url: 'api/alumnosTraerEnsayo',
+                        type: 'POST',
+                        data: {idEnsayo: ensayoSelect}
+                      
+                    }).then(res => {
+                        console.log(res)
+                        if (res.err) {
+                            toastr.warning('No existen ensayos para mostrar')
+                        } else if(res.ok) {
+                            datatableAlumnosEnsayos.rows.add(res.ok).draw();
+                        }      
+                    })
+                }
+        });   
+        
+     $('#tableEnsayos tbody').on('click', 'tr', function () {
+        if ($(this).hasClass('selected')) {
+            $(this).removeClass('selected');
+          //  $('#alumnoExit').prop('disabled', true);
+            
+        } else {
+            datatableAlumnosEnsayos.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            ensayos2RowSelectedData = datatableAlumnosEnsayos.row($(this)).data();
+            ensayos2RowSelected = datatableAlumnosEnsayos.row($(this));
+            console.log(ensayos2RowSelectedData)
+          //  $('#alumnoExit').prop('disabled', false);
+       
+        }
+    }); 
+}
+};
+function aMays(e, elemento) {
+    tecla=(document.all) ? e.keyCode : e.which; 
+    elemento.value = elemento.value.toUpperCase();
+}
 
     
 

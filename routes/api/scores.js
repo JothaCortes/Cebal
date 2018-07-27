@@ -82,20 +82,148 @@ const Scores = [
         }
     }
 },
+//Obtener Ensayos
+{ 
+    method: 'GET',
+    path: '/api/ensayosTraer', 
+    options: {
+        handler: (request, h) => {
+            let credentials = request.auth.credentials;
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': {
+                            '$gte': null
+                        },
+                        'type': 'ensayos',
+                        'ciudad': credentials.place,
+                        'status':'enabled'
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            return arr.concat({
+                                _id: el._id,
+                                nombreCurso:el.nombreCurso,
+                                materia: el.materia,
+                                nombrePrueba:el.nombrePrueba,
+                                nombreDocente: el.nombreDocente,
+                                fechaPrueba: el.fechaPrueba
+                            })
+                        }, []) 
+                        resolve(res);
+                    } else {
+                        resolve({ err: 'no existen ensayos' });
+                    }
+                });
+            });
+        }
+    }
+},
+//Mostrar ensayos de alumnos filtro por idEnsayo
+{
+    method: 'POST',
+    path: '/api/alumnosTraerEnsayo',
+    options: {
+        handler: (request, h) => {
+            let idEnsayo = request.payload.idEnsayo;
+            let credentials = request.auth.credentials;
+            console.log("ID ENSAYO",idEnsayo)
+            return new Promise(resolve => {
+                db.find({
+                    selector: {
+                        _id: {
+                            $gte: null
+                        },
+                        type: 'alumnos',
+                        city: credentials.place,
+                        statusCourse: 'assigned',
+                        ensayos: {
+                            "$elemMatch":{
+                                idEnsayo: idEnsayo 
+                            }
+ 
+                        }
+                    }
+                }, function (err, result) {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                        let res = result.docs.reduce((arr, el, i)=>{
+                            console.log("RESULT",result.docs[0])
+                            
+                            return arr.concat({
+                                
+
+                                _id: el._id,
+                                status: el.status,
+                                name: el.name,
+                                lastname1: el.lastname1,
+                                lastname2: el.lastname2,
+                                colegio: el.matricula.numMatricula,
+
+                                // hacer filter para traer solo un ensayo
+                                /*
+                                nombreCurso: el.ensayos.nombreCurso,
+                                materia: el.ensayos.materia,
+                                nombrePrueba: el.ensayos.nombrePrueba,
+                                fechaPrueba: el.ensayos.fechaPrueba,
+                                nombreDocente: el.ensayos.nombreDocente,*/
+                              
+                            })
+                        }, []) 
+                        console.log(result)
+                        resolve({ok: res})
+                    } else {
+                        resolve({ err: `No se encuentran alumnos`});
+                    }
+                });
+            });
+        },
+        validate: {
+            payload: Joi.object().keys({
+                idEnsayo: Joi.string()
+            })
+        }
+    }
+},  
 //crear prueba asignada a un curso
 { 
     method: 'POST',
     path: '/api/crearPrueba',
     options: {
         handler: (request, h) => {
+            let credentials = request.auth.credentials;
             let idCurso        = request.payload.idCurso;
             let nombreCurso    = request.payload.nombreCurso;
             let materia        = request.payload.materia;
             let nombrePrueba   = request.payload.nombrePrueba;
             let fechaPrueba    = request.payload.fechaPrueba ;
-            let nombreDocente = request.payload.nombreDocente ;
+            let nombreDocente  = request.payload.nombreDocente ;
+
+
+            let ensayObject = {
+                _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                type: 'ensayos',
+                status: 'enabled',
+                idCurso:idCurso,
+                ciudad: credentials.place,
+                nombreCurso : nombreCurso,
+                materia :materia,
+                nombrePrueba: nombrePrueba,
+                fechaPrueba: fechaPrueba,
+                nombreDocente: nombreDocente   
+            } 
           
             return new Promise(resolve => {
+                
+                db.insert(ensayObject, function (errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve({ ok: 'ensayo ' + ensayObject.nombrePrueba + ' agregado correctamente' });
+                });
+
                 db.find({
                     selector: {
                         type: 'alumnos',
@@ -107,6 +235,7 @@ const Scores = [
 
                     if (result.docs[0]) {
                     let ensayo = {
+                        idEnsayo :ensayObject._id,
                         idCurso : idCurso,
                         nombreCurso : nombreCurso,
                         materia :materia,
@@ -118,10 +247,7 @@ const Scores = [
                     let alumnosReduce = result.docs.reduce((arr, el, i)=>{
                       if (el.ensayos){
                           el.ensayos.push(ensayo)
-
-                          
                             return arr.concat(el)
-
                       }else{
                           el.ensayos =[ensayo]
                           return arr.concat(el)

@@ -19,7 +19,7 @@
     
 {{/extend}}
 
-{{#if admin}}
+
 <div class="col-md-12">
 
 <div class="tab-content" id="pills-tabContent">
@@ -86,11 +86,8 @@
         </div>
     </div>
 </div>
-{{else}}
-<script>
-    document.location.href="/";
-</script>
-{{/if}}
+
+
 
 
 {{#extend "js"}}
@@ -162,7 +159,7 @@ function modalNewHorario() {
             </div>
             <div class="col-md-12">
                 <label style="float:left;margin-top:15px;"><i class="far fa-clock"></i> Horario</label>
-                <input id="horario" type="text" class="form-control border-input">
+                <input id="horario" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input">
             </div>
         </div>
         
@@ -295,7 +292,7 @@ function modalModHorario() {
         <div class="row">
             <div class="col-md-12" style="margin-top:10px;">
                 <label style="float:left;"><i class="far fa-calendar-alt"></i> Año</label>
-                <input id="añoMod" value="${horariosRowSelectedData.year}" type="text" class="form-control border-input">
+                <input id="añoMod" value="${horariosRowSelectedData.year}" type="text" class="form-control border-input" readOnly>
             </div>
             <div class="col-md-12" style="margin-top:10px;">
                 <label style="float:left;"><i class="fas fa-school"></i> Sede</label>
@@ -304,7 +301,7 @@ function modalModHorario() {
 
             <div class="col-md-12">
                 <label style="float:left;margin-top:15px;"><i class="far fa-clock"></i> Horario</label>
-                <input id="horarioMod" value="${horariosRowSelectedData.horary}" type="text" class="form-control border-input">
+                <input id="horarioMod" value="${horariosRowSelectedData.horary}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input">
             </div>
         </div>   
             <div class="row"> 
@@ -355,5 +352,10 @@ $('#limpiarHorarioMod').on('click', function () {
             })
     });
 };
+
+function aMays(e, elemento) {
+    tecla=(document.all) ? e.keyCode : e.which; 
+    elemento.value = elemento.value.toUpperCase();
+}
 </script>
 {{/extend}}

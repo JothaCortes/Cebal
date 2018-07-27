@@ -72,6 +72,7 @@ const Joined = [
         }
     }
 },
+//Crear nuevo alumno
 { 
     method: 'POST',
     path: '/api/nuevoalumno',

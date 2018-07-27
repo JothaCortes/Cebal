@@ -7,8 +7,13 @@ const horary = {
        // auth: false,
         handler: (request, h) => {
             let credentials = request.auth.credentials;
+            let admin = ''
+
+            if (credentials.role == 'sa') {
+                admin = 'ok'
+            }    
       
-            return h.view('horary', { credentials: credentials, admin:'ok'});
+            return h.view('horary', { credentials: credentials, admin});
         }
     }
 };
