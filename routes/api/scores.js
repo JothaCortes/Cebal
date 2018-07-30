@@ -152,10 +152,10 @@ const Scores = [
 
                     if (result.docs[0]) {
                         let res = result.docs.reduce((arr, el, i)=>{
-                            console.log("RESULT",result.docs[0])
-                            
+                           
+                          
                             return arr.concat({
-                                
+                             
 
                                 _id: el._id,
                                 status: el.status,
@@ -174,7 +174,8 @@ const Scores = [
                               
                             })
                         }, []) 
-                        console.log(result)
+                        
+                        //console.log(result)
                         resolve({ok: res})
                     } else {
                         resolve({ err: `No se encuentran alumnos`});
