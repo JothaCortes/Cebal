@@ -96,13 +96,14 @@
         </div>
     </div>
     <br>
-    <div class="alert alert-dismissible alert-success">
+    <div class="alert alert-dismissible alert-success" id="content">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <h4 class="alert-heading"><b>Mejoras en el sistema</b></h4>
         <p class="mb-3">Solucionado problema al ingresar alumno con rut "-K".</p>
         <p class="mb-3">Se añadió exportación a excel en listado de alumnos de un curso cerrado.</p>
         <p class="mb-3">Se cambió el modulo de creación de horarios desde administración a la pestaña "Cursos"</p>
         <p class="mb-3">Se añadió la opción de generar un Certificado de alumno regular en "Alumnos matriculados" en el botón "Opciones"</p>
+        <p class="mb-3">Conversión automática de textos a mayúscula y minúscula</p>
         
     </div>
     
@@ -134,6 +135,15 @@
 
 {{#extend "js"}}
 <script>
+
+
+
+$(document).ready(function() {
+    setTimeout(function() {
+        $("#content").fadeOut(10000);
+    },5000);
+});
+
 
 $(document).ready(function(){
     ajax({

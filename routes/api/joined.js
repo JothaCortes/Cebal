@@ -3,6 +3,7 @@ import cloudant from '../../config/db.js'
 import moment from 'moment-timezone'
 import configEnv from '../../config/env_status.js'
 import { validate, clean, format }  from 'rut.js'
+import { parse } from 'url';
 
 let db = cloudant.db.use(configEnv.db)
 
@@ -194,6 +195,7 @@ const Joined = [
             let boleta         = request.payload.boleta;
             let formaPagoMatricula = request.payload.formaPagoMatricula;
             let cheque
+            let estadoPrimeraCuota = request.payload.estadoPrimeraCuota;
 
             if(request.payload.cheque) {
                 cheque = JSON.parse(request.payload.cheque)
@@ -248,12 +250,22 @@ const Joined = [
                                 }
                                 student.matricula = matriculaObject;
                                 student.status = 'enrolled'
+                                let cuotasApagar = [{num:0, monto:removePoints(valorMatricula)}];
+                                let montoCuotaNew = parseInt(removePoints(valorMatricula));
+                                console.log(montoCuotaNew)
+                                if (estadoPrimeraCuota == 'si'){
+                                   
+                                    montoCuotaNew += parseInt(matriculaObject.finance.cuotas[0].amount)  
+                                    console.log(montoCuotaNew)
+                                    cuotasApagar.push({num:matriculaObject.finance.cuotas[0].num, monto:matriculaObject.finance.cuotas[0].amount})
+                                    matriculaObject.finance.cuotas[0].status = 'payed'
+                                }
                                 crearBoleta({
                                     numBoleta:boleta,
                                     credentials:session,
                                     rutAlumno: rutAlumno,
-                                    cuotas:[{num:0, monto:removePoints(valorMatricula)}],
-                                    monto: valorMatricula,
+                                    cuotas:cuotasApagar,
+                                    monto: montoCuotaNew.toString() ,
                                     formaPago: formaPagoMatricula,
                                     cheque: cheque
                                 }).then(res2 =>{
@@ -302,6 +314,7 @@ const Joined = [
                 boleta: Joi.string().required(),
                 formaPagoMatricula : Joi.string().required(),
                 cheque: Joi.string().allow(''),
+                estadoPrimeraCuota: Joi.string().required()
             })
         }
     }

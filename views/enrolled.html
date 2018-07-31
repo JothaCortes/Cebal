@@ -384,7 +384,7 @@ function modificarEstModal() {
                     
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="correoModAlumno" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
+                        <input id="correoModAlumno" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" value="${alumosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -430,7 +430,7 @@ function modificarEstModal() {
                     </div> 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="correoApoderadoMod" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" class="form-control border-input" value="${alumosRowSelectedData.emailAp}" >
+                        <input id="correoApoderadoMod" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" aria-describedby="emailHelp" class="form-control border-input" value="${alumosRowSelectedData.emailAp}" >
                     </div> 
                 </div>
             </div>
@@ -1659,6 +1659,10 @@ $('#certificadoRegular').on('click', function () {
 function aMays(e, elemento) {
     tecla=(document.all) ? e.keyCode : e.which; 
     elemento.value = elemento.value.toUpperCase();
+}
+function aMinus(e, elemento) {
+tecla=(document.all) ? e.keyCode : e.which; 
+ elemento.value = elemento.value.toLowerCase();
 }
 </script>
 {{/extend}}

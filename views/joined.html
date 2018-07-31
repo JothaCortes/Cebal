@@ -231,6 +231,7 @@ h5, .h5 {
          alert("Ver puntajes")
         } ); */
 
+
      $('#table tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
@@ -460,9 +461,6 @@ function modalMatrAlumnos() {
                             <option value="28">28</option> 
                         </select>
 
-
-
-
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
@@ -526,16 +524,16 @@ function modalMatrAlumnos() {
                                         <div class="card">
                                             <div class="card-header"><h5>Pago de matrícula</h5></div>
                                             <div class="card-body row">
-                                                <!--
+                                                
                                                 <div class="col-md-4">
                                                     <label><i class="fas fa-graduation-cap"></i> Desea pagar la primera cuota?</label> 
                                                 </div>    
                                                 <div class="col-md-6" style="margin-top: -10px">
                                                     <select class="form-control" id="matrPagoCuota1">
-                                                        <option>No</option>
-                                                        <option>Sí</option>
+                                                        <option>no</option>
+                                                        <option>si</option>
                                                     </select> 
-                                                </div>      --!>
+                                                </div>      
 
                                                 <div class="col-md-4">
                                                     <label><i class="fas fa-graduation-cap"></i> Forma de pago *</label> 
@@ -925,37 +923,25 @@ function traerNotas(){
                 if (promedioSelected2[0]){
                     promedioSelected2 = promedioSelected2[0].price
                     allValues.montoPorCuota = promedioSelected2;
-
                     setTimeout(() => {
                         resolve()
                     }, 100);
-
                 }else{
                     average ='normal'
                     let normal2 = selects.notgraduated.filter(function(el) {
                     return el.score == 'normal';
                     })[0].price
                     allValues.montoPorCuota = normal2;
-                    
                     setTimeout(() => {
                         resolve()
                     }, 100);
-
                 } 
-
                 setTimeout(() => {
                     resolve()
                 }, 100);
-
             }
         })
         })
-        
-        /*
-        setTimeout(() => {
-            resolve()
-        }, 100);
-        */
 }
 
 
@@ -1244,7 +1230,7 @@ $('#matrEgreso').on('change', function(){
    
 
   
-//GUARDAR MATRICULA jota
+//GUARDAR MATRICULA
     $('#guardarNuevoAlumno2').on('click', function () {  
         //Variables desde modal
         let alumnoRut          = $('#modRut').val()
@@ -1271,7 +1257,7 @@ $('#matrEgreso').on('change', function(){
         let boleta             = $('#boleta').val()
         let formaPagoMatricula = $('#matrTipoPago').val()
         let etp                = $('#etp').val()
-        let cuota1             = $('#matrPagoCuota1').val()
+        let estadoPrimeraCuota =$('#matrPagoCuota1').val()
         /*
         let validateCounter2 = 0 
         let errMsg2 = '';
@@ -1293,6 +1279,8 @@ $('#matrEgreso').on('change', function(){
             errMsg2 += '<br> Debe seleccionar un horario.'
         } 
           */
+       
+
         if(chequeStatus == 1) {
             let chequeBanco = $('#chequeBanco').val()
             let chequeNum   = $('#chequeNum').val()
@@ -1359,7 +1347,8 @@ $('#matrEgreso').on('change', function(){
                         montoTotal    :montoTotal,
                         boleta        :boleta,
                         formaPagoMatricula:formaPagoMatricula,
-                        cheque: JSON.stringify(cheque)
+                        cheque: JSON.stringify(cheque),
+                        estadoPrimeraCuota : estadoPrimeraCuota
                     } 
                     //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
                 }).then(res => {
@@ -1420,7 +1409,8 @@ $('#matrEgreso').on('change', function(){
                     totalCuotas   :totalCuotas,
                     montoTotal    :montoTotal,
                     boleta        :boleta,
-                    formaPagoMatricula:formaPagoMatricula
+                    formaPagoMatricula:formaPagoMatricula,
+                    estadoPrimeraCuota: estadoPrimeraCuota
                 } 
                 //IF OK MOSTRAR  AGREGADO, ELSE NO SE PUDO AGREGAR
             }).then(res => {
@@ -1529,7 +1519,7 @@ $('#agregarEstudiante').on('click', function () {
                     
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="correoNuevoAlumno" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" class="form-control border-input"  value="" placeholder="Ingrese correo">
+                        <input id="correoNuevoAlumno" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" aria-describedby="emailHelp" class="form-control border-input" value="" placeholder="Ingrese correo">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1575,7 +1565,7 @@ $('#agregarEstudiante').on('click', function () {
                     </div> 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="correoApoderado" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" class="form-control border-input" placeholder="Ingrese correo apoderado">
+                        <input id="correoApoderado" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)"  aria-describedby="emailHelp" class="form-control border-input" placeholder="Ingrese correo apoderado">
                     </div> 
                 </div>
             </div>
@@ -1589,6 +1579,10 @@ $('#agregarEstudiante').on('click', function () {
                 <div class="col-md-3" style="margin-top:15px;">
                     <button id="guardarNuevoAlumno2" class="btn btn-secondary btn-block" disabled><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar</button>
                 </div>
+                <!--
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="guardarNuevoAlumno1" class="btn btn-secondary btn-block" disabled><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar y matricular</button>
+                </div> --!>
             </div>
       `)
     //fecha nacimiento Alumno
@@ -1644,9 +1638,12 @@ $('#agregarEstudiante').on('click', function () {
         let rut  = $('#rutNuevoAlumno').val()
         if($.validateRut(rut) && rut.length>5) {
             $('#guardarNuevoAlumno2').prop('disabled', false);
+            $('#guardarNuevoAlumno1').prop('disabled', false);
+
             $('#rutNuevoAlumno').val(rutFunc(rut))
         }else{
             $('#guardarNuevoAlumno2').prop('disabled', true);
+            $('#guardarNuevoAlumno1').prop('disabled', true);
         }
     })
 
@@ -1666,6 +1663,126 @@ $('#agregarEstudiante').on('click', function () {
         $('#correoApoderado').val('')
         $('#rutNuevoAlumno').focus()
     })
+
+    $('#guardarNuevoAlumno1').on('click', function () {
+        
+        //Variables desde modal
+            let nuevoAlumnoRut       = $('#rutNuevoAlumno').val()
+            let nuevoAlumnoCiudad    = $('#ciudadNuevoAlumno').val()
+            let nuevoAlumnofecha     = $('#fechaNuevoAlumno').val()
+            let nuevoAlumnoNombre    = $('#nombreNuevoAlumno').val()
+            let nuevoAlumnoApellido1 = $('#apellido1NuevoAlumno').val()
+            let nuevoAlumnoApellido2 = $('#apellido2NuevoAlumno').val()
+            let nuevoAlumnoCorreo    = $('#correoNuevoAlumno').val()
+            let nuevoAlumnoCelular   = $('#celularNuevoAlumno').val()
+            let nuevoAlumnoDireccion = $('#direccionNuevoAlumno').val()
+            let apoderadoNombre      = $('#nombreApoderado').val()
+            let apoderadoParentesco  = $('#parentescoApoderado').val()
+            let apoderadoTrabajo     = $('#trabajoApoderado').val()
+            let apoderadoCelular     = $('#celularApoderado').val()
+            let apoderadoCorreo      = $('#correoApoderado').val()
+
+            let validateCounter = 0 // debe llegar a 8
+            let errMsg = '';
+            $('#errMessages').empty();
+
+            if(nuevoAlumnoRut.length > 5) validateCounter++; // 1
+            if(nuevoAlumnoCiudad.length > 1) validateCounter++; // 2
+            if(nuevoAlumnofecha.length > 3) validateCounter++; // 3
+            if(nuevoAlumnoNombre.length >= 1) { //4
+                validateCounter++; 
+            } else {
+                errMsg += '<br> Debe ingresar el nombre del alumno.'
+            }
+
+            if(nuevoAlumnoApellido1.length > 0) { // 5
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar el apellido paterno del alumno.'
+            }
+
+            if(nuevoAlumnoDireccion.length > 0) { // 6
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar la dirección del alumno.'
+            }
+
+            if(apoderadoNombre.length > 0) { // 7
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar el nombre del apoderado del alumno.'
+            }
+            
+            if(apoderadoParentesco.length > 0) { // 8
+                validateCounter++
+            } else {
+                errMsg += '<br> Debe ingresar el parentesco del apoderado.'
+            }
+
+            let img = $('#matrImage').val()
+
+            console.log(img)
+            //fin variables
+
+            if(validateCounter >= 8) {
+                $('#guardarNuevoAlumno1').prop('disabled', true);
+                ajax({
+                    url: '/api/nuevoalumno',
+                    type: 'POST',
+                    data: {
+                        rutalumno:           nuevoAlumnoRut,
+                        ciudadAlumno:        nuevoAlumnoCiudad,
+                        fechaAlumno:         nuevoAlumnofecha,
+                        nombreAlumno:        nuevoAlumnoNombre,
+                        apellido1Alumno:     nuevoAlumnoApellido1,
+                        apellido2Alumno:     nuevoAlumnoApellido2,
+                        correoAlumno:        nuevoAlumnoCorreo,
+                        celularAlumno:       nuevoAlumnoCelular,
+                        direccionAlumno:     nuevoAlumnoDireccion,
+                        nombreApoderado:     apoderadoNombre,
+                        parentescoApoderado: apoderadoParentesco,
+                        trabajoApoderado:    apoderadoTrabajo,
+                        celularApoderado:    apoderadoCelular,
+                        correoApoderado:     apoderadoCorreo
+                    // img:                 img
+                    }
+                }).then(res => {
+                    console.log(res)
+                    if(res.ok) {
+                        screenLog({
+                            id: 'modal_body',
+                            form: 'Nuevo alumno no matriculado',
+                            action: `Se ha agregado el alumno ${nuevoAlumnoNombre} ${nuevoAlumnoApellido1} de rut ${rutFunc(nuevoAlumnoRut)} en {{credentials.place}}`,
+                            type: 'newStudent'
+                        })
+
+                        swal({
+                            title: 'Agregado!',
+                            backdrop: 'static', 
+                            keyboard: false,
+                            text: `El alumno ${res.ok.name} ${res.ok.lastname1} agregado correctamente.`,
+                            type: 'success',
+                            timer: 60000
+                        }).then(result => {
+                            reloadRepairTableAlumnos()
+                            //$('#modalEstudiantes').modal('hide')
+                           // modalMatrAlumnos()
+                           
+                        })
+                    } else {
+                        toastr.warning(res.err)
+                    }	
+                })
+            } else {
+                $('#errMessages').html(`
+                <div class="alert alert-dismissible alert-warning">
+                    <h4 class="alert-heading">Se deben corregir los siguientes errores.</h4>
+                    ${errMsg}
+                </div>
+                `)
+            }
+            
+        })
 
     $('#guardarNuevoAlumno2').on('click', function () {
         
@@ -1897,7 +2014,7 @@ function modEstudiante() {
                 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="modCorreo" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" aria-describedby="emailHelp" value="${getEmail}" class="form-control border-input">
+                        <input id="modCorreo" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" aria-describedby="emailHelp" value="${getEmail}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -1942,7 +2059,7 @@ function modEstudiante() {
                     </div> 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="modCorreoAp" type="email" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${getCorreoAp}" class="form-control border-input">
+                        <input id="modCorreoAp" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" value="${getCorreoAp}" class="form-control border-input">
                     </div> 
                 </div>
             </div>   
@@ -2109,6 +2226,12 @@ function aMays(e, elemento) {
     tecla=(document.all) ? e.keyCode : e.which; 
     elemento.value = elemento.value.toUpperCase();
 }
+function aMinus(e, elemento) {
+tecla=(document.all) ? e.keyCode : e.which; 
+ elemento.value = elemento.value.toLowerCase();
+}
+
+
  // test
 
 </script>
