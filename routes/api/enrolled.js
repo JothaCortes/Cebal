@@ -62,6 +62,7 @@ const Enrolled = [
                                 etp: el.matricula.etp,
                                 electivo:el.matricula.electivo,
                                 electivo2:el.matricula.electivo2,
+                                diacobro:el.matricula.diaCobro,
                                 
                                 fechaMatricula:el.matricula.fechaMatricula,
                                 date: el.matricula.date,
