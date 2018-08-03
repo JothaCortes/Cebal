@@ -218,10 +218,11 @@ const Joined = [
                             crearCuotas({
                                 numCuotas: numCuotas,
                                 montoCuota: montoCuota,
-                                diaCobro: diaCobro
+                                diaCobro: diaCobro,
+                                matriculaDate: recreateDate(fechaMatricula)
                             }).then(resCuotas=> {
                                 matriculaObject = {
-                                    date: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                                    date: recreateDate(fechaMatricula),//original // moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                                     numMatricula   :res,
                                     colegio        :colegio,
                                     estadoEgreso   :estadoEgreso,
@@ -679,7 +680,7 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
     })
 }
 
-function crearCuotas({numCuotas, montoCuota, diaCobro}) {
+function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate}) {
     return new Promise(resolve=> {
         let quotaArray = []
         let today = moment.tz('America/Santiago').format('YYYY-MM-DD')
@@ -706,6 +707,12 @@ function crearCuotas({numCuotas, montoCuota, diaCobro}) {
             }
         }  
     })
+}
+
+function recreateDate(date) {
+    let splitDate = date.split('/');
+    let reDate = `${splitDate[2]}-${splitDate[1]}-${splitDate[0]}T00:00:00.00001`
+    return reDate
 }
 
 const cleanRut = (rut) => {
