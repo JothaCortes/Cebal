@@ -181,7 +181,7 @@ const Joined = [
             let electivo2      = request.payload.electivo2;
             let fechaMatricula = request.payload.fechaMatricula;
             let diaCobro       = request.payload.diaCobro;
-            let tipoCurso      = request.payload.tipoCurso;
+            let tipoCurso      = request.payload.tipoCurso; // Intensivo o Anual
 
             let formaPago      = request.payload.formaPago;
             let descuento      = request.payload.descuento;
@@ -219,11 +219,12 @@ const Joined = [
                                 numCuotas: numCuotas,
                                 montoCuota: montoCuota,
                                 diaCobro: diaCobro,
-                                matriculaDate: recreateDate(fechaMatricula)
+                                matriculaDate: recreateDate(fechaMatricula), // fecha seleccionada de matricula
+                                tipoCurso: tipoCurso // Anual o Intensivo 
                             }).then(resCuotas=> {
                                 matriculaObject = {
                                     date: recreateDate(fechaMatricula),//original // moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
-                                    numMatricula   :res,
+                                    numMatricula   :res, // "res" es numero de matricula
                                     colegio        :colegio,
                                     estadoEgreso   :estadoEgreso,
                                     beca           :beca,
@@ -251,15 +252,16 @@ const Joined = [
                                 }
                                 student.matricula = matriculaObject;
                                 student.status = 'enrolled'
-                                let cuotasApagar = [{num:0, monto:removePoints(valorMatricula)}];
-                                let montoCuotaNew = parseInt(removePoints(valorMatricula));
+                                let cuotasApagar = [{num:0, monto:removePoints(valorMatricula)}]; // matricula es la cuota 
+                                let montoCuotaNew = parseInt(removePoints(valorMatricula)); // valor boleta 1
                                 console.log(montoCuotaNew)
                                 if (estadoPrimeraCuota == 'si'){
                                    
-                                    montoCuotaNew += parseInt(matriculaObject.finance.cuotas[0].amount)  
+                                    montoCuotaNew += parseInt(matriculaObject.finance.cuotas[0].amount)  // cuota 0 + cuota 1 = valor boleta 1
                                     console.log(montoCuotaNew)
                                     cuotasApagar.push({num:matriculaObject.finance.cuotas[0].num, monto:matriculaObject.finance.cuotas[0].amount})
-                                    matriculaObject.finance.cuotas[0].status = 'payed'
+                                    student.matricula.finance.cuotas[0].status = 'payed'
+                                    student.matricula.finance.cuotas[0].payDay = recreateDate(fechaMatricula)
                                 }
                                 crearBoleta({
                                     numBoleta:boleta,
@@ -680,30 +682,44 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
     })
 }
 
-function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate}) {
+function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso}) { //tipoCurso es Anual o Intensivo
     return new Promise(resolve=> {
-        let quotaArray = []
+        
+        /*
         let today = moment.tz('America/Santiago').format('YYYY-MM-DD')
         let payDay = moment.tz('America/Santiago').format('YYYY-MM-'+String(diaCobro))
         let firstPayDay = ''
+        */
+
         
+        //let payDay = moment(initDate).add(1, 'M').format('YYYY-MM'+String(diaCobro))
+        /*
         if(moment(today).isAfter(payDay)) {
             firstPayDay = moment(payDay).add(1, 'M').format('YYYY-MM-DD');
         } else {
             firstPayDay = payDay
+        }*/
+
+        let quotaArray = []
+        let initDate = ''
+        if(tipoCurso == 'Anual') {
+            initDate = moment(matriculaDate).format(`YYYY-03-${String(diaCobro)}`)
+        } else if(tipoCurso == 'Intensivo') {
+            initDate = moment(matriculaDate).format(`YYYY-07-${String(diaCobro)}`)
         }
 
         for (let i = 0; i <= numCuotas; i++) {
             if(i == numCuotas) {
                 resolve({ok:quotaArray})
             } else {
+
                 quotaArray.push({
                     num: i+1,
                     amount: removePoints(montoCuota),
-                    payday: firstPayDay,
+                    payday: initDate,
                     status: 'pending'
                 })
-                firstPayDay = moment(firstPayDay).add(1, 'M').format('YYYY-MM-DD');
+                initDate = moment(initDate).add(1, 'M').format('YYYY-MM-DD');
             }
         }  
     })
