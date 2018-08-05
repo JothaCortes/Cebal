@@ -192,6 +192,7 @@ const Joined = [
             let totalCuotas    = request.payload.totalCuotas;
             let montoTotal     = request.payload.montoTotal;
 
+            let yearSelected   = request.payload.yearSelected // año de cuotas
             let boleta         = request.payload.boleta;
             let formaPagoMatricula = request.payload.formaPagoMatricula;
             let cheque
@@ -220,7 +221,8 @@ const Joined = [
                                 montoCuota: montoCuota,
                                 diaCobro: diaCobro,
                                 matriculaDate: recreateDate(fechaMatricula), // fecha seleccionada de matricula
-                                tipoCurso: tipoCurso // Anual o Intensivo 
+                                tipoCurso: tipoCurso, // Anual o Intensivo,
+                                yearSelected: yearSelected
                             }).then(resCuotas=> {
                                 matriculaObject = {
                                     date: recreateDate(fechaMatricula),//original // moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
@@ -315,6 +317,7 @@ const Joined = [
                 totalCuotas: Joi.string().required(), 
                 montoTotal: Joi.string().required(),
                 boleta: Joi.string().required(),
+                yearSelected: Joi.string().required(),
                 formaPagoMatricula : Joi.string().required(),
                 cheque: Joi.string().allow(''),
                 estadoPrimeraCuota: Joi.string().required()
@@ -682,7 +685,7 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
     })
 }
 
-function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso}) { //tipoCurso es Anual o Intensivo
+function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso, yearSelected}) { //tipoCurso es Anual o Intensivo
     return new Promise(resolve=> {
         
         /*
@@ -702,10 +705,18 @@ function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso}
 
         let quotaArray = []
         let initDate = ''
+        let year = ''
+
+        if(yearSelected == 'current') {
+            year = moment.tz('America/Santiago').format('YYYY')
+        } else if(yearSelected == 'next') {
+            year = moment.tz('America/Santiago').add(1, 'Y').format('YYYY')
+        }
+
         if(tipoCurso == 'Anual') {
-            initDate = moment(matriculaDate).format(`YYYY-03-${String(diaCobro)}`)
+            initDate = moment(matriculaDate).format(`${year}-03-${String(diaCobro)}`)
         } else if(tipoCurso == 'Intensivo') {
-            initDate = moment(matriculaDate).format(`YYYY-07-${String(diaCobro)}`)
+            initDate = moment(matriculaDate).format(`${year}-07-${String(diaCobro)}`)
         }
 
         for (let i = 0; i <= numCuotas; i++) {

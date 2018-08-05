@@ -480,6 +480,15 @@ function modalMatrAlumnos() {
                             </select> 
                         </div>  
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label><i class="fas fa-book"></i> Año de cobro de cuotas *</label>
+                            <select class="form-control" id="yearSelected">
+                                <option value="current">Actual</option>
+                                <option value="next">Siguiente</option>
+                            </select> 
+                        </div>  
+                    </div>
                     
                     <div class="col-md-12">
                         <h4>Descuentos</h4><br>
@@ -1257,7 +1266,8 @@ $('#matrEgreso').on('change', function(){
         let boleta             = $('#boleta').val()
         let formaPagoMatricula = $('#matrTipoPago').val()
         let etp                = $('#etp').val()
-        let estadoPrimeraCuota =$('#matrPagoCuota1').val()
+        let estadoPrimeraCuota = $('#matrPagoCuota1').val() // Si o No al pagar la primera cuota en boleta de matricula
+        let yearSelected       = $('#yearSelected').val()
         /*
         let validateCounter2 = 0 
         let errMsg2 = '';
@@ -1346,6 +1356,7 @@ $('#matrEgreso').on('change', function(){
                         totalCuotas   :totalCuotas,
                         montoTotal    :montoTotal,
                         boleta        :boleta,
+                        yearSelected  :yearSelected,
                         formaPagoMatricula:formaPagoMatricula,
                         cheque: JSON.stringify(cheque),
                         estadoPrimeraCuota : estadoPrimeraCuota
@@ -1409,6 +1420,7 @@ $('#matrEgreso').on('change', function(){
                     totalCuotas   :totalCuotas,
                     montoTotal    :montoTotal,
                     boleta        :boleta,
+                    yearSelected  :yearSelected,
                     formaPagoMatricula:formaPagoMatricula,
                     estadoPrimeraCuota: estadoPrimeraCuota
                 } 

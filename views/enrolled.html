@@ -84,7 +84,6 @@
                         <table id="tableEnrolledAlumns" class="display nowrap table table-condensed" cellspacing="0" width="100%">
                             <thead>
                                 <tr>
-                                    <th></th>
                                     <th>N°</th>
                                     <th>Rut</th>
                                     <th>Nombre</th>
@@ -129,7 +128,6 @@
                                 <table id="tableDisabledAlumns" class="display nowrap table table-condensed" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
-                                            <th></th>
                                             <th>Sede</th>
                                             <th>Rut</th>
                                             <th>Nombre</th>
@@ -201,7 +199,6 @@ let place = '{{{credentials.place}}}';
                     },
                     "responsive": true,
                     "columns": [
-                        { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
                         { "data": "numMatricula" },
                         { "data": "_id"},
                         { "data": "name" },
@@ -287,8 +284,7 @@ function chargeTableAlumnosDisabled() {
                     },
                     "responsive": true,
                     "columns": [
-                        { "defaultContent": "<button type='button' class='see1 btn btn-outline-info btn-sm' title='Información adicional'> <i class='fas fa-chart-bar' style=' width: 14px'></i></button>"},
-                        {"data": "city"},
+                        { "data": "city"},
                         { "data": "_id"},
                         { "data": "name" },
                         { "data": "lastname1"},
@@ -683,6 +679,7 @@ $('#observationsEnrolled').on('click', function(){
             </div>
             <div class="row" id="newObservationDiv"></div>
             <br>
+            <div class="list-group" id="observationsList"></div>
         `)
 
         if(res.ok.observations && res.ok.observations.length > 0) {
@@ -699,11 +696,7 @@ $('#observationsEnrolled').on('click', function(){
                 ` 
             }, '');
 
-            $('#modal_body').append(`
-                <div class="list-group" id="observationsList">
-                    ${observationsHTML}
-                </div>
-            `)
+            $('#observationsList').append(observationsHTML)
         } else {
             toastr.warning('Este alumno no tiene observaciones')
         }
