@@ -99,6 +99,9 @@
     <div class="alert alert-dismissible alert-success" id="content">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <h4 class="alert-heading"><b>Mejoras en el sistema</b></h4>
+        <p class="mb-3">Se añadió la opción de seleccionar año de pago de cuotas (Actual, Siguiente).</p>
+        <p class="mb-3">Se cambiaron los meses de pago de cuotas anual (desde marzo a noviembre)</p>
+        <p class="mb-3">Se cambiaron los meses de pago de cuotas intensivo (desde julio a noviembre)</p>
         <p class="mb-3">Solucionado problema al ingresar alumno con rut "-K".</p>
         <p class="mb-3">Se ha añadido la opción de pagar una primera cuota además de la matrícula</p>
         <p class="mb-3">Se añadió exportación a excel en listado de alumnos de un curso cerrado.</p>
@@ -140,9 +143,6 @@
 
 
 $(document).ready(function() {
-    setTimeout(function() {
-        $("#content").fadeOut(20000);
-    },5000);
 });
 
 
@@ -213,7 +213,7 @@ $('#searchbtn').on('click', function() {
                             statusicon = '<button class="btn btn-primary statusbtn"><i class="fas fa-sign-in-alt"></i></button>'
                             break;
                         case 'enrolled':
-                            statusicon = '<button class="btn btn-info statusbtn"><i class="fas fa-address-book"></i></button>'
+                            statusicon = '<button class="btn btn-info statusbtn"><i class="fas fa-address-book"></i> Matriculado</button>'
                             break;
                         case 'disabled':
                             statusicon = '<button class="btn btn-danger statusbtn"><i class="fas fa-times"></i></button>'
@@ -227,7 +227,7 @@ $('#searchbtn').on('click', function() {
 
                     return html += `
                         <tr>
-                            <th scope="row">${el._id}</th>
+                            <th scope="row">${rutFunc(el._id)}</th>
                             <td>${el.name} ${el.lastname1}</td>
                             <td>${el.email}</td>
                             <td>${statusicon}</td>
