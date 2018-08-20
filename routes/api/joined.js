@@ -249,6 +249,7 @@ const Joined = [
                                         montoCuota     :montoCuota,
                                         totalCuotas    :totalCuotas,
                                         montoTotal     :montoTotal,
+                                        ticketEnrollment: boleta,
                                         cuotas: resCuotas.ok
                                     }
                                 }
@@ -263,6 +264,7 @@ const Joined = [
                                     console.log(montoCuotaNew)
                                     cuotasApagar.push({num:matriculaObject.finance.cuotas[0].num, monto:matriculaObject.finance.cuotas[0].amount})
                                     student.matricula.finance.cuotas[0].status = 'payed'
+                                    student.matricula.finance.cuotas[0].ticket = boleta
                                     student.matricula.finance.cuotas[0].payDay = recreateDate(fechaMatricula)
                                 }
                                 crearBoleta({

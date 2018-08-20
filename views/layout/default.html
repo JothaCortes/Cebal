@@ -240,6 +240,18 @@
         });
     }
 
+    const capitalizeAll = (val) => {
+        return (val ? val.toLowerCase() : val).replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase(); });
+    }
+
+    const capitalizeFirst = (val) => {
+        return val.substr(0,1).toUpperCase() + val.substr(1).toLowerCase();
+    }
+
+    const removeExtraSpaces = (val) => {
+        return val.replace(/\s+/g, ' ').trim()
+    }
+
     const isEmail = (email) => {
 		let regexEmail = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
 		return regexEmail.test(email);
@@ -253,6 +265,10 @@
 
     const rutFunc = (rut) => {
         return $.formatRut(rut)
+    }
+
+    const isRut = (rut) => {
+        return $.validateRut(rut)
     }
 
     const checkSession = () => {

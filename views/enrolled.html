@@ -46,6 +46,8 @@
     border-color:#16a085 !important;
 }
 
+
+
 </style>
 {{/extend}}
 
@@ -63,17 +65,20 @@
                 <div class="row">
                     <div class="col-md-2 col-xs-12">
                         <br>
+                        <button class="btn btn-secondary btn-block" id="newEnrolled">
+                            <i style="color:#3498db;" class="fa fa-plus"></i> Nueva matrícula
+                        </button>
                         <button class="btn btn-secondary btn-block" id="pagosEnrolled" disabled>
-                            <i style="color:#1abc9c;" class="fa fa-plus"></i> Pagos
+                            <i style="color:#1abc9c;" class="far fa-money-bill-alt"></i> Pagos
                         </button>
                         <button class="btn btn-secondary btn-block" id="modStudentEnrolled" disabled>
                             <i style="color:#f1c40f;" class="fas fa-edit"></i> Modificar
                         </button>
                         <button class="btn btn-dark btn-block" id="optionStudentEnrolled" disabled>
-                            <i style="color:#3498db;" class="fas fa-ban"></i> Opciones
+                            <i style="color:#e67e22;" class="fas fa-filter"></i> Opciones
                         </button>
                         <button class="btn btn-dark btn-block" id="observationsEnrolled" disabled>
-                            <i style="color:#9b59b6;" class="fas fa-list-ul"></i> Observaciones
+                            <i style="color:#9b59b6;" class="fas fa-eye"></i> Observaciones
                         </button>
                         <button class="btn btn-dark btn-block" id="closeMatrStudentEnrolled" disabled>
                             <i style="color:#e74c3c;" class="fas fa-ban"></i> Cerrar Matrícula
@@ -176,13 +181,36 @@
 <script src="/public/logoCebalB64/perfilAlumno.js"></script>
 <script>
     
-let defaultModalHTML = '';
-let datatable;
-let datatableAlumnosEnrolled;
-let alumosRowSelectedData;
-let alumnosRowSelected;
-let datatableAlumnosDisabled;
-let alumosRowSelectedDataDisabled;
+let defaultModalHTML = ''
+let datatable
+let datatableAlumnosEnrolled
+let alumosRowSelectedData
+let alumnosRowSelected
+let datatableAlumnosDisabled
+let alumosRowSelectedDataDisabled
+let valores = {}
+let allValues={ // calculos totales
+    valorMatricula:0,
+    cantidadCuotas:0,
+    montoPorCuota:0,
+    montoPorCuota2:0,
+    totalCuotas:0,
+    montoTotal:0,
+    descuentoCuota1:0,
+    descuentoCuota2:0
+}
+
+let numberQuotes = {}
+let average = 'normal'
+let typePayStatus = 0 //tipo de pago: 0 cuotas 1 contado
+let selects = {
+    graduated: [],
+    notgraduated: [],
+    selectedOptionEg: []
+}
+let statusBeca = 0 // becado o no becado
+let chequeStatus = 0 // con o sin cheque
+   
 let place = '{{{credentials.place}}}';
 
     jQuery(document).ready(function ($) {
@@ -612,47 +640,1283 @@ $('#modificarAlumnoCebal').on('click', function(){
 
     let colegio    = $('#matrColegio').val();
     let horario    = $('#matrHorario').select2('data')[0].text;
-            ajax({
-                url: 'api/modStudentEnrroledCebal',
-                type: 'POST',
-                data: {
-                    id: id,
-                    birthday: birthday,
-                    name: name,
-                    lastname1: lastname1,
-                    lastname2: lastname2,
-                    email: email,
-                    phone: phone,
-                    address:  address,
-                    nameAp: nameAp,
-                    relationshipAp: relationshipAp,
-                    workAp: workAp,
-                    phoneAp: phoneAp,
-                    emailAp: emailAp,
-                    colegio: colegio,
-                    horario: horario,
-                }
-            }).then(res => {
-                if (res.error) {
-                    toastr.error(res.error)
-                } else {
-                    swal({
-                        title: 'Alumno modificado correctamente!',
-                        text: res.ok,
-                        backdrop: 'static',
-                        keyboard: false,
-                        type: 'success',
-                        timer: 3000
-                    }).then(result => {
-                        $('#modalEstudiantes').modal('hide')  
-                       
-                        //location.reload()
-                        reloadTableAlumnosEnrolled()
-                    })
-                }
+    ajax({
+        url: 'api/modStudentEnrroledCebal',
+        type: 'POST',
+        data: {
+            id: id,
+            birthday: birthday,
+            name: name,
+            lastname1: lastname1,
+            lastname2: lastname2,
+            email: email,
+            phone: phone,
+            address:  address,
+            nameAp: nameAp,
+            relationshipAp: relationshipAp,
+            workAp: workAp,
+            phoneAp: phoneAp,
+            emailAp: emailAp,
+            colegio: colegio,
+            horario: horario,
+        }
+    }).then(res => {
+        if (res.error) {
+            toastr.error(res.error)
+        } else {
+            swal({
+                title: 'Alumno modificado correctamente!',
+                text: res.ok,
+                backdrop: 'static',
+                keyboard: false,
+                type: 'success',
+                timer: 3000
+            }).then(result => {
+                $('#modalEstudiantes').modal('hide')  
+                
+                //location.reload()
+                reloadTableAlumnosEnrolled()
             })
+        }
+    })
     })
 };
+
+
+$('#newEnrolled').on('click', function() {
+    $('#modalEstudiantes').modal()
+    $('#modal_title').text(`Crear una nueva matrícula`)
+
+    $('#modal_body').html(`
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <h3 class="card-header">Datos de alumno</h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Rut *</label>
+                                    <input class="form-control" type="text" placeholder="Ingrese rut" id="newEnrolledRut">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Fecha de nacimiento *</label>
+                                    <input class="form-control" type="text" placeholder="Fecha de nacimiento" id="newEnrolledBirthdate">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Ciudad *</label>
+                                    <input class="form-control" type="text" placeholder="Ciudad" value="{{{credentials.place}}}" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Nombre *</label>
+                                    <input class="form-control" type="text" placeholder="Ingrese nombre" id="newEnrolledName">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Apellido paterno *</label>
+                                    <input class="form-control" type="text" placeholder="Ingrese apellido paterno" id="newEnrolledLastname">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Apellido materno</label>
+                                    <input class="form-control" type="text" placeholder="Ingrese apellido materno" id="newEnrolledLastname2">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Email</label>
+                                    <input class="form-control" type="email" placeholder="Ingrese correo electrónico" id="newEnrolledEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Teléfono</label>
+                                    <input class="form-control" type="text" placeholder="Ingrese correo electrónico" id="newEnrolledPhone">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Dirección*</label>
+                                    <input class="form-control" type="text" placeholder="Ingrese Dirección" id="newEnrolledAddress">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-header">Datos de apoderado</h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Nombre completo *</label>
+                                    <input class="form-control" type="text" placeholder="Nombre completo del apoderado" id="newEnrolledAssigneeName">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Parentesco *</label>
+                                    <input class="form-control" type="text" placeholder="parentesco con alumno" id="newEnrolledAssigneeRelationship">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Lugar de trabajo</label>
+                                    <input class="form-control" type="text" placeholder="Lugar de trabajo del apoderado" id="newEnrolledAssigneeWorkplace">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Teléfono</label>
+                                    <input class="form-control" type="text" placeholder="Teléfono del apoderado" id="newEnrolledAssigneePhone">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Email</label>
+                                    <input class="form-control" type="text" placeholder="Correo electrónico del apoderado" id="newEnrolledAssigneeEmail">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-header">Datos académicos</h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Colegio *</label>
+                                    <input class="form-control" type="text" placeholder="Nombre del colegio" id="newEnrolledSchool">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label generalTrigger">Egreso </label>
+                                    
+                                    <select class="custom-select" id="newEnrolledEgress">
+                                        <option value="graduated">Egresado</option>
+                                        <option value="notGraduated">No egresado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="egressRes"></div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Becado </label>
+                                    
+                                    <select class="custom-select generalTrigger" id="newEnrolledBeca">
+                                        <option value="no">No</option>
+                                        <option value="yes">Si</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Promedio *</label>
+                                    
+                                    <input class="form-control generalTrigger solo-numero" type="text" placeholder="Ej: 6.0" id="newEnrolledAverage">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Horario </label>
+                                    <select id="newEnrolledHorary"></select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="col-form-label">ETP </label>
+                                <select class="custom-select" id="newEnrolledEtpStatus">
+                                    <option value="no">No</option>
+                                    <option value="yes">Si</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group" id="electivesContainer">
+                                    <label class="col-form-label">Electivos *</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="newEnrolledScience">
+                                        <label class="custom-control-label" for="newEnrolledScience" >Ciencias</label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="newEnrolledHistory">
+                                        <label class="custom-control-label" for="newEnrolledHistory" >Historia</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="scienceRes"></div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-header">Datos de matrícula</h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Fecha de matrícula *</label>
+                                    <input class="form-control" type="text" placeholder="Fecha de matrícula" id="newEnrolledDate">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Día de cobro </label>
+                                    <select class="custom-select" id="newEnrolledPayDay">
+                                        <option value="0" disabled>0</option>
+                                        <option value="01">01</option>
+                                        <option value="02">02</option> 
+                                        <option value="03">03</option> 
+                                        <option value="04">04</option> 
+                                        <option value="05">05</option> 
+                                        <option value="06">06</option> 
+                                        <option value="07">07</option> 
+                                        <option value="08">08</option> 
+                                        <option value="09">09</option> 
+                                        <option value="10">10</option> 
+                                        <option value="11">11</option> 
+                                        <option value="12">12</option> 
+                                        <option value="13">13</option> 
+                                        <option value="14">14</option> 
+                                        <option value="15">15</option> 
+                                        <option value="16">16</option>
+                                        <option value="17">17</option> 
+                                        <option value="18">18</option> 
+                                        <option value="19">19</option> 
+                                        <option value="20">20</option> 
+                                        <option value="21">21</option> 
+                                        <option value="22">22</option> 
+                                        <option value="23">23</option> 
+                                        <option value="24">24</option> 
+                                        <option value="25">25</option> 
+                                        <option value="26">26</option> 
+                                        <option value="27">27</option> 
+                                        <option value="28">28</option> 
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Tipo de curso </label>
+                                    <select class="form-control generalTrigger" id="newEnrolledCourseType">
+                                        <option value="yearly">Anual</option>
+                                        <option value="intensive">Intensivo</option>
+                                    </select> 
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Forma de pago </label>
+                                    <select class="form-control generalTrigger" id="newEnrolledPayType">
+                                        <option value="cuotas">Cuotas</option>
+                                        <option value="contado">Contado</option>
+                                    </select> 
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Año de cobro de cuotas </label>
+                                    <select class="form-control" id="newEnrolledYearSelected">
+                                        <option value="current">Actual</option>
+                                        <option value="next">Siguiente</option>
+                                    </select> 
+                                </div>  
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <center><h3><b>Descuentos</b></h3></center>
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+                            
+                            <div class="col-md-1"></div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Descuento 1 </label>
+                                    <select class="form-control generalTrigger" id="newEnrolledDiscount">
+                                        <option>Sin descuento (0%)</option>
+                                        <option>Hijo de profesor (15%)</option>
+                                        <option>Ex alumno (5%)</option>
+                                        <option>Hermano (15%)</option>
+                                    </select> 
+                                </div>  
+                            </div>
+
+                            <div class="col-md-2"></div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Descuento 2 </label>
+                                    <select class="form-control generalTrigger" id="newEnrolledDiscount2" disabled>
+                                        <option>Sin descuento (0%)</option>
+                                        <option>Hijo de profesor (15%)</option>
+                                        <option>Ex alumno (5%)</option>
+                                        <option>Hermano (15%)</option>
+                                    </select> 
+                                </div>  
+                            </div>
+
+                            <div class="col-md-1"></div>
+                        </div>
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <h3 class="card-header">Pago de matrícula</h3>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-form-label">¿Desea pagar la primera cuota? </label>
+                                                    <select class="custom-select" id="newEnrolledFirstQuotaPay">
+                                                        <option value="no">No</option>
+                                                        <option value="yes">Si</option> 
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-form-label">Medio de pago </label>
+                                                    <select class="custom-select" id="newEnrolledPaymentMethod">
+                                                        <option value="cash">Efectivo</option>
+                                                        <option value="check">Cheque</option>
+                                                        <option value="transfer">Transferencia</option> 
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div id="paymentRes"></div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-form-label">N° Boleta *</label>
+                                                    <input class="form-control solo-numero" type="text" placeholder="Número de boleta" id="newEnrolledTicket">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <h3 class="card-header">Datos financieros</h3>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Valor matrícula </td>
+                                                            <td><input class="form-control" type="text" placeholder="Valor matrícula" id="newEnrollmentInfoValue" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Cantidad cuotas </td>
+                                                            <td><input class="form-control" type="text" placeholder="Cantidad cuotas" id="newEnrollmentInfoQtyQuotas" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Monto por cuota </td>
+                                                            <td><input class="form-control" type="text" placeholder="Monto por cuota" id="newEnrollmentInfoAmountxQuota" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Total cuotas </td>
+                                                            <td><input class="form-control" type="text" placeholder="Monto por cuota" id="newEnrollmentInfoQuotasTotal" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Monto total </td>
+                                                            <td><input class="form-control" type="text" placeholder="Monto por cuota" id="newEnrollmentInfoTotalAmount" readOnly></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <div id="loadingGeneralData"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <br>
+        <div id="errMessages"></div>
+        <center>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="saveNewEnrolled">Guardar</button>
+        </center>
+    `)
+    egressStatus()
+    generalFunction()
+
+    $('.solo-numero').keyup(function (){
+        this.value = (this.value + '').replace(/[^0-9]/g, ''); 
+    })
+
+    $('input#newEnrolledRut').keyup(function (){
+        if(isRut($(this).val())) {
+            $(this).val(rutFunc($(this).val()))
+            $(this).css({border:'1px solid #3498db'})
+        } else {
+            $(this).css({border:'1px solid #e74c3c'})
+        }
+    })
+
+    $('#newEnrolledDate').daterangepicker({
+        "locale": {
+            "format": "DD/MM/YYYY",
+            "daysOfWeek": [
+            "Dom",
+            "Lun",
+            "Mar",
+            "Mie",
+            "Jue",
+            "Vie",
+            "Sab"
+            ],
+            "monthNames": [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+            ],
+            "firstDay": 1
+        },
+        drops: "down",
+        singleDatePicker: true,
+        showDropdowns: true
+    })
+
+    $('#newEnrolledBirthdate').daterangepicker({
+        "locale": {
+            "format": "DD/MM/YYYY",
+            "daysOfWeek": [
+            "Dom",
+            "Lun",
+            "Mar",
+            "Mie",
+            "Jue",
+            "Vie",
+            "Sab"
+            ],
+            "monthNames": [
+            "Enero",
+            "Febrero",
+            "Marzo",
+            "Abril",
+            "Mayo",
+            "Junio",
+            "Julio",
+            "Agosto",
+            "Septiembre",
+            "Octubre",
+            "Noviembre",
+            "Diciembre"
+            ],
+            "firstDay": 1
+        },
+        drops: "down",
+        singleDatePicker: true,
+        showDropdowns: true
+    })
+
+    $('#newEnrolledPaymentMethod').on('change', function() {
+        if($(this).val() == 'check') {
+            chequeStatus = 1;
+            $('#paymentRes').html(`
+                <div class="col-md-12" style="margin-top:10px;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label style="float:left;"> Banco *</label>
+                            <input id="chequeBanco" type="text" value="" placeholder="Nombre del banco" class="form-control border-input">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="float:left;"> Nº Serie *</label>
+                            <input id="chequeNum" type="text" value="" placeholder="Número de serie del cheque" class="form-control border-input">
+                        </div>
+                        <div class="col-md-6">
+                            <label style="float:left;"> Monto cheque *</label>
+                            <input id="chequeMonto" type="text" value="" placeholder="Monto del cheque" class="form-control border-input">
+                        </div> 
+                        <div class="col-md-6">
+                            <label style="float:left;"> Fecha pago *</label>
+                            <input id="chequeFecha" type="text" value="" placeholder="Fecha de pago del cheque" class="form-control border-input">
+                        </div>
+                        
+                    </div>
+                </div>
+                <br>
+            `)
+            $('#chequeFecha').daterangepicker({
+                "locale": {
+                    "format": "DD/MM/YYYY",
+                    "daysOfWeek": [
+                    "Dom",
+                    "Lun",
+                    "Mar",
+                    "Mie",
+                    "Jue",
+                    "Vie",
+                    "Sab"
+                    ],
+                    "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                    ],
+                    "firstDay": 1
+                },
+                drops: "up",
+                singleDatePicker: true,
+                showDropdowns: true
+            });
+        } else {
+            $('#paymentRes').empty()
+            chequeStatus = 0;
+        }
+    })
+
+    
+
+    $('.generalTrigger').on('change', function() {
+        generalFunction()
+    })
+
+    $('#newEnrolledAverage').on('keyup', function (e){ // al escribir en input "promedio"
+        generalFunction()
+    })
+
+    $('#newEnrolledAverage').on('change', function (e){ // al cambiar el valor del input "promedio"
+        validarValorPromedio()
+    })
+
+    $('#newEnrolledEgress').on('change', function() {
+        egressStatus()
+    })
+
+    $('#newEnrolledScience').on('change', function() {
+        scienceStatus()
+    })
+
+    function generalFunction() {
+        $('#loadingGeneralData').html(`
+            <center>
+                <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
+                <span class="sr-only">Cargando...</span>
+            </center>`
+        )
+
+        quotaValues().then(res=> {
+            numberQuotesCebal().then(res => {
+                traerNotas().then(res=> {
+                    wayToPay().then(res=> {
+                        calcularDescuento1().then(res=> {
+                            calcularDescuento2().then(res=> {
+                                beca().then(res=> {
+                                    calcularMontoTotal().then(res=> {
+                                        $('#loadingGeneralData').empty()
+                                        let ticket = $('#newEnrolledTicket').val()
+                                        if(ticket !== ''){
+                                            $('#saveNewEnrolled').attr('disabled', false);
+                                        }
+                                        console.log('FINAL', valores, allValues, numberQuotes, typePayStatus)
+                                    })
+                                })
+                            })
+                        })
+                    })
+                })
+            })
+        })
+    }
+
+    //Promedio min 10 y max 70
+    function validarValorPromedio(){
+        let maxMin = $('#newEnrolledAverage').val()
+        if(maxMin > 70){
+            $('#newEnrolledAverage').val('')
+            toastr.warning("Ingrese un promedio válido (10 a 70)")
+        }else if (maxMin < 10){
+            $('#newEnrolledAverage').val('')
+            toastr.warning("Ingrese un promedio válido (10 a 70)")
+        }
+    }
+    /*
+        GENERAL FUNCTIONS INIT
+    */
+
+    function quotaValues (){ 
+        return new Promise(resolve =>{
+            ajax({ 
+                url:'/api/quotaValuesCebal'
+            }).then(res => {
+                let selectedStatus = $('#newEnrolledEgress').val();
+                if (selectedStatus == 'graduated'){
+
+                    valores.graduated = res.filter(function(el) {
+                        return el.status == 'graduated';
+                    })[0].notes
+
+                    let matrScore = valores.graduated.filter(function(el) {
+                        return el.score == 'matricula';
+                    })[0].price
+                    
+                    let valNormal = valores.graduated.filter(function(el) {
+                        return el.score == 'normal';
+                    })[0].price
+
+
+                    allValues.valorMatricula = matrScore;
+                    allValues.montoPorCuota = valNormal;
+                
+                    setTimeout(() => {
+                        resolve()
+                    }, 100);
+                    
+                }else{
+                    valores.notgraduated = res.filter(function(el) {
+                        return el.status == 'notGraduated';
+                    })[0].notes
+                    let matrScore = valores.notgraduated.filter(function(el) {
+                        return el.score == 'matricula';
+                    })[0].price
+
+                    let valNormal = valores.notgraduated.filter(function(el) {
+                        return el.score == 'normal';
+                    })[0].price
+
+                    allValues.valorMatricula = matrScore;
+                    allValues.montoPorCuota= valNormal;
+                
+                    setTimeout(() => {
+                        resolve()
+                    }, 100);
+                }
+            });
+        })
+    
+    }
+
+    function numberQuotesCebal (){
+        return new Promise(resolve =>{
+            ajax({ 
+                url:'/api/quotaNumbers'
+            }).then(res => {
+                let selectedTypeCourse = $('#newEnrolledCourseType').val();
+                if (selectedTypeCourse === 'yearly'){
+
+                    numberQuotes.yearly = res.filter(function(el) {
+                        return el.type == 'yearly';
+                    })[0].quotaNumber
+
+                    allValues.cantidadCuotas= numberQuotes.yearly;
+
+                    setTimeout(() => {
+                        console.log("cuotas anual",allValues.cantidadCuotas)
+                        resolve()
+                    }, 100);
+                    
+                }else if(selectedTypeCourse==='intensive'){
+
+                    numberQuotes.intensive = res.filter(function(el) {
+                        return el.type == 'intensive';
+                    })[0].quotaNumber
+                    allValues.cantidadCuotas= numberQuotes.intensive;
+                    
+                    setTimeout(() => {
+                        console.log("cuotas intensivo",allValues.cantidadCuotas)
+                        resolve()
+                    }, 100);
+                }
+            });
+        });
+    }
+
+    function traerNotas(){
+        return new Promise(resolve =>{
+            ajax({ 
+                url:'/api/quotaValuesCebal'
+            }).then(res => {
+                let estado = $('#newEnrolledEgress').val()
+                console.log("estado seleccionado",estado)
+                console.log("promedio inicio",average)
+        
+                average = $('#newEnrolledAverage').val()
+
+                if (estado == 'graduated'){
+                    selects.graduated = res.filter(function(el) {
+                        return el.status == 'graduated';
+                    })[0].notes
+
+                    let promedioSelected = selects.graduated.filter(function(el){
+                        return el.score  == average
+                    })
+                    if (promedioSelected[0]){
+                        promedioSelected = promedioSelected[0].price
+                        allValues.montoPorCuota = promedioSelected;
+
+                        setTimeout(() => {
+                            resolve()
+                        }, 100);
+                        
+                    }else{
+                        average = 'normal'
+                        let normal = selects.graduated.filter(function(el) {
+                        return el.score == 'normal';
+                        })[0].price
+                        allValues.montoPorCuota = normal;
+
+                        setTimeout(() => {
+                            resolve()
+                        }, 100);
+                    } 
+                    /*
+                    setTimeout(() => {
+                        resolve()
+                    }, 100);
+                    */
+
+                }else if(estado == 'notGraduated'){
+                    selects.notgraduated = res.filter(function(el) {
+                        return el.status == 'notGraduated';
+                    })[0].notes
+                    let promedioSelected2 = selects.notgraduated.filter(function(el){
+                        return el.score  == average
+                    })
+                    if (promedioSelected2[0]){
+                        promedioSelected2 = promedioSelected2[0].price
+                        allValues.montoPorCuota = promedioSelected2;
+                        setTimeout(() => {
+                            resolve()
+                        }, 100);
+                    }else{
+                        average = 'normal'
+                        let normal2 = selects.notgraduated.filter(function(el) {
+                        return el.score == 'normal';
+                        })[0].price
+                        allValues.montoPorCuota = normal2;
+                        setTimeout(() => {
+                            resolve()
+                        }, 100);
+                    } 
+                    /*
+                    setTimeout(() => {
+                        resolve()
+                    }, 100);
+                    */
+                }
+            })
+        })
+    }
+
+    function wayToPay(){
+        return new Promise(resolve =>{
+            let selectedTypePay = $('#newEnrolledPayType').val();
+            console.log('TYPEPAY', selectedTypePay)
+            if(selectedTypePay == 'cuotas'){
+                typePayStatus = 1;
+                let tipoAnualIntensivo = $('#newEnrolledCourseType').val();
+                //resolve()
+                if (tipoAnualIntensivo == 'yearly'){
+                    typePayStatus = 0
+                    allValues.cantidadCuotas = 9
+                    allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
+                
+                    resolve()
+                }else if (tipoAnualIntensivo == 'intensive'){
+                    typePayStatus = 0
+                    allValues.cantidadCuotas = 5
+                    allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
+                
+                    resolve()
+                }
+            }else if (selectedTypePay == 'contado'){ // si es al contado: intensivo tiene un 10% de descuento | anual tiene un 20% de descuento
+                typePayStatus = 1;
+                let tipoAnualIntensivo = $('#newEnrolledCourseType').val();
+                //resolve()
+                if (tipoAnualIntensivo == 'yearly'){
+                    allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.20;
+                    allValues.montoPorCuota = allValues.totalCuotas;
+                    allValues.cantidadCuotas = 1
+                
+                    resolve()
+                }else if (tipoAnualIntensivo == 'intensive'){
+                    allValues.totalCuotas  = (allValues.montoPorCuota * allValues.cantidadCuotas)-(allValues.montoPorCuota * allValues.cantidadCuotas)*0.10;
+                    allValues.montoPorCuota = allValues.totalCuotas;
+                    allValues.cantidadCuotas = 1
+                
+                    resolve()
+                }
+            }
+        })
+    }
+
+    //calcular los descuentos
+    function calcularDescuento1(){
+        return new Promise(resolve =>{
+            let descuento = $('#newEnrolledDiscount').val()
+            if(descuento === 'Hijo de profesor (15%)'){
+                allValues.descuentoCuota1 = allValues.montoPorCuota * 0.15;
+                let montoxCuota = allValues.montoPorCuota - allValues.descuentoCuota1
+                allValues.montoPorCuota = Math.floor(montoxCuota)
+                let totalAllCuotas = allValues.cantidadCuotas * allValues.montoPorCuota
+                allValues.totalCuotas= Math.floor(totalAllCuotas)
+                $('#newEnrolledDiscount2 option:eq(2)').prop('disabled', false)
+                $('#newEnrolledDiscount2 option:eq(3)').prop('disabled', false)
+                $('#newEnrolledDiscount2 option:eq(1)').prop('disabled', true)
+                $('#newEnrolledDiscount2').prop('disabled', false)
+                resolve()
+            }else if(descuento ==='Hermano (15%)'){
+                allValues.descuentoCuota1= allValues.montoPorCuota * 0.15
+                let montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
+                allValues.montoPorCuota = Math.floor(montoxCuota)
+                let totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
+                allValues.totalCuotas= Math.floor(totalAllCuotas)
+                $('#newEnrolledDiscount2 option:eq(1)').prop('disabled', false)
+                $('#newEnrolledDiscount2 option:eq(2)').prop('disabled', false)
+                $('#newEnrolledDiscount2 option:eq(3)').prop('disabled', true)
+                $('#newEnrolledDiscount2').prop('disabled', false)
+                resolve()
+            }else if(descuento ==='Ex alumno (5%)'){
+                allValues.descuentoCuota1= allValues.montoPorCuota * 0.05;
+                let montoxCuota = allValues.montoPorCuota-allValues.descuentoCuota1
+                allValues.montoPorCuota = Math.floor(montoxCuota)
+                let totalAllCuotas=allValues.cantidadCuotas*allValues.montoPorCuota
+                allValues.totalCuotas= Math.floor(totalAllCuotas)
+                $('#newEnrolledDiscount2 option:eq(1)').prop('disabled', false)
+                $('#newEnrolledDiscount2 option:eq(3)').prop('disabled', false)
+                $('#newEnrolledDiscount2 option:eq(2)').prop('disabled', true)
+                $('#newEnrolledDiscount2').prop('disabled', false)
+                resolve()
+            }else if (descuento ==='Sin descuento (0%)'){
+                $('#newEnrolledDiscount2').prop('disabled', true)
+                $('#newEnrolledDiscount2').val('Sin descuento (0%)')
+                resolve()
+            }else{
+                resolve()
+            }
+        })
+    }
+
+
+    function calcularDescuento2(){
+        return new Promise(resolve =>{
+            let descuento2 = $('#newEnrolledDiscount2').val()
+            if(descuento2 === 'Hijo de profesor (15%)' || descuento2 === 'Hermano (15%)'){
+                
+                let montoxCuotas =(allValues.montoPorCuota)-(allValues.montoPorCuota)*0.15
+                allValues.montoPorCuota = Math.floor(montoxCuotas)
+                let totalAllCuota = allValues.montoPorCuota*allValues.cantidadCuotas
+                allValues.totalCuotas = Math.floor(totalAllCuota)
+
+                resolve()
+            }else if(descuento2 === 'Ex alumno (5%)'){
+                let montoxCuotas = (allValues.montoPorCuota)-(allValues.montoPorCuota)*0.05
+                allValues.montoPorCuota = Math.floor(montoxCuotas)
+                let totalAllCuota=allValues.montoPorCuota*allValues.cantidadCuotas
+                allValues.totalCuotas= Math.floor(totalAllCuota)
+                resolve()
+            
+            }else{
+                resolve()
+            }
+        })
+    }
+
+    //becado o no becado
+    function beca(){
+        return new Promise(resolve =>{
+            let beca = $('#newEnrolledBeca').val()
+            if (beca === 'yes'){
+                statusBeca = 1
+                allValues.cantidadCuotas = 0
+                allValues.montoPorCuota = 0
+                allValues.totalCuotas = 0
+                $('#newEnrolledPayType').val('contado')
+                $('#newEnrolledPayType').prop('disabled', true)
+                $('#newEnrolledPayDay').val('0')
+                $('#newEnrolledPayDay').prop('disabled', true)
+                resolve()
+            }else if (beca === 'no'){
+                statusBeca = 0
+                $('#newEnrolledPayType').prop('disabled', false)
+                $('#newEnrolledPayDay').val('01') // Puede ser cualquier día
+                $('#newEnrolledPayDay').prop('disabled', false)
+                resolve()
+            }
+        })
+    }
+
+    //calcular el monto de la matricula de un alumno
+    function calcularMontoTotal(){
+        return new Promise(resolve=> {
+            $('#newEnrollmentInfoValue').val(number_format(allValues.valorMatricula))
+            $('#newEnrollmentInfoQtyQuotas').val(allValues.cantidadCuotas)
+            $('#newEnrollmentInfoAmountxQuota').val(number_format(Math.floor(allValues.montoPorCuota)))
+            $('#newEnrollmentInfoQuotasTotal').val(number_format(Math.floor(allValues.totalCuotas)))
+            let montoTotalFinish =  (allValues.totalCuotas+allValues.valorMatricula)
+            $('#newEnrollmentInfoTotalAmount').val(number_format(Math.floor(montoTotalFinish)))
+            resolve()
+        })
+    }
+
+    /*
+        GENERAL FUNCTIONS END
+    */
+
+    function scienceStatus() {
+        let scienceStatus = $('#newEnrolledScience').prop('checked')
+        console.log(scienceStatus)
+        if(scienceStatus) {
+            $('#scienceRes').html(`
+                <label class="col-form-label">electivo 2 *</label>                        
+                <select class="custom-select" id="newEnrolledScienceRes">
+                    <option value="physics">Física</option>
+                    <option value="chemistry">Química</option>
+                    <option value="biology">Biología</option>
+                </select>
+            `)
+
+        } else {
+            $('#scienceRes').empty()
+        }
+    }
+
+    function egressStatus() {
+        let egressStatus = $('#newEnrolledEgress').val()
+        
+        if(egressStatus == 'graduated') {
+            $('#egressRes').html(`
+                <label class="col-form-label">Año de egreso </label>                        
+                <select class="custom-select" id="newEnrolledEgressRes">
+                    <option value="2000">2000</option>
+                    <option value="2001">2001</option>
+                    <option value="2002">2002</option>
+                    <option value="2003">2003</option>
+                    <option value="2004">2004</option>
+                    <option value="2005">2005</option>
+                    <option value="2006">2006</option>
+                    <option value="2007">2007</option>
+                    <option value="2008">2008</option>
+                    <option value="2009">2009</option>
+                    <option value="2010">2010</option>
+                    <option value="2011">2011</option>
+                    <option value="2012">2012</option>
+                    <option value="2013">2013</option>
+                    <option value="2014">2014</option>
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                </select>
+            `)
+        } else if(egressStatus == 'notGraduated') {
+            $('#egressRes').html(`
+                <label class="col-form-label">Cursando </label>                        
+                <select class="custom-select" id="newEnrolledEgressRes">
+                    <option value="primero medio">Primero medio</option>
+                    <option value="segundo medio">Segundo medio</option>
+                    <option value="tercero medio">Tercero medio</option>
+                    <option value="cuarto medio">Cuarto medio</option>
+                </select>
+            `)
+        }
+    }
+
+    ajax({ // cargar horarios
+        url:'/api/horariosCebalTraer'
+    }).then(res => {
+        let selects = {
+            place:[],
+            horary: []
+        }
+        console.log(res)
+        selects.place = res.filter(function(el) {
+            return el.place == '{{{credentials.place}}}'
+        })
+        console.log(selects.place)
+        let horary = selects.place.reduce((arr, el, i) => {
+            return arr.concat({
+                id: i,
+                text: el.horary
+            })   
+        }, []);
+
+        console.log(horary)
+
+        $('#newEnrolledHorary').select2({
+            width:'100%',
+            data: horary
+        })
+    })
+
+    $('#saveNewEnrolled').on('click', function(){
+        let newEnrolledObj = {}
+        let validateCounter = 0
+        let errMessage = ''
+
+        // ALUMNO
+        newEnrolledObj.rut             = removeExtraSpaces($('#newEnrolledRut').val()) //* 1
+        newEnrolledObj.birthdate       = removeExtraSpaces($('#newEnrolledBirthdate').val()) //* 2
+        newEnrolledObj.name            = removeExtraSpaces($('#newEnrolledName').val()) //* 3
+        newEnrolledObj.lastname        = removeExtraSpaces($('#newEnrolledLastname').val()) //* 4
+        newEnrolledObj.lastname2       = removeExtraSpaces($('#newEnrolledLastname2').val()) 
+        newEnrolledObj.email           = removeExtraSpaces($('#newEnrolledEmail').val())
+        newEnrolledObj.phone           = removeExtraSpaces($('#newEnrolledPhone').val())
+        newEnrolledObj.address         = removeExtraSpaces($('#newEnrolledAddress').val()) //* 5
+
+        // APODERADO
+        newEnrolledObj.nameAp          = removeExtraSpaces($('#newEnrolledAssigneeName').val()) //* 6
+        newEnrolledObj.relationshipAp  = removeExtraSpaces($('#newEnrolledAssigneeRelationship').val()) //* 7
+        newEnrolledObj.workAp          = removeExtraSpaces($('#newEnrolledAssigneeWorkplace').val())
+        newEnrolledObj.phoneAp         = removeExtraSpaces($('#newEnrolledAssigneePhone').val())
+        newEnrolledObj.EmailAp         = removeExtraSpaces($('#newEnrolledAssigneeEmail').val())
+        
+        // ACADEMICOS
+        newEnrolledObj.school          = removeExtraSpaces($('#newEnrolledSchool').val()) //* 8
+        newEnrolledObj.statusEgress    = $('#newEnrolledEgress').val() 
+        newEnrolledObj.egressRes       = $('#newEnrolledEgressRes').val() 
+        newEnrolledObj.beca            = $('#newEnrolledBeca').val() 
+        newEnrolledObj.average         = removeExtraSpaces($('#newEnrolledAverage').val()) //* 9
+        newEnrolledObj.horary          = $('#newEnrolledHorary').select2('data')[0].text //* 10
+        newEnrolledObj.etp             = $('#newEnrolledEtpStatus').val()
+        newEnrolledObj.science         = $('#newEnrolledScience').is(':checked') //* 11  debe seleccionar mínimo 1
+        newEnrolledObj.history         = $('#newEnrolledHistory').is(':checked') //* 11  debe seleccionar mínimo 1
+        newEnrolledObj.scienceElective = $('#newEnrolledScienceRes').val() || '' // si selecciona ciencias debe seleccionar 1
+        
+        // MATRICULA
+        newEnrolledObj.enrollmentDate  = removeExtraSpaces($('#newEnrolledDate').val()) //* 12
+        newEnrolledObj.payDay          = $('#newEnrolledPayDay').val()
+        newEnrolledObj.courseType      = $('#newEnrolledCourseType').val()
+        newEnrolledObj.payType         = $('#newEnrolledPayType').val()
+        newEnrolledObj.yearSelected    = $('#newEnrolledYearSelected').val()
+
+        // DESCUENTOS                   
+        newEnrolledObj.discount1       = $('#newEnrolledDiscount').val()
+        newEnrolledObj.discount2       = $('#newEnrolledDiscount2').val()
+        
+        // PAGO
+        newEnrolledObj.firstQuota      = $('#newEnrolledFirstQuotaPay').val()
+        newEnrolledObj.paymentMethod   = $('#newEnrolledPaymentMethod').val()
+        newEnrolledObj.ticket          = removeExtraSpaces($('#newEnrolledTicket').val()) //* 13
+        
+        if(isRut(newEnrolledObj.rut)) { // 1
+            validateCounter++
+            $('#newEnrolledRut').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledRut').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar un rut válido.`
+        }
+
+        if(newEnrolledObj.birthdate.length > 0) { // 2
+            validateCounter++
+            $('#newEnrolledBirthdate').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledBirthdate').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar una fecha de nacimiento válida.`
+        }
+
+        if(newEnrolledObj.name.length > 0) { // 3
+            validateCounter++
+            $('#newEnrolledName').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledName').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el nombre del alumno.`
+        }
+
+        if(newEnrolledObj.lastname.length > 0) { // 4
+            validateCounter++
+            $('#newEnrolledLastname').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledLastname').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el apellido paterno del alumno.`
+        }
+
+        if(newEnrolledObj.address.length > 0) { // 5
+            validateCounter++
+            $('#newEnrolledAddress').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledAddress').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar la dirección del alumno.`
+        }
+
+        if(newEnrolledObj.nameAp.length > 0) { // 6
+            validateCounter++
+            $('#newEnrolledAssigneeName').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledAssigneeName').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el nombre completo del apoderado.`
+        }
+
+        if(newEnrolledObj.relationshipAp.length > 0) { // 7
+            validateCounter++
+            $('#newEnrolledAssigneeRelationship').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledAssigneeRelationship').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el parentesco del apoderado con el alumno.`
+        }
+
+        if(newEnrolledObj.school.length > 0) { // 8
+            validateCounter++
+            $('#newEnrolledSchool').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledSchool').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el nombre del colegio del alumno.`
+        }
+
+        if(newEnrolledObj.average.length > 0) { // 9
+            validateCounter++
+            $('#newEnrolledAverage').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledAverage').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar un promedio de notas válido.`
+        }
+
+        if(newEnrolledObj.horary.length > 0) { // 10
+            validateCounter++
+            $('#newEnrolledHorary').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledHorary').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe seleccionar un horario`
+        }
+        
+        if(newEnrolledObj.science  || newEnrolledObj.history) { // 11
+            validateCounter++
+            $('#electivesContainer').css({border:'1px solid #3498db'})
+        } else {
+            $('#electivesContainer').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe seleccionar al menos 1 electivo`
+        }
+
+        if(newEnrolledObj.enrollmentDate.length > 0) { // 12
+            validateCounter++
+            $('#newEnrolledDate').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledDate').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar una fecha de matrícula válida.`
+        }
+    
+        if(newEnrolledObj.ticket.length > 0) { // 13
+            validateCounter++
+            $('#newEnrolledTicket').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledTicket').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar un número de boleta.`
+        }
+        
+        if(validateCounter == 13) {
+            $('#errMessages').empty()
+        } else {
+            $('#errMessages').html(`
+            <div class="alert alert-dismissible alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4 class="alert-heading">Debe solucionar los siguientes errores:</h4>
+                <p class="mb-0">${errMessage}</p>
+            </div>
+            `)
+        }
+
+    
+
+        if(chequeStatus == 1) {
+            newEnrolledObj.chequeBanco = $('#chequeBanco').val()
+            newEnrolledObj.chequeNum   = $('#chequeNum').val()
+            newEnrolledObj.chequeMonto = $('#chequeMonto').val()
+            newEnrolledObj.chequeFecha = $('#chequeFecha').val()
+            let chequeValidateCounter = 0;
+            let cheque = {}
+
+            if(newEnrolledObj.chequeBanco.length > 0) { // 1
+                cheque.banco = newEnrolledObj.chequeBanco
+                chequeValidateCounter++
+            } else {
+                toastr.warning('Ingrese el nombre del banco del cheque')
+            }
+
+            if(newEnrolledObj.chequeNum.length > 0) { // 2
+                cheque.num = newEnrolledObj.chequeNum
+                chequeValidateCounter++
+            } else {
+                toastr.warning('Ingrese el número de serie del cheque')
+            }
+
+            if(newEnrolledObj.chequeMonto.length > 0) { // 3
+                cheque.monto = newEnrolledObj.chequeMonto
+                chequeValidateCounter++
+            } else {
+                toastr.warning('Ingrese el monto del cheque')
+            }
+
+            if(newEnrolledObj.chequeFecha.length > 0) { // 4
+                cheque.date = newEnrolledObj.chequeFecha
+                chequeValidateCounter++
+            } else {
+                toastr.warning('Ingrese Fecha de pago del cheque')
+            }
+
+            if(chequeValidateCounter == 4) {
+                createEnrollment({data: newEnrolledObj, cheque: cheque})
+            }
+        } else {
+            createEnrollment({data: newEnrolledObj})
+        }
+    })
+
+})
+
+function createEnrollment({data, cheque}) {
+    if(cheque) {
+        console.log(data, cheque)
+    } else {
+        console.log(data) 
+    }
+    
+}
 
 $('#observationsEnrolled').on('click', function(){
     ajax({
@@ -1074,7 +2338,7 @@ $('#certificadoRegular').on('click', function () {
             doc.setFontSize(10);
             doc.text(130,40, moment().format('dddd DD [de] MMMM [de] YYYY'));
             doc.setFontSize(12);
-            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumosRowSelectedData.name} `+ `${alumosRowSelectedData.lastname1} `+`${alumosRowSelectedData.lastname2} `+`,Rut `+`${alumosRowSelectedData._id}`+` es alumno(a)`);
+            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumosRowSelectedData.name} `+ `${alumosRowSelectedData.lastname1} `+`${alumosRowSelectedData.lastname2} `+`, Rut `+`${alumosRowSelectedData._id}`+` es alumno(a)`);
             doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumosRowSelectedData.numMatricula}`+`, año `+moment().format('YYYY'));
             doc.text(37,128,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
             
@@ -1279,6 +2543,10 @@ $('#certificadoRegular').on('click', function () {
                     </div>
                     `
                 } else if(el.status == 'payed') {
+                    let ticketPayed = ''
+                    if(el.ticket) {
+                        ticketPayed = `<span>Boleta: <b>${el.ticket}</b></span>`
+                    }
                     thisList = `
                     <div class="col-md-4" style="margin-top:10px;">
                         <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
@@ -1287,6 +2555,8 @@ $('#certificadoRegular').on('click', function () {
                                 <small>Cuota número ${el.num}</small>
                             </div>
                             <p class="mb-1">$ ${number_format(el.amount)}</p>
+                            ${ticketPayed}
+                            <br>
                             <small>Pagada el ${moment(el.payedDay).format('DD/MM/YYYY')}</small>
                         </a>
                     </div>
@@ -1296,7 +2566,11 @@ $('#certificadoRegular').on('click', function () {
                     ${thisList}
                 `
             }, '') 
-
+            
+            let enrollmentTicketPayed = ''
+            if(res.ok.matricula.finance.ticketEnrollment) {
+                enrollmentTicketPayed = `<span>Boleta: <b>${res.ok.matricula.finance.ticketEnrollment}</b></span>`
+            }
             $('#modalEstudiantes').modal();
             $('#modal_title').text('Pago de cuotas');
             $('#modal_body').html(`
@@ -1346,6 +2620,8 @@ $('#certificadoRegular').on('click', function () {
                                         <small>Matrícula</small>
                                     </div>
                                     <p class="mb-1">$ ${res.ok.matricula.finance.valorMatricula}</p>
+                                    ${enrollmentTicketPayed}
+                                    <br>
                                     <small>Pagada</small>
                                 </a>
                             </div>

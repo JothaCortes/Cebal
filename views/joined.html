@@ -271,6 +271,8 @@ function reloadRepairTableAlumnos() {
     }).then(res => {
         if (res.err) {
             toastr.warning('No existen Alumnos')
+            datatableAlumnos.clear().draw();
+            $('#loadingStudents').empty();
         } else {
             let reformat = res.reduce((arr, el, i) => {
                 return arr.concat({
@@ -762,6 +764,7 @@ generalFunction()
 $('#boleta').on('keyup', function (e){
     saveTicket()
 })
+
 function saveTicket(){
     let ticket = $('#boleta').val()
     if(ticket === ''){
@@ -823,6 +826,7 @@ $('#matrDescuento2').on('change', function (e){
 $('#matrBeca').on('change', function(){
     generalFunction()
 })
+
 $('#matrPromedio').on('keyup', function (e){
     generalFunction()
     $('#btnPromedio').prop('disabled', false);
@@ -1051,6 +1055,7 @@ function calcularDescuento1(){
         }
     })
 }
+
 function calcularDescuento2(){
     return new Promise(resolve =>{
         let descuento2 = $('#matrDescuento2').val()

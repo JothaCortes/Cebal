@@ -394,7 +394,8 @@ const Enrolled = [
                                         amount: el.amount,
                                         payday: el.payday,
                                         status: 'payed',
-                                        payedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS')
+                                        payedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                                        ticket: ticket
                                     }
                                 } else {
                                     return el
