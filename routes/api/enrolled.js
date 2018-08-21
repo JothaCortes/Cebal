@@ -535,8 +535,213 @@ const Enrolled = [
             })
         }
     }
-}
+},
+{ 
+    method: 'POST',
+    path: '/api/newEnrollment',
+    options: {
+        handler: (request, h) => {
+            let session = request.auth.credentials
+            let reqData = {
+                //ALUMNO
+                studentRut          :request.payload.studentRut,
+                studentBirthdate    :request.payload.studentBirthdate,
+                studentName         :request.payload.studentName,
+                studentLastname     :request.payload.studentLastname,   
+                studentLastname2    :request.payload.studentLastname2,
+                studentEmail        :request.payload.studentEmail,
+                studentPhone        :request.payload.studentPhone,
+                studentAdress       :request.payload.studentAdress,
+                //APODERADO
+                assigneeName        :request.payload.assigneeName,
+                assigneeRelationship:request.payload.assigneeRelationship,
+                assigneeWork        :request.payload.assigneeWork,
+                assigneePhone       :request.payload.assigneePhone,
+                assigneeEmail       :request.payload.assigneeEmail,
+                //ACADEMICOS
+                school              :request.payload.school,
+                statusEgress        :request.payload.statusEgress,
+                egressRes           :request.payload.egressRes,
+                beca                :request.payload.beca,
+                average             :request.payload.average,
+                horary              :request.payload.horary,
+                etp                 :request.payload.etp,
+                science             :request.payload.science,
+                history             :request.payload.history,
+                scienceElective     :request.payload.scienceElective,
+                //MATRICULA
+                enrollmentDate      :request.payload.enrollmentDate,
+                payDay              :request.payload.payDay,
+                courseType          :request.payload.courseType,
+                payType             :request.payload.payType,
+                yearSelected        :request.payload.yearSelected,
+                //DESCUENTOS
+                discount1           :request.payload.discount1,
+                discount2           :request.payload.discount2,
+                //PAGO
+                firstQuota          :request.payload.firstQuota,
+                paymentMethod       :request.payload.paymentMethod,
+                ticket              :request.payload.ticket,
+                //MONTOS
+                enrollmentCost      :request.payload.enrollmentCost,
+                QuotasQty           :request.payload.QuotasQty,
+                QuotaCost           :request.payload.QuotaCost,
+                totalQuotas         :request.payload.totalQuotas,
+                totalAmount         :request.payload.totalAmount,
+            }
 
+            if(request.payload.cheque) {
+                reqData.cheque = JSON.parse(request.payload.cheque)
+            }
+            return new Promise(resolve => {
+                resolve(reqData) 
+            })
+            /*
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': rutAlumno, // solo id sin type !IMPORTANTE
+                    }
+                }, (err, result) => {
+                    if (err) throw err;
+
+                    if (result.docs[0]) {
+                      
+                        addEnrollmentCounter(session).then(res=>{
+                            let student = result.docs[0];
+                            let matriculaObject ={};
+
+                            crearCuotas({
+                                numCuotas: numCuotas,
+                                montoCuota: montoCuota,
+                                diaCobro: diaCobro,
+                                matriculaDate: recreateDate(fechaMatricula), // fecha seleccionada de matricula
+                                tipoCurso: tipoCurso, // Anual o Intensivo,
+                                yearSelected: yearSelected
+                            }).then(resCuotas=> {
+                                matriculaObject = {
+                                    date: recreateDate(fechaMatricula),//original // moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                                    numMatricula   :res, // "res" es numero de matricula
+                                    colegio        :colegio,
+                                    estadoEgreso   :estadoEgreso,
+                                    beca           :beca,
+                                    añoEgreso      :anoEgreso,
+                                    curso          :curso,
+                                    promedio       :promedio,
+                                    horario        :horario,
+                                    etp            :etp,
+                                    electivo       :electivo,
+                                    electivo2      :electivo2,
+                                    fechaMatricula :fechaMatricula,
+                                    diaCobro       :diaCobro,
+                                    tipoCurso      :tipoCurso,
+                                    finance: {
+                                        formaPago      :formaPago,
+                                        descuento      :descuento,
+                                        descuento2     :descuento2,
+                                        valorMatricula :valorMatricula,
+                                        numCuotas      :numCuotas,
+                                        montoCuota     :montoCuota,
+                                        totalCuotas    :totalCuotas,
+                                        montoTotal     :montoTotal,
+                                        ticketEnrollment: boleta,
+                                        cuotas: resCuotas.ok
+                                    }
+                                }
+                                student.matricula = matriculaObject;
+                                student.status = 'enrolled'
+                                let cuotasApagar = [{num:0, monto:removePoints(valorMatricula)}]; // matricula es la cuota 
+                                let montoCuotaNew = parseInt(removePoints(valorMatricula)); // valor boleta 1
+                                console.log(montoCuotaNew)
+                                if (estadoPrimeraCuota == 'si'){
+                                   
+                                    montoCuotaNew += parseInt(matriculaObject.finance.cuotas[0].amount)  // cuota 0 + cuota 1 = valor boleta 1
+                                    console.log(montoCuotaNew)
+                                    cuotasApagar.push({num:matriculaObject.finance.cuotas[0].num, monto:matriculaObject.finance.cuotas[0].amount})
+                                    student.matricula.finance.cuotas[0].status = 'payed'
+                                    student.matricula.finance.cuotas[0].ticket = boleta
+                                    student.matricula.finance.cuotas[0].payDay = recreateDate(fechaMatricula)
+                                }
+                                crearBoleta({
+                                    numBoleta:boleta,
+                                    credentials:session,
+                                    rutAlumno: rutAlumno,
+                                    cuotas:cuotasApagar,
+                                    monto: montoCuotaNew.toString() ,
+                                    formaPago: formaPagoMatricula,
+                                    cheque: cheque
+                                }).then(res2 =>{
+                                    if(res2.ok) {
+                                        db.insert(student, function (errUpdate, body) {
+                                            if (errUpdate) throw errUpdate;
+                                            resolve({ ok: 'Estudiante Matriculado Correctamente' });
+                                        });
+                                    } else {
+                                        console.log(res2.err)
+                                        resolve({err: res2.err})
+                                    }      
+                                })   
+                            })  
+                        })
+                    } else {
+                       resolve({ err: 'no se encuentra el alumno' });
+                    }
+                });
+            })
+            */
+        }, 
+        validate: {
+            payload: Joi.object().keys({
+                //ALUMNO
+                studentRut: Joi.string().required(), // rut alumno
+                studentBirthdate: Joi.string().required(), // fecha de nacimiento alumno
+                studentName: Joi.string().required(), // nombre alumno
+                studentLastname: Joi.string().required(), //apellido paterno alumno
+                studentLastname2: Joi.string().allow(''), // apellido materno alumno
+                studentEmail: Joi.string().allow(''), // email alumno
+                studentPhone: Joi.string().allow(''), // teléfono alumno
+                studentAddress: Joi.string().required(),  // dirección alumno
+                //APODERADO
+                assigneeName: Joi.string().required(), // nombre completo apoderado
+                assigneeRelationship: Joi.string().required(), // parentesco apoderado
+                assigneeWork: Joi.string().allow(''), // lugar de trabajo apoderado
+                assigneePhone: Joi.string().allow(''), // telefono apoderado
+                assigneeEmail: Joi.string().allow(''), // correo apoderado
+                //ACADEMICOS
+                school: Joi.string().required(),    // colegio
+                statusEgress: Joi.string().required(), // egresado | no egresado
+                egressRes: Joi.string().required(), // si es egresado: año | si no es egresado: curso
+                beca: Joi.string().required(), // beca  no | yes
+                average: Joi.string().required(), // promedio 10 a 70
+                horary: Joi.string().required(), // horario
+                etp: Joi.string().required(), // ETP no | yes
+                science: Joi.string().required(), // ciencias true | false
+                history: Joi.string().required(), // historia true | false
+                scienceElective: Joi.string().allow(''), // si electivo de ciencias es true: physics | chemistry | biology  || si es false: ''
+                //MATRICULA
+                enrollmentDate: Joi.string().required(), // FECHA DE MATRICULA (SELECCIONADA)
+                payDay: Joi.string().required(), // DÍA DE PAGO: 01 02 03...
+                courseType: Joi.string().required(), // yearly | intensive
+                payType: Joi.string().required(), // tipo de pago:  contado | cuotas
+                yearSelected: Joi.string().required(), // año seleccionado (para pago de cuotas) next | current
+                //DESCUENTOS
+                discount1: Joi.string().allow(''), // descuento1: nombre del descuento1
+                discount2: Joi.string().allow(''), // descuento2: nombre del descuento2
+                //PAGO
+                firstQuota: Joi.string().required(), // pagar primera cuota en la boleta de matricula: no | yes
+                paymentMethod: Joi.string().required(), // metodo de pago: cash | check | transfer
+                ticket: Joi.string().required(), // numero de boleta: 1 2 3 .... 
+                cheque: Joi.string().allow(''),
+                //MONTOS
+                enrollmentCost: Joi.string().required(), // costo de la matrícula
+                QuotasQty: Joi.string().required(), // cantidad de cuotas
+                QuotaCost: Joi.string().required(), // valor de cada cuota por separado
+                totalQuotas: Joi.string().required(), // monto total de todas las cuotas juntas
+                totalAmount: Joi.string().required() // monto final: matricula + totalcuotas
+            })
+        }
+    }
+}
 ];
 
 function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago, cheque}) {

@@ -697,7 +697,7 @@ $('#newEnrolled').on('click', function() {
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Rut *</label>
-                                    <input class="form-control" type="text" placeholder="Ingrese rut" id="newEnrolledRut">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese rut" id="newEnrolledRut">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -715,25 +715,25 @@ $('#newEnrolled').on('click', function() {
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Nombre *</label>
-                                    <input class="form-control" type="text" placeholder="Ingrese nombre" id="newEnrolledName">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese nombre" id="newEnrolledName">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Apellido paterno *</label>
-                                    <input class="form-control" type="text" placeholder="Ingrese apellido paterno" id="newEnrolledLastname">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese apellido paterno" id="newEnrolledLastname">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Apellido materno</label>
-                                    <input class="form-control" type="text" placeholder="Ingrese apellido materno" id="newEnrolledLastname2">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese apellido materno" id="newEnrolledLastname2">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Email</label>
-                                    <input class="form-control" type="email" placeholder="Ingrese correo electrónico" id="newEnrolledEmail">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="email" placeholder="Ingrese correo electrónico" id="newEnrolledEmail">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -745,7 +745,7 @@ $('#newEnrolled').on('click', function() {
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Dirección*</label>
-                                    <input class="form-control" type="text" placeholder="Ingrese Dirección" id="newEnrolledAddress">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese Dirección" id="newEnrolledAddress">
                                 </div>
                             </div>
 
@@ -759,19 +759,19 @@ $('#newEnrolled').on('click', function() {
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Nombre completo *</label>
-                                    <input class="form-control" type="text" placeholder="Nombre completo del apoderado" id="newEnrolledAssigneeName">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Nombre completo del apoderado" id="newEnrolledAssigneeName">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Parentesco *</label>
-                                    <input class="form-control" type="text" placeholder="parentesco con alumno" id="newEnrolledAssigneeRelationship">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="parentesco con alumno" id="newEnrolledAssigneeRelationship">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Lugar de trabajo</label>
-                                    <input class="form-control" type="text" placeholder="Lugar de trabajo del apoderado" id="newEnrolledAssigneeWorkplace">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Lugar de trabajo del apoderado" id="newEnrolledAssigneeWorkplace">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -783,7 +783,7 @@ $('#newEnrolled').on('click', function() {
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Email</label>
-                                    <input class="form-control" type="text" placeholder="Correo electrónico del apoderado" id="newEnrolledAssigneeEmail">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Correo electrónico del apoderado" id="newEnrolledAssigneeEmail">
                                 </div>
                             </div>
 
@@ -797,7 +797,7 @@ $('#newEnrolled').on('click', function() {
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Colegio *</label>
-                                    <input class="form-control" type="text" placeholder="Nombre del colegio" id="newEnrolledSchool">
+                                    <input class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Nombre del colegio" id="newEnrolledSchool">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -1715,7 +1715,7 @@ $('#newEnrolled').on('click', function() {
         newEnrolledObj.relationshipAp  = removeExtraSpaces($('#newEnrolledAssigneeRelationship').val()) //* 7
         newEnrolledObj.workAp          = removeExtraSpaces($('#newEnrolledAssigneeWorkplace').val())
         newEnrolledObj.phoneAp         = removeExtraSpaces($('#newEnrolledAssigneePhone').val())
-        newEnrolledObj.EmailAp         = removeExtraSpaces($('#newEnrolledAssigneeEmail').val())
+        newEnrolledObj.emailAp         = removeExtraSpaces($('#newEnrolledAssigneeEmail').val())
         
         // ACADEMICOS
         newEnrolledObj.school          = removeExtraSpaces($('#newEnrolledSchool').val()) //* 8
@@ -1725,8 +1725,8 @@ $('#newEnrolled').on('click', function() {
         newEnrolledObj.average         = removeExtraSpaces($('#newEnrolledAverage').val()) //* 9
         newEnrolledObj.horary          = $('#newEnrolledHorary').select2('data')[0].text //* 10
         newEnrolledObj.etp             = $('#newEnrolledEtpStatus').val()
-        newEnrolledObj.science         = $('#newEnrolledScience').is(':checked') //* 11  debe seleccionar mínimo 1
-        newEnrolledObj.history         = $('#newEnrolledHistory').is(':checked') //* 11  debe seleccionar mínimo 1
+        newEnrolledObj.science         = $('#newEnrolledScience').is(':checked') //* 11  
+        newEnrolledObj.history         = $('#newEnrolledHistory').is(':checked') //* 11 
         newEnrolledObj.scienceElective = $('#newEnrolledScienceRes').val() || '' // si selecciona ciencias debe seleccionar 1
         
         // MATRICULA
@@ -1848,9 +1848,75 @@ $('#newEnrolled').on('click', function() {
             $('#newEnrolledTicket').css({border:'1px solid #e74c3c'})
             errMessage += `<br> * Debe ingresar un número de boleta.`
         }
+
+        if(newEnrolledObj.email.length > 0 && !isEmail(newEnrolledObj.email)) { // 13-1
+            validateCounter = validateCounter-1
+            $('#newEnrolledEmail').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar un correo de alumno válido.`
+        } else if(newEnrolledObj.email.length > 0 && isEmail(newEnrolledObj.email)){
+            $('#newEnrolledEmail').css({border:'1px solid #3498db'})
+        } else if(newEnrolledObj.email.length == 0){
+            $('#newEnrolledEmail').css({border:'1px solid #ced4da'})
+        }
+        
+      
+        if(newEnrolledObj.emailAp.length > 0 && !isEmail(newEnrolledObj.emailAp)) { // 13-1
+            validateCounter = validateCounter-1
+            $('#newEnrolledAssigneeEmail').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar un correo de apoderado válido.`
+            console.log('correo apoderado incorrecto')
+        } else if(newEnrolledObj.emailAp.length > 0 && isEmail(newEnrolledObj.emailAp)){
+            $('#newEnrolledAssigneeEmail').css({border:'1px solid #3498db'})
+            console.log('correo apoderado correcto')
+        } else if(newEnrolledObj.emailAp.length == 0){
+            $('#newEnrolledAssigneeEmail').css({border:'1px solid #ced4da'})
+            console.log('sin correo apoderado')
+        }
         
         if(validateCounter == 13) {
             $('#errMessages').empty()
+            if(chequeStatus == 1) {
+                newEnrolledObj.chequeBanco = $('#chequeBanco').val()
+                newEnrolledObj.chequeNum   = $('#chequeNum').val()
+                newEnrolledObj.chequeMonto = $('#chequeMonto').val()
+                newEnrolledObj.chequeFecha = $('#chequeFecha').val()
+                let chequeValidateCounter = 0;
+                let cheque = {}
+
+                if(newEnrolledObj.chequeBanco.length > 0) { // 1
+                    cheque.banco = newEnrolledObj.chequeBanco
+                    chequeValidateCounter++
+                } else {
+                    toastr.warning('Ingrese el nombre del banco del cheque')
+                }
+
+                if(newEnrolledObj.chequeNum.length > 0) { // 2
+                    cheque.num = newEnrolledObj.chequeNum
+                    chequeValidateCounter++
+                } else {
+                    toastr.warning('Ingrese el número de serie del cheque')
+                }
+
+                if(newEnrolledObj.chequeMonto.length > 0) { // 3
+                    cheque.monto = newEnrolledObj.chequeMonto
+                    chequeValidateCounter++
+                } else {
+                    toastr.warning('Ingrese el monto del cheque')
+                }
+
+                if(newEnrolledObj.chequeFecha.length > 0) { // 4
+                    cheque.date = newEnrolledObj.chequeFecha
+                    chequeValidateCounter++
+                } else {
+                    toastr.warning('Ingrese Fecha de pago del cheque')
+                }
+
+                if(chequeValidateCounter == 4) {
+                    createEnrollment({data: newEnrolledObj, cheque: cheque})
+                }
+            } else {
+                createEnrollment({data: newEnrolledObj})
+            }
         } else {
             $('#errMessages').html(`
             <div class="alert alert-dismissible alert-warning">
@@ -1861,60 +1927,74 @@ $('#newEnrolled').on('click', function() {
             `)
         }
 
-    
-
-        if(chequeStatus == 1) {
-            newEnrolledObj.chequeBanco = $('#chequeBanco').val()
-            newEnrolledObj.chequeNum   = $('#chequeNum').val()
-            newEnrolledObj.chequeMonto = $('#chequeMonto').val()
-            newEnrolledObj.chequeFecha = $('#chequeFecha').val()
-            let chequeValidateCounter = 0;
-            let cheque = {}
-
-            if(newEnrolledObj.chequeBanco.length > 0) { // 1
-                cheque.banco = newEnrolledObj.chequeBanco
-                chequeValidateCounter++
-            } else {
-                toastr.warning('Ingrese el nombre del banco del cheque')
-            }
-
-            if(newEnrolledObj.chequeNum.length > 0) { // 2
-                cheque.num = newEnrolledObj.chequeNum
-                chequeValidateCounter++
-            } else {
-                toastr.warning('Ingrese el número de serie del cheque')
-            }
-
-            if(newEnrolledObj.chequeMonto.length > 0) { // 3
-                cheque.monto = newEnrolledObj.chequeMonto
-                chequeValidateCounter++
-            } else {
-                toastr.warning('Ingrese el monto del cheque')
-            }
-
-            if(newEnrolledObj.chequeFecha.length > 0) { // 4
-                cheque.date = newEnrolledObj.chequeFecha
-                chequeValidateCounter++
-            } else {
-                toastr.warning('Ingrese Fecha de pago del cheque')
-            }
-
-            if(chequeValidateCounter == 4) {
-                createEnrollment({data: newEnrolledObj, cheque: cheque})
-            }
-        } else {
-            createEnrollment({data: newEnrolledObj})
-        }
     })
 
 })
 
 function createEnrollment({data, cheque}) {
-    if(cheque) {
-        console.log(data, cheque)
-    } else {
-        console.log(data) 
+
+    let sendData = {
+        //ALUMNO
+        studentRut          :cleanRut(data.rut),
+        studentBirthdate    :data.birthdate,
+        studentName         :data.name,
+        studentLastname     :data.lastname,   
+        studentLastname2    :data.lastname2,
+        studentEmail        :data.email,
+        studentPhone        :data.phone,
+        studentAddress      :data.address,
+        //APODERADO
+        assigneeName        :data.nameAp,
+        assigneeRelationship:data.relationshipAp,
+        assigneeWork        :data.workAp,
+        assigneePhone       :data.phoneAp,
+        assigneeEmail       :data.emailAp,
+        //ACADEMICOS
+        school              :data.school,
+        statusEgress        :data.statusEgress,
+        egressRes           :data.egressRes,
+        beca                :data.beca,
+        average             :data.average,
+        horary              :data.horary,
+        etp                 :data.etp,
+        science             :data.science,
+        history             :data.history,
+        scienceElective     :data.scienceElective,
+        //MATRICULA
+        enrollmentDate      :data.enrollmentDate,
+        payDay              :data.payDay,
+        courseType          :data.courseType,
+        payType             :data.payType,
+        yearSelected        :data.yearSelected,
+        //DESCUENTOS
+        discount1           :data.discount1,
+        discount2           :data.discount2,
+        //PAGO
+        firstQuota          :data.firstQuota,
+        paymentMethod       :data.paymentMethod,
+        ticket              :data.ticket,
+        //MONTOS
+        enrollmentCost      :allValues.valorMatricula,
+        QuotasQty           :allValues.cantidadCuotas,
+        QuotaCost           :allValues.montoPorCuota,
+        totalQuotas         :allValues.totalCuotas,
+        totalAmount         :allValues.totalCuotas+allValues.valorMatricula
     }
+    
+    if(cheque) {
+        sendData.cheque = JSON.stringify(cheque)
+    }
+
+    console.log(sendData)
+    
+    ajax({
+        url: '/api/newEnrollment',
+        type: 'POST',
+        data: sendData 
+    }).then(res => {
+        console.log(res)
+    })
+    
     
 }
 

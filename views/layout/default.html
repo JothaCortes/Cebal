@@ -267,6 +267,16 @@
         return $.formatRut(rut)
     }
 
+    const minToCapital = (e, el) => {
+        let key = (document.all) ? e.keyCode : e.which
+        el.value = el.value.toUpperCase()
+    }
+
+    const caputalToMin = (e, el) => {
+        let key = (document.all) ? e.keyCode : e.which
+        el.value = el.value.toLowerCase();
+    }
+
     const isRut = (rut) => {
         return $.validateRut(rut)
     }
