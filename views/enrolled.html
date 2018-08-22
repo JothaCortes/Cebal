@@ -1935,7 +1935,7 @@ function createEnrollment({data, cheque}) {
 
     let sendData = {
         //ALUMNO
-        studentRut          :cleanRut(data.rut),
+        studentRut          :ktoK(cleanRut(data.rut)),
         studentBirthdate    :data.birthdate,
         studentName         :data.name,
         studentLastname     :data.lastname,   
@@ -1980,7 +1980,7 @@ function createEnrollment({data, cheque}) {
         totalQuotas         :allValues.totalCuotas,
         totalAmount         :allValues.totalCuotas+allValues.valorMatricula
     }
-    
+
     if(cheque) {
         sendData.cheque = JSON.stringify(cheque)
     }

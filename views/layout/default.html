@@ -281,6 +281,11 @@
         return $.validateRut(rut)
     }
 
+    const ktoK = (rut) => {
+        let replace1 = rut.replace('k', 'K')
+        return replace1
+    }
+
     const checkSession = () => {
         $.ajax({
 		    url: '/check'

@@ -551,7 +551,7 @@ const Enrolled = [
                 studentLastname2    :request.payload.studentLastname2,
                 studentEmail        :request.payload.studentEmail,
                 studentPhone        :request.payload.studentPhone,
-                studentAdress       :request.payload.studentAdress,
+                studentAddress       :request.payload.studentAddress,
                 //APODERADO
                 assigneeName        :request.payload.assigneeName,
                 assigneeRelationship:request.payload.assigneeRelationship,
@@ -593,83 +593,126 @@ const Enrolled = [
             if(request.payload.cheque) {
                 reqData.cheque = JSON.parse(request.payload.cheque)
             }
-            return new Promise(resolve => {
-                resolve(reqData) 
-            })
-            /*
+
             return new Promise(resolve => {
                 db.find({
                     'selector': {
-                        '_id': rutAlumno, // solo id sin type !IMPORTANTE
+                        '_id': reqData.studentRut, // solo id sin type !IMPORTANTE
                     }
                 }, (err, result) => {
-                    if (err) throw err;
+                    if (err) throw err
 
                     if (result.docs[0]) {
-                      
+                        resolve({ err: `Ya existe un alumno con rut ${format(reqData.studentRut)}` });
+                    } else {
                         addEnrollmentCounter(session).then(res=>{
-                            let student = result.docs[0];
-                            let matriculaObject ={};
+                            let matriculaObject = {}
+                            matriculaObject.finance = {}
+                            let student = {}
 
                             crearCuotas({
-                                numCuotas: numCuotas,
-                                montoCuota: montoCuota,
-                                diaCobro: diaCobro,
-                                matriculaDate: recreateDate(fechaMatricula), // fecha seleccionada de matricula
-                                tipoCurso: tipoCurso, // Anual o Intensivo,
-                                yearSelected: yearSelected
+                                numCuotas: reqData.QuotasQty, // cantidad de cuotas
+                                montoCuota: reqData.QuotaCost, // el valor de cada cuota por separado
+                                diaCobro: reqData.payDay, // día del mes en que se cobrará: 01 02 03...
+                                matriculaDate: recreateDate(reqData.enrollmentDate), // fecha seleccionada de matricula
+                                tipoCurso: reqData.courseType, // yearly | intensive => Anual o Intensivo
+                                yearSelected: reqData.yearSelected // current | next
                             }).then(resCuotas=> {
-                                matriculaObject = {
-                                    date: recreateDate(fechaMatricula),//original // moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
-                                    numMatricula   :res, // "res" es numero de matricula
-                                    colegio        :colegio,
-                                    estadoEgreso   :estadoEgreso,
-                                    beca           :beca,
-                                    añoEgreso      :anoEgreso,
-                                    curso          :curso,
-                                    promedio       :promedio,
-                                    horario        :horario,
-                                    etp            :etp,
-                                    electivo       :electivo,
-                                    electivo2      :electivo2,
-                                    fechaMatricula :fechaMatricula,
-                                    diaCobro       :diaCobro,
-                                    tipoCurso      :tipoCurso,
-                                    finance: {
-                                        formaPago      :formaPago,
-                                        descuento      :descuento,
-                                        descuento2     :descuento2,
-                                        valorMatricula :valorMatricula,
-                                        numCuotas      :numCuotas,
-                                        montoCuota     :montoCuota,
-                                        totalCuotas    :totalCuotas,
-                                        montoTotal     :montoTotal,
-                                        ticketEnrollment: boleta,
-                                        cuotas: resCuotas.ok
-                                    }
-                                }
-                                student.matricula = matriculaObject;
+                                //ESTUDIANTE
+                                student._id = reqData.studentRut
+                                student.date = moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS')
+                                student.type = 'alumnos'
                                 student.status = 'enrolled'
-                                let cuotasApagar = [{num:0, monto:removePoints(valorMatricula)}]; // matricula es la cuota 
-                                let montoCuotaNew = parseInt(removePoints(valorMatricula)); // valor boleta 1
-                                console.log(montoCuotaNew)
-                                if (estadoPrimeraCuota == 'si'){
-                                   
+                                student.city = session.place // ciudad del usuario logeado actualmente
+                                student.birthday = reqData.studentBirthdate // fecha de nacimineto del estudiante
+                                student.name = reqData.studentName
+                                student.lastname1 = reqData.studentLastname
+                                student.lastname2 = reqData.studentLastname2
+                                student.email = reqData.studentEmail
+                                student.phone = reqData.studentPhone
+                                student.address = reqData.studentAddress
+                                student.nameAp = reqData.assigneeName
+                                student.relationshipAp = reqData.assigneeRelationship
+                                student.workAp = reqData.assigneeWork
+                                student.phoneAp = reqData.assigneePhone
+                                student.emailAp = reqData.assigneeEmail
+                                student.statusCourse = ''
+                                student.courseSend = ''
+                                //MATRICULA
+                                matriculaObject.date = recreateDate(reqData.enrollmentDate) // fecha de matrícula seleccionada
+                                matriculaObject.numMatricula = res // res es número de la matrícula obtenida en addEnrollmentCounter()
+                                matriculaObject.colegio = reqData.school // nombre de la escuela
+                                matriculaObject.beca = ((reqData.beca == 'yes') ? 'Si' : 'No') // si es yes: Si, en caso contrario: No
+                                matriculaObject.añoEgreso = ((reqData.statusEgress == 'graduated') ? reqData.egressRes : '') // si es graduated: año en que se graduo, en caso contrario: ''
+                                matriculaObject.curso = ((reqData.statusEgress == 'notGraduated') ? reqData.egressRes : '') // si es notGraduated: curso en el que va, en caso contrario '' 
+                                matriculaObject.promedio = reqData.average // promedio: 10 a 70
+                                matriculaObject.horario = reqData.horary // horario seleccionado
+                                matriculaObject.etp = ((reqData.etp == 'yes') ? 'Si' : 'No') // etp: Si o No
+
+                                if(reqData.science && !reqData.history) { // ciencias pero no historia
+                                    matriculaObject.electivo = 'Ciencias'
+                                    matriculaObject.electivo2 = ''
+
+                                    if(reqData.scienceElective == 'physics') {
+                                        matriculaObject.electivoCiencias = 'Física'
+                                    } else if(reqData.scienceElective == 'chemistry') {
+                                        matriculaObject.electivoCiencias = 'Química'
+                                    } else if(reqData.scienceElective == 'biology') {
+                                        matriculaObject.electivoCiencias = 'Biología'
+                                    }
+                                } else if(reqData.science && reqData.history) { // ciencias y historia
+                                    matriculaObject.electivo = 'Ciencias'
+                                    matriculaObject.electivo2 = 'Historia'
+
+                                    if(reqData.scienceElective == 'physics') { 
+                                        matriculaObject.electivoCiencias = 'Física'
+                                    } else if(reqData.scienceElective == 'chemistry') {
+                                        matriculaObject.electivoCiencias = 'Química'
+                                    } else if(reqData.scienceElective == 'biology') {
+                                        matriculaObject.electivoCiencias = 'Biología'
+                                    }
+                                } else if(!reqData.science && reqData.history) { // historia pero no ciencias
+                                    matriculaObject.electivo = 'Historias'
+                                    matriculaObject.electivo2 = ''
+                                    matriculaObject.electivoCiencias = ''
+                                }
+                                
+                                matriculaObject.fechaMatricula = reqData.enrollmentDate // fecha matricula formato: DD/MM/YYYY
+                                matriculaObject.diaCobro = reqData.payDay // Día del mes en que se cobra la cuota
+                                matriculaObject.tipoCurso = ((reqData.courseType == 'yearly') ? 'Anual' : 'Intensivo') // Si el curso es yearly: Anual, en caso contrario: Intensivo
+                                //FINANZAS
+                                matriculaObject.finance.formaPago = ((reqData.payType == 'contado') ? 'Contado' : 'Cuotas') // contado o cuotas
+                                matriculaObject.finance.descuento = reqData.discount1 // descuento 1
+                                matriculaObject.finance.descuento2 = reqData.discount2 // descuento 2
+                                matriculaObject.finance.valorMatricula = reqData.enrollmentCost // costo de matrícula
+                                matriculaObject.finance.numCuotas = reqData.QuotasQty // cantidad de cuotas
+                                matriculaObject.finance.montoCuota = reqData.QuotaCost // costo de cada cuota por separado
+                                matriculaObject.finance.totalCuotas = reqData.totalQuotas // monto total de las cuotas
+                                matriculaObject.finance.montoTotal = reqData.totalAmount // monto final: matricula + totalcuotas
+                                matriculaObject.finance.ticketEnrollment = reqData.ticket // número de boleta
+                                matriculaObject.finance.cuotas = resCuotas.ok // arreglo de cuotas
+
+                                student.matricula = matriculaObject
+                                let cuotasApagar = [{num:0, monto:removePoints(reqData.enrollmentCost)}]; // matricula es la cuota 0
+                                let montoCuotaNew = parseInt(removePoints(reqData.enrollmentCost)); // valor boleta 1
+
+                                if (reqData.firstQuota == 'yes'){
                                     montoCuotaNew += parseInt(matriculaObject.finance.cuotas[0].amount)  // cuota 0 + cuota 1 = valor boleta 1
                                     console.log(montoCuotaNew)
                                     cuotasApagar.push({num:matriculaObject.finance.cuotas[0].num, monto:matriculaObject.finance.cuotas[0].amount})
                                     student.matricula.finance.cuotas[0].status = 'payed'
-                                    student.matricula.finance.cuotas[0].ticket = boleta
-                                    student.matricula.finance.cuotas[0].payDay = recreateDate(fechaMatricula)
+                                    student.matricula.finance.cuotas[0].ticket = reqData.ticket
+                                    student.matricula.finance.cuotas[0].payDay = recreateDate(reqData.enrollmentDate)
                                 }
+
                                 crearBoleta({
-                                    numBoleta:boleta,
-                                    credentials:session,
-                                    rutAlumno: rutAlumno,
-                                    cuotas:cuotasApagar,
+                                    numBoleta: reqData.ticket,
+                                    credentials: session,
+                                    rutAlumno: reqData.studentRut,
+                                    cuotas: cuotasApagar,
                                     monto: montoCuotaNew.toString() ,
-                                    formaPago: formaPagoMatricula,
-                                    cheque: cheque
+                                    formaPago: reqData.paymentMethod, // metodo de pago: efectivo, cheque, transferencia
+                                    cheque: ((reqData.cheque) ? reqData.cheque : '')
                                 }).then(res2 =>{
                                     if(res2.ok) {
                                         db.insert(student, function (errUpdate, body) {
@@ -680,15 +723,14 @@ const Enrolled = [
                                         console.log(res2.err)
                                         resolve({err: res2.err})
                                     }      
-                                })   
-                            })  
-                        })
-                    } else {
-                       resolve({ err: 'no se encuentra el alumno' });
+                                }) 
+                            })
+                        })    
                     }
-                });
+                    
+                })
+                
             })
-            */
         }, 
         validate: {
             payload: Joi.object().keys({
@@ -709,7 +751,7 @@ const Enrolled = [
                 assigneeEmail: Joi.string().allow(''), // correo apoderado
                 //ACADEMICOS
                 school: Joi.string().required(),    // colegio
-                statusEgress: Joi.string().required(), // egresado | no egresado
+                statusEgress: Joi.string().required(), // graduated | notGraduated
                 egressRes: Joi.string().required(), // si es egresado: año | si no es egresado: curso
                 beca: Joi.string().required(), // beca  no | yes
                 average: Joi.string().required(), // promedio 10 a 70
@@ -742,7 +784,13 @@ const Enrolled = [
         }
     }
 }
-];
+]
+
+function recreateDate(date) {
+    let splitDate = date.split('/');
+    let reDate = `${splitDate[2]}-${splitDate[1]}-${splitDate[0]}T00:00:00.00001`
+    return reDate
+}
 
 function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPago, cheque}) {
     return new Promise(resolve=>{
@@ -752,7 +800,7 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                 _id: {
                     $gte: null
                 },
-                type: "boleta",
+                type: 'boleta',
                 numBoleta: numBoleta
             }
         }, function (err, result) {
@@ -762,7 +810,18 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                 resolve({err: "ya existe la boleta "+ numBoleta})
             }else{
                 console.log('No existe la boleta... creando')
-                
+                let paymentMethod = ''
+
+                console.log('FORMA PAGO: '+formaPago)
+                if(formaPago == 'check') {
+                    paymentMethod = 'Cheque'
+                } else if(formaPago == 'cash') {
+                    paymentMethod = 'Efectivo'
+                } else if(formaPago == 'transfer') {
+                    paymentMethod = 'Transferencia'
+                }
+                console.log('FORMA PAGO2: '+paymentMethod)
+
                 let newTicket = {
                     _id: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
                     type: 'boleta',
@@ -772,7 +831,7 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
                     rutAlumno: cleanRut(rutAlumno),
                     place:credentials.place,
                     rutCreador: cleanRut(credentials.rut), // usuario que generó la boleta
-                    formaPago: formaPago
+                    formaPago: paymentMethod
                 }
 
                 if (cheque) {
@@ -800,6 +859,62 @@ const cleanRut = (rut) => {
     return replace2;
 }
 
+function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso, yearSelected}) { //tipoCurso es Anual o Intensivo
+    return new Promise(resolve=> {
+
+        let quotaArray = []
+        let initDate = ''
+        let year = ''
+
+        if(yearSelected == 'current') {
+            year = moment.tz('America/Santiago').format('YYYY')
+        } else if(yearSelected == 'next') {
+            year = moment.tz('America/Santiago').add(1, 'Y').format('YYYY')
+        }
+
+        if(tipoCurso == 'yearly') {
+            initDate = moment(matriculaDate).format(`${year}-03-${String(diaCobro)}`)
+        } else if(tipoCurso == 'intensive') {
+            initDate = moment(matriculaDate).format(`${year}-07-${String(diaCobro)}`)
+        }
+
+        for (let i = 0; i <= numCuotas; i++) {
+            if(i == numCuotas) {
+                resolve({ok:quotaArray})
+            } else {
+
+                quotaArray.push({
+                    num: i+1,
+                    amount: removePoints(montoCuota),
+                    payday: initDate,
+                    status: 'pending'
+                })
+                initDate = moment(initDate).add(1, 'M').format('YYYY-MM-DD');
+            }
+        }  
+    })
+}
+
+function addEnrollmentCounter(credentials) {
+    return new Promise(resolve=>{
+        db.find({
+            "selector": {
+                "_id": 'enrollmentCounter',
+            }
+        }, function (err, result) {
+            if (err) throw err;
+    
+            if(result.docs[0]) {
+                let counter = result.docs[0]
+                counter[credentials.place]++
+                db.insert(counter, function (errUpdate, body) {
+                    if (errUpdate) throw errUpdate;
+                    resolve(counter[credentials.place]);
+                });
+            }
+        });
+    })
+}
 
 const removePoints = (amount) => {
     var replace = amount.split('.').join('');

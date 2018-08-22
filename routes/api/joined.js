@@ -214,7 +214,7 @@ const Joined = [
                       
                         addEnrollmentCounter(session).then(res=>{
                             let student = result.docs[0];
-                            let matriculaObject ={};
+                            let matriculaObject = {};
 
                             crearCuotas({
                                 numCuotas: numCuotas,
@@ -255,8 +255,8 @@ const Joined = [
                                 }
                                 student.matricula = matriculaObject;
                                 student.status = 'enrolled'
-                                let cuotasApagar = [{num:0, monto:removePoints(valorMatricula)}]; // matricula es la cuota 
-                                let montoCuotaNew = parseInt(removePoints(valorMatricula)); // valor boleta 1
+                                let cuotasApagar = [{num:0, monto:removePoints(valorMatricula)}] // matricula es la cuota 
+                                let montoCuotaNew = parseInt(removePoints(valorMatricula)) // valor boleta 1
                                 console.log(montoCuotaNew)
                                 if (estadoPrimeraCuota == 'si'){
                                    
@@ -689,21 +689,6 @@ function crearBoleta({numBoleta, credentials, rutAlumno, cuotas, monto, formaPag
 
 function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso, yearSelected}) { //tipoCurso es Anual o Intensivo
     return new Promise(resolve=> {
-        
-        /*
-        let today = moment.tz('America/Santiago').format('YYYY-MM-DD')
-        let payDay = moment.tz('America/Santiago').format('YYYY-MM-'+String(diaCobro))
-        let firstPayDay = ''
-        */
-
-        
-        //let payDay = moment(initDate).add(1, 'M').format('YYYY-MM'+String(diaCobro))
-        /*
-        if(moment(today).isAfter(payDay)) {
-            firstPayDay = moment(payDay).add(1, 'M').format('YYYY-MM-DD');
-        } else {
-            firstPayDay = payDay
-        }*/
 
         let quotaArray = []
         let initDate = ''
