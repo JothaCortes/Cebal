@@ -184,10 +184,10 @@
 let defaultModalHTML = ''
 let datatable
 let datatableAlumnosEnrolled
-let alumosRowSelectedData
+let alumnosRowSelectedData
 let alumnosRowSelected
 let datatableAlumnosDisabled
-let alumosRowSelectedDataDisabled
+let alumnosRowSelectedDataDisabled
 let valores = {}
 let allValues={ // calculos totales
     valorMatricula:0,
@@ -222,6 +222,7 @@ let place = '{{{credentials.place}}}';
         datatableAlumnosEnrolled = $('#tableEnrolledAlumns')
         .DataTable({            
                     "iDisplayLength": 100,
+                    "order": [[ 0, "desc" ]],
                     "oLanguage": {
                         "sSearch": "Buscar :"
                     },
@@ -265,9 +266,9 @@ let place = '{{{credentials.place}}}';
             datatableAlumnosEnrolled.$('tr.selected').removeClass('selected');
 
             $(this).addClass('selected');
-            alumosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
+            alumnosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
             alumnosRowSelected = datatableAlumnosEnrolled.row($(this));   // EDUARDO
-            console.log(alumosRowSelectedData)
+            console.log(alumnosRowSelectedData)
             $('#pagosEnrolled').prop('disabled', false);
             $('#optionStudentEnrolled').prop('disabled', false);
             $('#modStudentEnrolled').prop('disabled', false);
@@ -297,8 +298,8 @@ function reloadTableAlumnosEnrolled() {
             datatableAlumnosEnrolled.rows.add(res.ok).draw();
             $('#loadingEnrolled').empty();
 
-            }
-        })
+        }
+    })
 }
 
 
@@ -343,8 +344,8 @@ function chargeTableAlumnosDisabled() {
         } else {
             datatableAlumnosDisabled.$('tr.selected').removeClass('selected');
             $(this).addClass('selected');
-            alumosRowSelectedDataDisabled = datatableAlumnosDisabled.row($(this)).data();
-            console.log(alumosRowSelectedDataDisabled)
+            alumnosRowSelectedDataDisabled = datatableAlumnosDisabled.row($(this)).data();
+            console.log(alumnosRowSelectedDataDisabled)
         }
     });
 }
@@ -378,12 +379,12 @@ function modificarEstModal() {
         
                     <div class="col-md-4">
                         <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut </label>
-                        <input id="rutModAlumno" value="${alumosRowSelectedData._id}" maxlength="12" type="text"  required class="form-control border-input" disabled >
+                        <input id="rutModAlumno" value="${alumnosRowSelectedData._id}" maxlength="12" type="text"  required class="form-control border-input" disabled >
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento </label>   
-                        <input  id="fechaModAlumno"  value="${alumosRowSelectedData.birthday}"   class="form-control" type="text">
+                        <input  id="fechaModAlumno"  value="${alumnosRowSelectedData.birthday}"   class="form-control" type="text">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
@@ -393,32 +394,32 @@ function modificarEstModal() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre </label>
-                        <input id="nombreModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.name}" class="form-control border-input" >
+                        <input id="nombreModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.name}" class="form-control border-input" >
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"> Apellido paterno </label>
-                        <input id="apellido1ModAlumno"  value="${alumosRowSelectedData.lastname1}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" >
+                        <input id="apellido1ModAlumno"  value="${alumnosRowSelectedData.lastname1}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" >
                     </div>
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Apellido materno</label>
-                        <input id="apellido2ModAlumno"  value="${alumosRowSelectedData.lastname2}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input">
+                        <input id="apellido2ModAlumno"  value="${alumnosRowSelectedData.lastname2}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input">
                     </div>
 
                     
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="correoModAlumno" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" value="${alumosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
+                        <input id="correoModAlumno" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" value="${alumnosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
-                        <input id="celularModAlumno" type="text"  value="${alumosRowSelectedData.phone}" class="form-control border-input">
+                        <input id="celularModAlumno" type="text"  value="${alumnosRowSelectedData.phone}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección </label>
-                        <input id="direccionModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.address}" class="form-control border-input">
+                        <input id="direccionModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.address}" class="form-control border-input">
                     </div>
                     <!--
                     <div class="col-md-4" style="margin-top:3px;">
@@ -435,26 +436,26 @@ function modificarEstModal() {
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
-                        <input id="nombreApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.nameAp}" class="form-control border-input">
+                        <input id="nombreApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.nameAp}" class="form-control border-input">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;">Parentesco </label>
-                        <input id="parentescoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumosRowSelectedData.parentesco}" class="form-control border-input"  >
+                        <input id="parentescoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.parentesco}" class="form-control border-input"  >
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
-                        <input id="trabajoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" value="${alumosRowSelectedData.workAp}">
+                        <input id="trabajoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" value="${alumnosRowSelectedData.workAp}">
                     </div>
 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
-                        <input id="celularApoderadoMod" type="text" class="form-control border-input" value="${alumosRowSelectedData.phoneAp}">
+                        <input id="celularApoderadoMod" type="text" class="form-control border-input" value="${alumnosRowSelectedData.phoneAp}">
                     </div> 
                     <div class="col-md-4" style="margin-top:3px;">
                         <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="correoApoderadoMod" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" aria-describedby="emailHelp" class="form-control border-input" value="${alumosRowSelectedData.emailAp}" >
+                        <input id="correoApoderadoMod" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" aria-describedby="emailHelp" class="form-control border-input" value="${alumnosRowSelectedData.emailAp}" >
                     </div> 
                 </div>
             </div>
@@ -468,34 +469,34 @@ function modificarEstModal() {
                     <div class="row">
                         <div class="col-md-4">
                             <label style="float:left;"><i class="fas fa-school"></i> Colegio </label>
-                            <input id="matrColegio" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" required class="form-control border-input" value="${alumosRowSelectedData.colegio}">
+                            <input id="matrColegio" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" required class="form-control border-input" value="${alumnosRowSelectedData.colegio}">
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label><i class="far fa-calendar"></i> Egreso </label>
-                                <input id="matrEgreso" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.egreso}" readOnly>
+                                <input id="matrEgreso" type="text"  required class="form-control border-input" value="${alumnosRowSelectedData.egreso}" readOnly>
                             </div>  
                         </div>
                         <div class="col-md-4">
                             <label style="float:left;"><i class="fab fa-bimobject"></i> Becado </label>
-                            <input id="matrBeca" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.beca}" readOnly>
+                            <input id="matrBeca" type="text"  required class="form-control border-input" value="${alumnosRowSelectedData.beca}" readOnly>
                         </div>
 
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label><i class="far fa-calendar-check"></i> Año de egreso </label>
-                                <input id="matrAñoEgreso" type="text"  required class="form-control border-input" value="${alumosRowSelectedData.añoEgreso}" readOnly>
+                                <input id="matrAñoEgreso" type="text"  required class="form-control border-input" value="${alumnosRowSelectedData.añoEgreso}" readOnly>
                             </div>  
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i> Cursando </label>
-                                <input id="matrCurso" type="text"  required class="form-control border-input" readOnly value="${alumosRowSelectedData.cursando}" >
+                                <input id="matrCurso" type="text"  required class="form-control border-input" readOnly value="${alumnosRowSelectedData.cursando}" >
                             </div>  
                         </div>
                         <div class="col-md-4">
                             <label><i class="fas fa-book"></i> Promedio </label>
-                            <input id="matrPromedio" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumosRowSelectedData.promedio}" readOnly>
+                            <input id="matrPromedio" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.promedio}" readOnly>
                         </div>
 
 
@@ -503,7 +504,7 @@ function modificarEstModal() {
                             <div class="form-group">
                                 <label ><i class="far fa-calendar-alt"></i> Horario</label>
                                 <select id="matrHorario">
-                                    <option>${alumosRowSelectedData.horario}</option>
+                                    <option>${alumnosRowSelectedData.horario}</option>
                                 </select>
                             </div>  
                         </div>
@@ -512,19 +513,19 @@ function modificarEstModal() {
                          <div class="col-md-3">
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i>ETP </label>
-                                <input id="matrETP" maxlength="2" type="text" class="form-control border-input solo-numero" disabled value="${alumosRowSelectedData.etp}" >
+                                <input id="matrETP" maxlength="2" type="text" class="form-control border-input solo-numero" disabled value="${alumnosRowSelectedData.etp}" >
                             </div>  
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i>Prueba electiva</label>
-                                <input id="matrElectivo" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumosRowSelectedData.electivo}" readOnly>
+                                <input id="matrElectivo" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.electivo}" readOnly>
                             </div>  
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
-                                <input id="matrElectivo2" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumosRowSelectedData.electivo2}" readOnly>
+                                <input id="matrElectivo2" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.electivo2}" readOnly>
                             </div>  
                         </div>
                     </div>
@@ -540,22 +541,22 @@ function modificarEstModal() {
                 <div class="row">
                     <div class="col-md-3" >
                         <label style="float:left;"><i class="far fa-calendar"></i> Fecha de matrícula </label>
-                        <input  id="matrFechaMatricula"  class="form-control" type="text" value="${alumosRowSelectedData.fechaMatricula}" readOnly>
+                        <input  id="matrFechaMatricula"  class="form-control" type="text" value="${alumnosRowSelectedData.fechaMatricula}" readOnly>
                     </div>
                     <div class="col-md-3">
                         <label><i class="fas fa-book"></i> Día de cobro </label>
-                        <input id="matrDiaCobro" type="text" class="form-control border-input solo-numero" value="${alumosRowSelectedData.diacobro}" readOnly>
+                        <input id="matrDiaCobro" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.diacobro}" readOnly>
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label><i class="fas fa-graduation-cap"></i> Tipo de curso </label>
-                            <input  id="matrTipoCurso"  class="form-control" type="text" value="${alumosRowSelectedData.tipoCurso}" readOnly>
+                            <input  id="matrTipoCurso"  class="form-control" type="text" value="${alumnosRowSelectedData.tipoCurso}" readOnly>
                         </div>  
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
                             <label><i class="fas fa-graduation-cap"></i> Forma de pago </label>
-                            <input  id="matrFormaPago"  class="form-control" type="text" value="${alumosRowSelectedData.formaP}" readOnly>
+                            <input  id="matrFormaPago"  class="form-control" type="text" value="${alumnosRowSelectedData.formaP}" readOnly>
                         </div>  
                     </div>
                     
@@ -566,11 +567,11 @@ function modificarEstModal() {
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label><i class="fas fa-graduation-cap"></i> Descuento 1</label>
-                                        <input  id="matrDescuento1"  class="form-control" type="text" readOnly value="${alumosRowSelectedData.descuento1}">
+                                        <input  id="matrDescuento1"  class="form-control" type="text" readOnly value="${alumnosRowSelectedData.descuento1}">
                                     </div>
                                     <div class="col-md-6">
                                         <label><i class="fas fa-graduation-cap"></i> Descuento 2</label>
-                                        <input  id="matrDescuento2"  class="form-control" type="text" readOnly value="${alumosRowSelectedData.descuento2}">
+                                        <input  id="matrDescuento2"  class="form-control" type="text" readOnly value="${alumnosRowSelectedData.descuento2}">
                                     </div>
                                 </div>
                             </div>
@@ -623,7 +624,7 @@ $('#cancelarModAlum').on('click', function(){
 })
 //editar los datos de los alumnos
 $('#modificarAlumnoCebal').on('click', function(){
-    let id = alumosRowSelectedData._id;
+    let id = alumnosRowSelectedData._id;
     let birthday   = $('#fechaModAlumno').val();
     let name    = $('#nombreModAlumno').val();
     let lastname1  = $('#apellido1ModAlumno').val();
@@ -1993,6 +1994,21 @@ function createEnrollment({data, cheque}) {
         data: sendData 
     }).then(res => {
         console.log(res)
+        if(res.ok) {
+            toastr.success('Alumno matriculado correctamente')
+            res.ok._id = rutFunc(res.ok._id)
+            res.ok.numMatricula = res.ok.matricula.numMatricula
+            let newWorkerRowAdded = datatableAlumnosEnrolled.row.add(res.ok)
+            .draw()
+            .node()
+
+            $(newWorkerRowAdded).css('color', '#1abc9c')
+            setTimeout(() => {
+                $(newWorkerRowAdded).css('color', '#484848')
+            }, 5000);
+        } else if(res.err) {
+            toastr.warning(res.err)
+        }
     })
     
     
@@ -2003,13 +2019,13 @@ $('#observationsEnrolled').on('click', function(){
         url:'api/getObservations',
         type: 'POST',
         data: {
-            rut: alumosRowSelectedData._id
+            rut: alumnosRowSelectedData._id
         }
     }).then(res=>{
         let creatingObservationStatus = 0;
 
         $('#modalEstudiantes').modal();
-        $('#modal_title').text(`Observaciones de ${alumosRowSelectedData.name} ${alumosRowSelectedData.lastname1}`);
+        $('#modal_title').text(`Observaciones de ${alumnosRowSelectedData.name} ${alumnosRowSelectedData.lastname1}`);
 
         $('#modal_body').html(`
             <div class="row">
@@ -2103,7 +2119,7 @@ $('#observationsEnrolled').on('click', function(){
                             url: 'api/createObservation',
                             type: 'POST',
                             data: {
-                                rut: alumosRowSelectedData._id,
+                                rut: alumnosRowSelectedData._id,
                                 title: newObservationTitleValidate,
                                 text: newObservationTextValidate
                             }
@@ -2138,8 +2154,8 @@ $('#observationsEnrolled').on('click', function(){
  //iniciar select de horarios
 
 $('#closeMatrStudentEnrolled').on('click', function(){
-    console.log(alumosRowSelectedData)
-    let estudianteDes = alumosRowSelectedData._id
+    console.log(alumnosRowSelectedData)
+    let estudianteDes = alumnosRowSelectedData._id
     swal({
         title: '¿Estás seguro de cerrar esta matrícula?',
       text: '',
@@ -2253,7 +2269,7 @@ function opcionesModal() {
                         <label><b> Nombre completo</b></label>
                     </div>
                     <div class="col-md-5 col-sm-6">
-                        <label>${alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2}</label>
+                        <label>${alumnosRowSelectedData.name + " " + alumnosRowSelectedData.lastname1 + " " + alumnosRowSelectedData.lastname2}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2261,7 +2277,7 @@ function opcionesModal() {
                         <label><b> Rut</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData._id}</label>
+                         <label>${alumnosRowSelectedData._id}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2269,7 +2285,7 @@ function opcionesModal() {
                         <label><b> Fecha de nacimiento</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                        <label>${alumosRowSelectedData.birthday}</label>
+                        <label>${alumnosRowSelectedData.birthday}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2277,7 +2293,7 @@ function opcionesModal() {
                         <label><b> Domicilio</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.address}</label>
+                         <label>${alumnosRowSelectedData.address}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2285,7 +2301,7 @@ function opcionesModal() {
                         <label><b> Celular</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                        <label>${alumosRowSelectedData.phone}</label>
+                        <label>${alumnosRowSelectedData.phone}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2293,7 +2309,7 @@ function opcionesModal() {
                         <label><b> Correo</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.email}</label>
+                         <label>${alumnosRowSelectedData.email}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2301,7 +2317,7 @@ function opcionesModal() {
                             <label><b> Colegio</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.colegio}</label>
+                         <label>${alumnosRowSelectedData.colegio}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2309,7 +2325,7 @@ function opcionesModal() {
                             <label><b> Año de egreso</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.añoEgreso}</label>
+                         <label>${alumnosRowSelectedData.añoEgreso}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2317,7 +2333,7 @@ function opcionesModal() {
                         <label><b> Promedio</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.promedio}</label>
+                         <label>${alumnosRowSelectedData.promedio}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2325,7 +2341,7 @@ function opcionesModal() {
                             <label><b> Horario</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.horario}</label>
+                         <label>${alumnosRowSelectedData.horario}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2333,7 +2349,7 @@ function opcionesModal() {
                             <label><b> Prueba optativa</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.electivo}</label>
+                         <label>${alumnosRowSelectedData.electivo}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2341,7 +2357,7 @@ function opcionesModal() {
                             <label><b> Apoderado</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.apoderado}</label>
+                         <label>${alumnosRowSelectedData.apoderado}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2349,7 +2365,7 @@ function opcionesModal() {
                             <label><b> Parentesco</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.parentesco}</label>
+                         <label>${alumnosRowSelectedData.parentesco}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2357,7 +2373,7 @@ function opcionesModal() {
                             <label><b> Lugar de trabajo</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.workAp}</label>
+                         <label>${alumnosRowSelectedData.workAp}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2365,7 +2381,7 @@ function opcionesModal() {
                             <label><b> Celular apoderado</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.phoneAp}</label>
+                         <label>${alumnosRowSelectedData.phoneAp}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2373,7 +2389,7 @@ function opcionesModal() {
                             <label><b> Fecha de matrícula</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.date}</label>
+                         <label>${alumnosRowSelectedData.date}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2381,7 +2397,7 @@ function opcionesModal() {
                             <label><b> Tipo de curso</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.tipoCurso}</label>
+                         <label>${alumnosRowSelectedData.tipoCurso}</label>
                     </div>
                 </div>
                 <div class="row">
@@ -2389,7 +2405,7 @@ function opcionesModal() {
                             <label><b> Forma de pago</b></label>
                     </div>
                     <div class="col-md-6 col-sm-6">
-                         <label>${alumosRowSelectedData.formaP}</label>
+                         <label>${alumnosRowSelectedData.formaP}</label>
                     </div>
                 </div><br><br>
                 <div class="row">
@@ -2418,8 +2434,8 @@ $('#certificadoRegular').on('click', function () {
             doc.setFontSize(10);
             doc.text(130,40, moment().format('dddd DD [de] MMMM [de] YYYY'));
             doc.setFontSize(12);
-            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumosRowSelectedData.name} `+ `${alumosRowSelectedData.lastname1} `+`${alumosRowSelectedData.lastname2} `+`, Rut `+`${alumosRowSelectedData._id}`+` es alumno(a)`);
-            doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumosRowSelectedData.numMatricula}`+`, año `+moment().format('YYYY'));
+            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumnosRowSelectedData.name} `+ `${alumnosRowSelectedData.lastname1} `+`${alumnosRowSelectedData.lastname2} `+`, Rut `+`${alumnosRowSelectedData._id}`+` es alumno(a)`);
+            doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumnosRowSelectedData.numMatricula}`+`, año `+moment().format('YYYY'));
             doc.text(37,128,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
             
 
@@ -2445,7 +2461,7 @@ $('#certificadoRegular').on('click', function () {
             doc.setFontType('normal')
             doc.setTextColor(100)
             doc.text(35, 290, `Generado por {{{credentials.name}}}`+` {{{credentials.lastname}}}`)
-            doc.save(`Certificado alumno regular `+ ` ${alumosRowSelectedData.name}.pdf`);
+            doc.save(`Certificado alumno regular `+ ` ${alumnosRowSelectedData.name}.pdf`);
         
         })
 
@@ -2469,107 +2485,116 @@ $('#certificadoRegular').on('click', function () {
             doc.setFontType("bold");
             doc.text(40,78,"N° Matrícula");
             doc.setFontType("normal");
-            doc.text(85,78,alumosRowSelectedData.numMatricula.toString());
+            doc.text(85,78,alumnosRowSelectedData.numMatricula.toString());
 
             doc.setFontType("bold");
             doc.text(40,85,"Año");
             doc.setFontType("normal");
-            doc.text(85,85,moment(alumosRowSelectedData.date).format('YYYY'));
+            doc.text(85,85,moment(alumnosRowSelectedData.date).format('YYYY'));
             
             doc.line(40, 88, 134, 88);
             doc.setFontSize(11);
             doc.setFontType("bold");
             doc.text(40,94,"Nombre Completo");
             doc.setFontType("normal");
-            doc.text(85,94,alumosRowSelectedData.name + " " + alumosRowSelectedData.lastname1 + " " + alumosRowSelectedData.lastname2);
+            doc.text(85,94,alumnosRowSelectedData.name + " " + alumnosRowSelectedData.lastname1 + " " + alumnosRowSelectedData.lastname2);
 
             doc.setFontType("bold");
             doc.text(40,101,"Rut");
             doc.setFontType("normal");
-            doc.text(85,101,alumosRowSelectedData._id);
+            doc.text(85,101,rutFunc(alumnosRowSelectedData._id));
 
             doc.setFontType("bold");
             doc.text(40,108,"Fecha de nacimiento");
             doc.setFontType("normal");
-            doc.text(85,108,alumosRowSelectedData.birthday);
+            doc.text(85,108,alumnosRowSelectedData.birthday);
 
             doc.setFontType("bold");
             doc.text(40,115,"Domicilio");
             doc.setFontType("normal");
-            doc.text(85,115,alumosRowSelectedData.address);
+            doc.text(85,115,alumnosRowSelectedData.address);
             
             doc.setFontType("bold");
             doc.text(40,122,"Celular");
             doc.setFontType("normal");
-            doc.text(85,122,alumosRowSelectedData.phone);
+            doc.text(85,122,alumnosRowSelectedData.phone);
 
             doc.setFontType("bold");
             doc.text(40,129,"Correo");
             doc.setFontType("normal");
-            doc.text(85,129,alumosRowSelectedData.email);
+            doc.text(85,129,alumnosRowSelectedData.email);
 
             doc.setFontType("bold");
             doc.text(40,136,"Colegio");
             doc.setFontType("normal");
-            doc.text(85,136,alumosRowSelectedData.colegio);
+            doc.text(85,136,alumnosRowSelectedData.matricula.colegio);
+            
+            if(alumnosRowSelectedData.matricula.estadoEgreso == 'Graduado') {
+                doc.setFontType("bold");
+                doc.text(40,143,"Año de egreso");
+                doc.setFontType("normal");
+                doc.text(85,143,alumnosRowSelectedData.matricula.añoEgreso);
+            } else {
+                doc.setFontType("bold");
+                doc.text(40,143,"Cursando");
+                doc.setFontType("normal");
+                doc.text(85,143,alumnosRowSelectedData.matricula.curso);
+            }
 
-            doc.setFontType("bold");
-            doc.text(40,143,"Año de egreso");
-            doc.setFontType("normal");
-            doc.text(85,143,alumosRowSelectedData.añoEgreso);
+            
 
             doc.setFontType("bold");
             doc.text(40,150,"Promedio");
             doc.setFontType("normal");
-            doc.text(85,150,alumosRowSelectedData.promedio);
+            doc.text(85,150,alumnosRowSelectedData.matricula.promedio);
 
             doc.setFontType("bold");
             doc.text(40,157,"Horario");
             doc.setFontType("normal");
-            doc.text(85,157,alumosRowSelectedData.horario);
+            doc.text(85,157,alumnosRowSelectedData.matricula.horario);
 
             doc.setFontType("bold");
-            doc.text(40,164,"Prueba optativa");
+            doc.text(40,164,"Electivo");
             doc.setFontType("normal");
-            doc.text(85,164,alumosRowSelectedData.electivo);
+            doc.text(85,164,alumnosRowSelectedData.matricula.electivo + " "+ alumnosRowSelectedData.matricula.electivo2);
 
             doc.line(40, 168, 134, 168);
             doc.setFontType("bold");
             doc.text(40,174,"Apoderado");
             doc.setFontType("normal");
-            doc.text(85,174,alumosRowSelectedData.apoderado);
+            doc.text(85,174,alumnosRowSelectedData.nameAp);
 
             doc.setFontType("bold");
             doc.text(40,181,"Parentesco");
             doc.setFontType("normal");
-            doc.text(85,181,alumosRowSelectedData.parentesco);
+            doc.text(85,181,alumnosRowSelectedData.relationshipAp);
 
             doc.setFontType("bold");
             doc.text(40,188,"Lugar de trabajo");
             doc.setFontType("normal");
-            doc.text(85,188,alumosRowSelectedData.workAp);
+            doc.text(85,188,alumnosRowSelectedData.workAp);
             
             doc.setFontType("bold");
-            doc.text(40,195,"Celular apoderado");
+            doc.text(40,195,"Teléfono apoderado");
             doc.setFontType("normal");
-            doc.text(85,195,alumosRowSelectedData.phoneAp);
+            doc.text(85,195,alumnosRowSelectedData.phoneAp);
 
             doc.setFontType("normal");
             doc.line(40, 198, 134, 198);
             doc.setFontType("bold");
             doc.text(40,204,"Fecha matrícula");
             doc.setFontType("normal");
-            doc.text(85,204,moment(alumosRowSelectedData.date).format('DD/MM/YYYY'));
+            doc.text(85,204,moment(alumnosRowSelectedData.date).format('DD/MM/YYYY'));
 
             doc.setFontType("bold");
             doc.text(40,211,"Tipo de curso");
             doc.setFontType("normal");
-            doc.text(85,211,alumosRowSelectedData.tipoCurso);
+            doc.text(85,211,alumnosRowSelectedData.matricula.tipoCurso);
 
             doc.setFontType("bold");
             doc.text(40,218,"Forma de pago");
             doc.setFontType("normal");
-            doc.text(85,218,alumosRowSelectedData.formaP);
+            doc.text(85,218,alumnosRowSelectedData.matricula.finance.formaPago);
             
             doc.setFontType("italic");
             doc.setFontSize(9);
@@ -2582,7 +2607,7 @@ $('#certificadoRegular').on('click', function () {
             }
            
             doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
-            doc.save(`FichaMatricula `+ ` ${alumosRowSelectedData.name}.pdf`);
+            doc.save(`FichaMatricula `+ ` ${alumnosRowSelectedData.name}.pdf`);
         })
 
      }
@@ -2599,10 +2624,10 @@ $('#certificadoRegular').on('click', function () {
         ajax({
             url: '/api/getCuotas',
             type: 'POST',
-            data:{rut: alumosRowSelectedData._id}
+            data:{rut: alumnosRowSelectedData._id}
         }).then(res=>{
             console.log(res)
-            let maxCuotas = alumosRowSelectedData.numCuotas
+            let maxCuotas = alumnosRowSelectedData.numCuotas
             let montoTotal = 0
             let chequeStatus = 0
 

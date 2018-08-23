@@ -29,6 +29,12 @@ const Enrolled = [
                     if (err) throw err;
 
                     if (result.docs[0]) {
+                        let res = result.docs.map(el=>{
+                            el.numMatricula = el.matricula.numMatricula
+                            el._id = format(el._id)
+                            return el
+                        })
+                        /*
                         let res = result.docs.reduce((arr, el, i)=>{
                             return arr.concat({
                                 _id: format(el._id),
@@ -79,6 +85,8 @@ const Enrolled = [
 
                             })
                         }, []) 
+                        
+                        */
 
                         resolve({ ok: res });
                     } else {
@@ -605,7 +613,7 @@ const Enrolled = [
                     if (result.docs[0]) {
                         resolve({ err: `Ya existe un alumno con rut ${format(reqData.studentRut)}` });
                     } else {
-                        addEnrollmentCounter(session).then(res=>{
+                        getEnrollmentCounter(session).then(res=>{
                             let matriculaObject = {}
                             matriculaObject.finance = {}
                             let student = {}
@@ -640,16 +648,18 @@ const Enrolled = [
                                 student.courseSend = ''
                                 //MATRICULA
                                 matriculaObject.date = recreateDate(reqData.enrollmentDate) // fecha de matrícula seleccionada
-                                matriculaObject.numMatricula = res // res es número de la matrícula obtenida en addEnrollmentCounter()
+                                matriculaObject.numMatricula = res[session.place] // res es número de la matrícula obtenida en getEnrollmentCounter()
                                 matriculaObject.colegio = reqData.school // nombre de la escuela
                                 matriculaObject.beca = ((reqData.beca == 'yes') ? 'Si' : 'No') // si es yes: Si, en caso contrario: No
+                                matriculaObject.estadoEgreso = ((reqData.statusEgress == 'graduated') ? 'Graduado' : 'No graduado')
                                 matriculaObject.añoEgreso = ((reqData.statusEgress == 'graduated') ? reqData.egressRes : '') // si es graduated: año en que se graduo, en caso contrario: ''
                                 matriculaObject.curso = ((reqData.statusEgress == 'notGraduated') ? reqData.egressRes : '') // si es notGraduated: curso en el que va, en caso contrario '' 
                                 matriculaObject.promedio = reqData.average // promedio: 10 a 70
                                 matriculaObject.horario = reqData.horary // horario seleccionado
                                 matriculaObject.etp = ((reqData.etp == 'yes') ? 'Si' : 'No') // etp: Si o No
 
-                                if(reqData.science && !reqData.history) { // ciencias pero no historia
+                                if(reqData.science && !!reqData.history) { // ciencias pero no historia
+                                    console.log('CIENCIAS PERO NO HISTORIA')
                                     matriculaObject.electivo = 'Ciencias'
                                     matriculaObject.electivo2 = ''
 
@@ -661,6 +671,7 @@ const Enrolled = [
                                         matriculaObject.electivoCiencias = 'Biología'
                                     }
                                 } else if(reqData.science && reqData.history) { // ciencias y historia
+                                    console.log('CIENCIAS Y HISTORIA')
                                     matriculaObject.electivo = 'Ciencias'
                                     matriculaObject.electivo2 = 'Historia'
 
@@ -671,12 +682,15 @@ const Enrolled = [
                                     } else if(reqData.scienceElective == 'biology') {
                                         matriculaObject.electivoCiencias = 'Biología'
                                     }
-                                } else if(!reqData.science && reqData.history) { // historia pero no ciencias
-                                    matriculaObject.electivo = 'Historias'
+                                } else if(!!reqData.science && reqData.history) { // historia pero no ciencias
+                                    console.log('HISTORIA PERO NO CIENCIAS')
+                                    matriculaObject.electivo = 'Historia'
                                     matriculaObject.electivo2 = ''
                                     matriculaObject.electivoCiencias = ''
                                 }
-                                
+
+                                console.log(reqData.science, reqData.history, matriculaObject.electivo, matriculaObject.electivo2, matriculaObject.electivoCiencias)
+
                                 matriculaObject.fechaMatricula = reqData.enrollmentDate // fecha matricula formato: DD/MM/YYYY
                                 matriculaObject.diaCobro = reqData.payDay // Día del mes en que se cobra la cuota
                                 matriculaObject.tipoCurso = ((reqData.courseType == 'yearly') ? 'Anual' : 'Intensivo') // Si el curso es yearly: Anual, en caso contrario: Intensivo
@@ -717,7 +731,9 @@ const Enrolled = [
                                     if(res2.ok) {
                                         db.insert(student, function (errUpdate, body) {
                                             if (errUpdate) throw errUpdate;
-                                            resolve({ ok: 'Estudiante Matriculado Correctamente' });
+                                            setEnrollmentCounter({counter: res, credentials: session}).then(resCounter=> {
+                                                resolve({ ok: student });
+                                            })
                                         });
                                     } else {
                                         console.log(res2.err)
@@ -895,6 +911,7 @@ function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso,
     })
 }
 
+/*
 function addEnrollmentCounter(credentials) {
     return new Promise(resolve=>{
         db.find({
@@ -912,6 +929,35 @@ function addEnrollmentCounter(credentials) {
                     resolve(counter[credentials.place]);
                 });
             }
+        });
+    })
+}
+*/
+
+function getEnrollmentCounter(credentials) {
+    return new Promise(resolve=>{
+        db.find({
+            "selector": {
+                "_id": 'enrollmentCounter',
+            }
+        }, function (err, result) {
+            if (err) throw err;
+    
+            if(result.docs[0]) {
+                let counter = result.docs[0]
+                counter[credentials.place]++
+                
+                resolve(counter)
+            }
+        });
+    })
+}
+
+function setEnrollmentCounter({counter, credentials}) {
+    return new Promise(resolve=>{
+        db.insert(counter, function (errUpdate, body) {
+            if (errUpdate) throw errUpdate;
+            resolve(counter[credentials.place]);
         });
     })
 }
