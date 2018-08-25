@@ -296,26 +296,26 @@ const Enrolled = [
             let studentData = {};
   
             return new Promise(resolve=>{
-              db.find({ 
-                "selector": {
-                    '_id': cleanRut(id),
-                    'type': 'alumnos',
-                    'status': 'enrolled'
-                },
-                "limit":1
-            }, function(err, result) {
-                if (err) throw err;
-  
-                studentData = result.docs[0];
-  
-                studentData.status = 'retired';
-  
-                db.insert(studentData, function(errUpdate, body) {
-                    if (errUpdate) throw errUpdate;
-  
-                    resolve({ok: 'Matrícula de estudiante '+ studentData.name +' cerrada correctamente'}); 
-                });  
-              });
+                db.find({ 
+                    "selector": {
+                        '_id': cleanRut(id),
+                        'type': 'alumnos',
+                        'status': 'enrolled'
+                    },
+                    "limit":1
+                }, function(err, result) {
+                    if (err) throw err;
+    
+                    studentData = result.docs[0];
+    
+                    studentData.status = 'retired';
+    
+                    db.insert(studentData, function(errUpdate, body) {
+                        if (errUpdate) throw errUpdate;
+    
+                        resolve({ok: 'Matrícula de estudiante '+ studentData.name +' cerrada correctamente'}); 
+                    });  
+                });
             }); 
         },
         validate: {
@@ -379,72 +379,69 @@ const Enrolled = [
                         'type': 'alumnos',
                     }
                 }, function(err, result) {
-                        if (err) throw err;
-        
-                        if(result.docs[0]) {
-                            let student = result.docs[0]
-                            let originalFees = student.matricula.finance.cuotas
-                            let toTicket = []
+                    if (err) throw err;
+    
+                    if(result.docs[0]) {
+                        let student = result.docs[0]
+                        let originalFees = student.matricula.finance.cuotas
+                        let toTicket = []
 
-                            let res = originalFees.map((el, i, arr) => {
-                                let fil = cuotas.filter(function(el2) {
-                                    return el.num == el2
+                        let res = originalFees.map((el, i, arr) => {
+                            let fil = cuotas.filter(function(el2) {
+                                return el.num == el2
+                            })
+                            if(fil[0]) {
+
+                                toTicket.push({
+                                    num: el.num,
+                                    monto: el.amount
                                 })
-                                if(fil[0]) {
 
-                                    toTicket.push({
-                                        num: el.num,
-                                        monto: el.amount
-                                    })
+                                return {
+                                    num: el.num,
+                                    amount: el.amount,
+                                    payday: el.payday,
+                                    status: 'payed',
+                                    payedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
+                                    ticket: ticket
+                                }
+                            } else {
+                                return el
+                            }         
+                        });
+                        
+                        console.log(toTicket)
+                        let resMonto = toTicket.reduce((numb, el, i)=>{
+                            return numb += parseInt(el.monto) 
+                        }, 0) 
+                        
+                        student.matricula.finance.cuotas = res
 
-                                    return {
-                                        num: el.num,
-                                        amount: el.amount,
-                                        payday: el.payday,
-                                        status: 'payed',
-                                        payedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS'),
-                                        ticket: ticket
-                                    }
-                                } else {
-                                    return el
-                                }         
-                            });
-                            
-                            console.log(toTicket)
-                            let resMonto = toTicket.reduce((numb, el, i)=>{
-                                return numb += parseInt(el.monto) 
-                            }, 0) 
-                            
-                            student.matricula.finance.cuotas = res
-
-                            crearBoleta({
-                                numBoleta: ticket,
-                                credentials: session,
-                                rutAlumno: cleanRut(rut),
-                                cuotas: toTicket,
-                                monto: resMonto,
-                                formaPago: formaPago, // efectivo, cheque, transferencia
-                                cheque: cheque
-                            }).then(res2=> {
+                        crearBoleta({
+                            numBoleta: ticket,
+                            credentials: session,
+                            rutAlumno: cleanRut(rut),
+                            cuotas: toTicket,
+                            monto: resMonto,
+                            formaPago: formaPago, // cash, check, transfer
+                            cheque: cheque
+                        }).then(res2=> {
+                            if(res2.ok) {
                                 db.insert(student, function(errUpdate, body) {
                                     if (errUpdate) throw errUpdate;
-                                    
-                                    if(res2.ok) {
-                                        if(cuotas.length > 1) {
-                                            resolve({ok: 'Cuotas pagadas correctamente'});
-                                        } else {
-                                            resolve({ok: 'Cuota pagada correctamente'})
-                                        }  
+
+                                    if(cuotas.length > 1) {
+                                        resolve({ok: 'Cuotas pagadas correctamente'});
                                     } else {
-                                        resolve({err: res2.err})
-                                    }
-                                    
-                                });
-                            })
-                            
-                            //console.log(alumno, originalFees, cuotas)
-                        }
-                }); 
+                                        resolve({ok: 'Cuota pagada correctamente'})
+                                    } 
+                                }) 
+                            } else {
+                                resolve({err: res2.err})
+                            }
+                        })
+                    }
+                });
             })
       },
       validate: {
@@ -611,7 +608,13 @@ const Enrolled = [
                     if (err) throw err
 
                     if (result.docs[0]) {
-                        resolve({ err: `Ya existe un alumno con rut ${format(reqData.studentRut)}` });
+                        let typeUser = result.docs[0].type
+                        if(typeUser == 'user') {
+                            typeUser = 'usuario'
+                        } else if(typeUser == 'alumnos') {
+                            typeUser = 'alumno'
+                        }
+                        resolve({ err: `No es posible agregar este alumno ya que el rut está siendo utilizado por un ${typeUser} ${format(reqData.studentRut)}` });
                     } else {
                         getEnrollmentCounter(session).then(res=>{
                             let matriculaObject = {}
@@ -658,7 +661,7 @@ const Enrolled = [
                                 matriculaObject.horario = reqData.horary // horario seleccionado
                                 matriculaObject.etp = ((reqData.etp == 'yes') ? 'Si' : 'No') // etp: Si o No
 
-                                if(reqData.science && !!reqData.history) { // ciencias pero no historia
+                                if(reqData.science == 'true' && reqData.history == 'false') { // ciencias pero no historia
                                     console.log('CIENCIAS PERO NO HISTORIA')
                                     matriculaObject.electivo = 'Ciencias'
                                     matriculaObject.electivo2 = ''
@@ -670,7 +673,7 @@ const Enrolled = [
                                     } else if(reqData.scienceElective == 'biology') {
                                         matriculaObject.electivoCiencias = 'Biología'
                                     }
-                                } else if(reqData.science && reqData.history) { // ciencias y historia
+                                } else if(reqData.science == 'true' && reqData.history == 'true') { // ciencias y historia
                                     console.log('CIENCIAS Y HISTORIA')
                                     matriculaObject.electivo = 'Ciencias'
                                     matriculaObject.electivo2 = 'Historia'
@@ -682,7 +685,7 @@ const Enrolled = [
                                     } else if(reqData.scienceElective == 'biology') {
                                         matriculaObject.electivoCiencias = 'Biología'
                                     }
-                                } else if(!!reqData.science && reqData.history) { // historia pero no ciencias
+                                } else if(reqData.history == 'true' && reqData.science == 'false') { // historia pero no ciencias
                                     console.log('HISTORIA PERO NO CIENCIAS')
                                     matriculaObject.electivo = 'Historia'
                                     matriculaObject.electivo2 = ''
@@ -799,6 +802,45 @@ const Enrolled = [
             })
         }
     }
+},
+{ 
+    method: 'POST',
+    path: '/api/getTicket',
+    options: {
+        handler: (request, h) => {
+            let session = request.auth.credentials
+            let ticket = request.payload.ticket
+            
+            return new Promise(resolve => {
+                
+                db.find({ 
+                    selector: {
+                        _id: {
+                            $gt: null
+                        },
+                        type: 'boleta',
+                        numBoleta: ticket,
+                        place: session.place
+                    },
+                    "limit":1
+                }, function(err, result) {
+                    if (err) throw err;
+                    
+                    if(result.docs[0]) {
+                        console.log(result.docs[0])
+                        resolve({ok: result.docs[0]})
+                    } else {
+                        resolve({err: `No se encuentra la boleta ${ticket} en la sede ${session.place}.`})
+                    }
+                });
+            })
+        }, 
+        validate: {
+            payload: Joi.object().keys({
+                ticket: Joi.string().required(), 
+            })
+        }
+    }
 }
 ]
 
@@ -910,29 +952,6 @@ function crearCuotas({numCuotas, montoCuota, diaCobro, matriculaDate, tipoCurso,
         }  
     })
 }
-
-/*
-function addEnrollmentCounter(credentials) {
-    return new Promise(resolve=>{
-        db.find({
-            "selector": {
-                "_id": 'enrollmentCounter',
-            }
-        }, function (err, result) {
-            if (err) throw err;
-    
-            if(result.docs[0]) {
-                let counter = result.docs[0]
-                counter[credentials.place]++
-                db.insert(counter, function (errUpdate, body) {
-                    if (errUpdate) throw errUpdate;
-                    resolve(counter[credentials.place]);
-                });
-            }
-        });
-    })
-}
-*/
 
 function getEnrollmentCounter(credentials) {
     return new Promise(resolve=>{

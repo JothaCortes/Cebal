@@ -246,6 +246,7 @@ let place = '{{{credentials.place}}}';
                     }).then(res => {
                         if (res.err) {
                             toastr.warning('No existen Alumnos matriculados')
+                            $('#loadingEnrolled').empty();
                         } else if(res.ok) {
                             datatableAlumnosEnrolled.rows.add(res.ok).draw();
                             $('#loadingEnrolled').empty();
@@ -2434,8 +2435,8 @@ $('#certificadoRegular').on('click', function () {
             doc.setFontSize(10);
             doc.text(130,40, moment().format('dddd DD [de] MMMM [de] YYYY'));
             doc.setFontSize(12);
-            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumnosRowSelectedData.name} `+ `${alumnosRowSelectedData.lastname1} `+`${alumnosRowSelectedData.lastname2} `+`, Rut `+`${alumnosRowSelectedData._id}`+` es alumno(a)`);
-            doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumnosRowSelectedData.numMatricula}`+`, año `+moment().format('YYYY'));
+            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumnosRowSelectedData.name} ${alumnosRowSelectedData.lastname1.trim()} ${alumnosRowSelectedData.lastname2.trim()}, Rut ${alumnosRowSelectedData._id} es alumno(a)`);
+            doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumnosRowSelectedData.numMatricula}, año ${moment().format('YYYY')}.`);
             doc.text(37,128,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
             
 
@@ -2464,9 +2465,6 @@ $('#certificadoRegular').on('click', function () {
             doc.save(`Certificado alumno regular `+ ` ${alumnosRowSelectedData.name}.pdf`);
         
         })
-
-
-        
 
         $('#printPDF').on('click', function () {
             var doc = new jsPDF();
@@ -2552,11 +2550,28 @@ $('#certificadoRegular').on('click', function () {
             doc.text(40,157,"Horario");
             doc.setFontType("normal");
             doc.text(85,157,alumnosRowSelectedData.matricula.horario);
-
-            doc.setFontType("bold");
-            doc.text(40,164,"Electivo");
-            doc.setFontType("normal");
-            doc.text(85,164,alumnosRowSelectedData.matricula.electivo + " "+ alumnosRowSelectedData.matricula.electivo2);
+            
+            if(alumnosRowSelectedData.matricula.electivo == 'Ciencias' && alumnosRowSelectedData.matricula.electivo2 == 'Historia') { // CIENCIAS Y HISTORIA
+                doc.setFontType("bold");
+                doc.text(40,164,"Electivos");
+                doc.setFontType("normal");
+                doc.text(85,164,alumnosRowSelectedData.matricula.electivo + ": "+alumnosRowSelectedData.matricula.electivoCiencias+" | "+ alumnosRowSelectedData.matricula.electivo2);
+            } else if(alumnosRowSelectedData.matricula.electivo == 'Historia' && alumnosRowSelectedData.matricula.electivo2 == 'Ciencias') { // HISTORIA Y CIENCIAS
+                doc.setFontType("bold");
+                doc.text(40,164,"Electivos");
+                doc.setFontType("normal");
+                doc.text(85,164,alumnosRowSelectedData.matricula.electivo2 + ": "+alumnosRowSelectedData.matricula.electivoCiencias+" | "+ alumnosRowSelectedData.matricula.electivo);
+            } else if(alumnosRowSelectedData.matricula.electivo == 'Ciencias' && alumnosRowSelectedData.matricula.electivo2 == '') { // SOLO CIENCIAS
+                doc.setFontType("bold");
+                doc.text(40,164,"Electivo");
+                doc.setFontType("normal");
+                doc.text(85,164,alumnosRowSelectedData.matricula.electivo + ": "+alumnosRowSelectedData.matricula.electivoCiencias);
+            } else if(alumnosRowSelectedData.matricula.electivo == 'Historia' && alumnosRowSelectedData.matricula.electivo2 == '') { // SOLO HISTORIA
+                doc.setFontType("bold");
+                doc.text(40,164,"Electivo");
+                doc.setFontType("normal");
+                doc.text(85,164,alumnosRowSelectedData.matricula.electivo);
+            }
 
             doc.line(40, 168, 134, 168);
             doc.setFontType("bold");
@@ -2654,7 +2669,7 @@ $('#certificadoRegular').on('click', function () {
                     }
                     thisList = `
                     <div class="col-md-4" style="margin-top:10px;">
-                        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                        <a href="#" onclick="getTicket('${el.ticket}')" class="list-group-item list-group-item-action flex-column align-items-start active">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
                                 <small>Cuota número ${el.num}</small>
@@ -2677,7 +2692,7 @@ $('#certificadoRegular').on('click', function () {
                 enrollmentTicketPayed = `<span>Boleta: <b>${res.ok.matricula.finance.ticketEnrollment}</b></span>`
             }
             $('#modalEstudiantes').modal();
-            $('#modal_title').text('Pago de cuotas');
+            $('#modal_title').html('Gestión de cuotas');
             $('#modal_body').html(`
                 <div class="card  mb-12" style="max-width: 50rem;">
                     <div class="card-header"><h5>Datos estudiante</h5></div>
@@ -2715,11 +2730,11 @@ $('#certificadoRegular').on('click', function () {
                         
 
                 <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
-                    <div class="card-header"><h5>Cancelación de cuotas</h5></div>
+                    <div class="card-header"><h5>Acción <input type="checkbox" id="toggle_quota_status" checked data-toggle="toggle" data-onstyle="success" data-offstyle="danger"></h5></div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-12">
-                                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start active">
+                                <a href="#" onclick="getTicket('${res.ok.matricula.finance.ticketEnrollment}')" class="list-group-item list-group-item-action flex-column align-items-start active">
                                     <div class="d-flex w-100 justify-content-between">
                                         <h5 class="mb-1">${moment(res.ok.matricula.date).format('DD/MM/YYYY')}</h5>
                                         <small>Matrícula</small>
@@ -2737,9 +2752,9 @@ $('#certificadoRegular').on('click', function () {
                             <div class="col-md-6" style="margin-top:10px;">
                                 <label style="float:left;"><i class="fa fa-asterisk"></i> Forma de pago *</label>
                                 <select class="form-control" id="boletaFormaPago">
-                                    <option>Efectivo</option>
-                                    <option>Cheque</option>
-                                    <option>Transferencia</option>
+                                    <option value="cash">Efectivo</option>
+                                    <option value="check">Cheque</option>
+                                    <option value="transfer">Transferencia</option>
                                 </select> 
                             </div>
     
@@ -2764,6 +2779,13 @@ $('#certificadoRegular').on('click', function () {
                     </div>
                 </div>
             `)
+
+            
+            $('#toggle_quota_status').bootstrapToggle({
+                on: 'Pagar',
+                off: 'Quitar',
+                size: 'large'
+            })
 
             $('.solo-numero').keyup(function (){
                 this.value = (this.value + '').replace(/[^0-9]/g, ''); 
@@ -2820,7 +2842,7 @@ $('#certificadoRegular').on('click', function () {
             }) 
 
             $('#boletaFormaPago').on('change', function(){
-                if($(this).val() == 'Cheque') {
+                if($(this).val() == 'check') {
                     chequeStatus = 1;
                     $('#ifCheque').html(`
                         <div class="col-md-12" style="margin-top:10px;">
@@ -2886,8 +2908,16 @@ $('#certificadoRegular').on('click', function () {
             $('#save').on('click', function(){
                 let ticket = $('#ticket').val();
                 let boletaFormaPago = $('#boletaFormaPago').val()
+                let boletaFormaPagoES = ''
+                if(boletaFormaPago == 'cash'){
+                    boletaFormaPagoES = 'Efectivo'
+                } else if(boletaFormaPago == 'check') {
+                    boletaFormaPagoES = 'Cheque'
+                } else if(boletaFormaPago == 'transfer') {
+                    boletaFormaPagoES = 'Transferencia'
+                }
                 $(this).attr('disabled', true);
-                console.log(boletaFormaPago)
+                console.log(boletaFormaPagoES)
 
                 if (ticket == '') {
                     toastr.warning('Debe ingresar un número de boleta.')
@@ -2951,7 +2981,7 @@ $('#certificadoRegular').on('click', function () {
                                         screenLog({
                                             id: 'modal_body',
                                             form: 'Pagar cuotas',
-                                            action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPago} en {{credentials.place}}`,
+                                            action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPagoES} en {{credentials.place}}`,
                                             type: 'pagarCuota'
                                         })
                                         
@@ -2994,7 +3024,7 @@ $('#certificadoRegular').on('click', function () {
                                     screenLog({
                                         id: 'modal_body',
                                         form: 'Pagar cuotas',
-                                        action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPago} en {{credentials.place}}`,
+                                        action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPagoES} en {{credentials.place}}`,
                                         type: 'pagarCuota'
                                     })
                                     
@@ -3029,6 +3059,127 @@ $('#certificadoRegular').on('click', function () {
         })
         
     };
+
+function getTicket(ticket) {
+    $('#ticketView').remove()
+    
+    ajax({
+        url:'api/getTicket',
+        type: 'POST',
+        data: {ticket}
+    }).then(res=> {
+        console.log(res)
+        if(res.ok) {
+            let ifCheque = ''
+
+            let ticketQuotas = res.ok.cuotas.reduce((txt, el, i)=>{
+                let numCuotaName = el.num
+                if(numCuotaName == 0) {
+                    numCuotaName = 'Matrícula'
+                }
+                return txt += `
+                    <tr>
+                        <td><h4><center>${numCuotaName}</center></h4></td>
+                        <td><h4><center>$ ${number_format(el.monto)}</center></h4></td>
+                    </tr>
+                `
+            }, '') 
+
+            if(res.ok.formaPago == 'Cheque') {
+                ifCheque = `
+                    <div class="col-md-12">
+                        <center><h3><b>Información del cheque</b></h3></center>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <h3 class="card-header"><center>Banco</center></h3>
+                            <div class="card-body">
+                                <h3><center>${res.ok.cheque.banco}</center></h3>
+                            </div>      
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <h3 class="card-header"><center>Número</center></h3>
+                            <div class="card-body">
+                                <h3><center>${res.ok.cheque.num}</center></h3>
+                            </div>      
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <h3 class="card-header"><center>Fecha</center></h3>
+                            <div class="card-body">
+                                <h3><center>${res.ok.cheque.date}</center></h3>
+                            </div>      
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <h3 class="card-header"><center>Monto</center></h3>
+                            <div class="card-body">
+                                <h3><center>$${number_format(res.ok.cheque.monto)}</center></h3>
+                            </div>      
+                        </div>
+                    </div>
+                `
+            }
+
+            //$('#modal_title').html(`<button id="goBack" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Volver atrás</button> Boleta N° ${res.ok.numBoleta}`)
+            $('#modal_body').prepend(`
+            <div id="ticketView" style="margin-top:20px;">
+
+                <div style="border:1px solid #34495e; border-radius:10px;">
+                    <button style="border-radius:10px;" id="closeTicketView" class="btn btn-dark"><i class="fas fa-times"></i></button>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <center><h1>${res.ok.place}</h1></center>       
+                        </div>
+                        <hr>
+                        <div class="col-md-6">
+                            <center><h3><b>Número de boleta</b></h3></center>
+                            <center><h4>${res.ok.numBoleta}</h4></center>
+                            <hr>
+                            <center><h3><b>Fecha de creación</b></h3></center>
+                            <center><h4>${moment(res.ok._id).format('DD/MM/YYYY')}</h4></center>
+                            <hr>
+                            <center><h3><b>Monto total</b></h3></center>
+                            <center><h4>$ ${number_format(res.ok.monto)}</h4></center>
+                            <hr>
+                            <center><h3><b>Forma de pago</b></h3></center>
+                            <center><h4>${res.ok.formaPago}</h4></center>
+                        </div>
+                        <div class="col-md-6">
+                            <center><h3><b>Cuotas</b></h3></center>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th scope="col"><center>Número de cuota</center></th>
+                                        <th scope="col"><center>Monto de cuota</center></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${ticketQuotas}
+                                </tbody>
+                            </table>    
+                        </div>
+                        ${ifCheque}
+                    </div>
+                </div>
+                <br>
+            </div>  
+            `)
+
+            $('#closeTicketView').on('click', function() {
+                $('#ticketView').remove()
+            })
+            
+            
+        } else if(res.err) {
+            toastr.warning(res.err)
+        }
+    })
+}
 
 function aMays(e, elemento) {
     tecla=(document.all) ? e.keyCode : e.which; 
