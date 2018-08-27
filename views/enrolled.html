@@ -2757,6 +2757,8 @@ $('#closeMatrStudentEnrolled').on('click', function(){
                     toastr.success(res.ok); 
                     alumnosRowSelected.remove().draw();
                     disableAll()
+
+                    datatableAlumnosDisabled.row.add(alumnosRowSelectedData).draw();
                 }
             })
         }
