@@ -68,14 +68,9 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="/"><i class="fas fa-home"></i> Home</a>
                         </li>
-                  
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-users"></i> Alumnos</a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" href="/joined"><i class="fas fa-user"></i> Ingreso alumnos</a>
-                            <a class="dropdown-item" href="/enrolled"><i class="fas fa-clipboard-list"></i> Alumnos matriculados</a>
-                        </div>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/enrolled"><i class="fas fa-clipboard-list"></i> Alumnos matriculados</a>
+                        </li>
                     <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fas fa-money-check-alt"></i> Finanzas</a>
                             <div class="dropdown-menu">
@@ -95,7 +90,7 @@
                 </div>
                 <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
                     {{#if admin}}
-                        <li class="nav-item dropdown">
+                        <li class="nav-item">
                             <li class="nav-item">
                                 <a class="nav-link" id="administration"  href="/administrationPanel"><i class="fas fa-toolbox"></i> Administración</a>
                             </li>

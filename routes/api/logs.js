@@ -72,6 +72,8 @@ const Logs = [
             img = true
           case type = 'pagarCuota':
             img = true
+          case type = 'removerCuota':
+            img = true
           default:
             break;
         }

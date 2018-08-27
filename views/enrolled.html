@@ -46,6 +46,20 @@
     border-color:#16a085 !important;
 }
 
+.toRemove {
+    background:#ff6b6b !important;
+    border-color:#ee5253 !important;
+}
+
+.removedStatus {
+    background: #c8d6e5 !important;
+    border-color: #8395a7 !important;
+}
+
+tbody tr {
+    cursor: pointer;
+}
+
 
 
 </style>
@@ -119,21 +133,26 @@
                     <div class="tab-pane fade show active" style="margin-left:10px;margin-right:10px" id="#" role="tabpanel" aria-labelledby="enables-tab">
                         <div class="row">
                             <div class="col-md-2 col-xs-12">
-                                <br>
-                                <button class="btn btn-primary btn-block" id="x" disabled>
-                                    <i class="fa fa-plus"></i> Opciones
+                                
+                                <button class="btn btn-secondary btn-block" id="pagosRetired" disabled>
+                                    <i style="color:#1abc9c;" class="far fa-money-bill-alt"></i> Pagos
                                 </button>
-                                <button class="btn btn-warning btn-block" id="x" disabled>
-                                    <i class="fas fa-edit"></i> Modificar
+                                <button class="btn btn-secondary btn-block" id="modStudentRetired" disabled>
+                                    <i style="color:#f1c40f;" class="fas fa-edit"></i> Modificar
                                 </button>
-                        
+                                <button class="btn btn-dark btn-block" id="optionStudentRetired" disabled>
+                                    <i style="color:#e67e22;" class="fas fa-filter"></i> Opciones
+                                </button>
+                                <button class="btn btn-dark btn-block" id="observationsRetired" disabled>
+                                    <i style="color:#9b59b6;" class="fas fa-eye"></i> Observaciones
+                                </button>
                             </div>
                         
                             <div class="col-md-10 col-xs-12 box-shadows table-responsive">
                                 <table id="tableDisabledAlumns" class="display nowrap table table-condensed" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
-                                            <th>Sede</th>
+                                            <th>Nº</th>
                                             <th>Rut</th>
                                             <th>Nombre</th>
                                             <th>Apellidos</th>
@@ -162,7 +181,7 @@
 </div>
 
 <!-- Modal formato-->
-<div class="modal fade" id="modalEstudiantes" tabindex="-1" role="dialog" aria-labelledby="modal_title" style="margin-top: 13px">
+<div class="modal fade" id="modalEstudiantes" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="modal_title" style="margin-top: 13px">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content" style="background-color: #ffffff">
             <div class="modal-header" style="background:#333333; color:#fff">
@@ -255,7 +274,7 @@ let place = '{{{credentials.place}}}';
                 }
         });   
         
-     $('#tableEnrolledAlumns tbody').on('click', 'tr', function () {
+    $('#tableEnrolledAlumns tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
             $('#pagosEnrolled').prop('disabled', true);
@@ -266,15 +285,18 @@ let place = '{{{credentials.place}}}';
         } else {
             datatableAlumnosEnrolled.$('tr.selected').removeClass('selected');
 
-            $(this).addClass('selected');
             alumnosRowSelectedData = datatableAlumnosEnrolled.row($(this)).data();
-            alumnosRowSelected = datatableAlumnosEnrolled.row($(this));   // EDUARDO
+            alumnosRowSelected = datatableAlumnosEnrolled.row($(this));
             console.log(alumnosRowSelectedData)
-            $('#pagosEnrolled').prop('disabled', false);
-            $('#optionStudentEnrolled').prop('disabled', false);
-            $('#modStudentEnrolled').prop('disabled', false);
-            $('#closeMatrStudentEnrolled').prop('disabled', false);
-            $('#observationsEnrolled').prop('disabled', false);
+            if(typeof alumnosRowSelectedData !== 'undefined') {
+                $(this).addClass('selected');
+                $('#pagosEnrolled').prop('disabled', false);
+                $('#optionStudentEnrolled').prop('disabled', false);
+                $('#modStudentEnrolled').prop('disabled', false);
+                $('#closeMatrStudentEnrolled').prop('disabled', false);
+                $('#observationsEnrolled').prop('disabled', false);
+            }
+            
         }
     });
 }
@@ -308,45 +330,61 @@ function reloadTableAlumnosEnrolled() {
 function chargeTableAlumnosDisabled() {
     datatableAlumnosDisabled = $('#tableDisabledAlumns')
         .DataTable({            
-                    "iDisplayLength": 100,
-                    "oLanguage": {
-                        "sSearch": "Buscar :"
-                    },
-                    "responsive": true,
-                    "columns": [
-                        { "data": "city"},
-                        { "data": "_id"},
-                        { "data": "name" },
-                        { "data": "lastname1"},
-                        { "data": "lastname2"},
-                        { "data": "address"},
-                        { "data": "email"},
-                        { "data": "phone"},
-                        { "data": "nameAp"},
-                        { "data": "relationshipAp"}               
-                    ],
-                initComplete: function (settings, json) {
-                    ajax({
-                        url: 'api/studentsDisabled'
-                    }).then(res => {
-                        if (res.err) {
-                           // toastr.warning('No existen Alumnos retirados')
-                            $('#loadingDisabled').empty();
-                        } else {
-                            datatableAlumnosDisabled.rows.add(res).draw();
-                            $('#loadingDisabled').empty();
-                        }      
-                    })
-                }
-        });   
-     $('#tableDisabledAlumns tbody').on('click', 'tr', function () {
+            "iDisplayLength": 100,
+            "oLanguage": {
+                "sSearch": "Buscar :"
+            },
+            "responsive": true,
+            "columns": [
+                { "data": "numMatricula"},
+                { "data": "_id"},
+                { "data": "name" },
+                { "data": "lastname1"},
+                { "data": "lastname2"},
+                { "data": "address"},
+                { "data": "email"},
+                { "data": "phone"},
+                { "data": "nameAp"},
+                { "data": "relationshipAp"}               
+            ],
+        initComplete: function (settings, json) {
+            ajax({
+                url: 'api/studentsDisabled'
+            }).then(res => {
+                if (res.err) {
+                    // toastr.warning('No existen Alumnos retirados')
+                    $('#loadingDisabled').empty();
+                } else if(res.ok){
+                    datatableAlumnosDisabled.rows.add(res.ok).draw();
+                    $('#loadingDisabled').empty();
+                }      
+            })
+        }
+    });
+
+    $('#tableDisabledAlumns tbody').on('click', 'tr', function () {
         if ($(this).hasClass('selected')) {
             $(this).removeClass('selected');
+            $('#pagosRetired').prop('disabled', true);
+            $('#modStudentRetired').prop('disabled', true);
+            $('#optionStudentRetired').prop('disabled', true);
+            $('#observationsRetired').prop('disabled', true);
         } else {
             datatableAlumnosDisabled.$('tr.selected').removeClass('selected');
-            $(this).addClass('selected');
+
             alumnosRowSelectedDataDisabled = datatableAlumnosDisabled.row($(this)).data();
+            alumnosRowSelectedDisabled = datatableAlumnosDisabled.row($(this));
             console.log(alumnosRowSelectedDataDisabled)
+            
+            if(typeof alumnosRowSelectedDataDisabled !== 'undefined') {
+                
+                $(this).addClass('selected');
+                $('#pagosRetired').prop('disabled', false);
+                $('#modStudentRetired').prop('disabled', false);
+                $('#optionStudentRetired').prop('disabled',  false);
+                $('#observationsRetired').prop('disabled', false);
+            }
+            
         }
     });
 }
@@ -367,323 +405,825 @@ function reloadTableAlumnosDisabled() {
 //CERRAR MATRICULA
 //MODIFICAR ESTUDIANTE MATRICULADO
 $('#modStudentEnrolled').on('click', function(){
-    modificarEstModal()
+    modificarEstModal({student: alumnosRowSelectedData, rowSelected: alumnosRowSelected, datatableSelected: datatableAlumnosEnrolled})
 })
 
-function modificarEstModal() { 
-      $('#modalEstudiantes').modal();
-      $('#modal_title').text('Modificar Estudiante');
-      $('#modal_body').html(`
-      <div class="card">
-                <div class="card-header"><h5>Datos alumno</h5></div>
-                <div class="card-body row">
-        
-                    <div class="col-md-4">
-                        <label style="float:left;"><i class="fa fa-key" aria-hidden="true"></i> Rut </label>
-                        <input id="rutModAlumno" value="${alumnosRowSelectedData._id}" maxlength="12" type="text"  required class="form-control border-input" disabled >
-                    </div>
+$('#modStudentRetired').on('click', function(){
+    modificarEstModal({student: alumnosRowSelectedDataDisabled, rowSelected: alumnosRowSelectedDisabled, datatableSelected: datatableAlumnosDisabled})
+})
 
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="far fa-calendar"></i> Fecha de nacimiento </label>   
-                        <input  id="fechaModAlumno"  value="${alumnosRowSelectedData.birthday}"   class="form-control" type="text">
-                    </div>
+function modificarEstModal({student, rowSelected, datatableSelected}) {
+    let studentData = student 
+    let studentRowSelected = rowSelected 
+    let studentDatatableSelected = datatableSelected
 
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fas fa-map-marker"></i> Ciudad </label>
-                        <input id="ciudadModAlumno" type="text"  required class="form-control border-input" value="{{{ credentials.place }}}" readOnly>
-                    </div>
+    $('#modalEstudiantes').modal()
+    $('#modal_title').text(`Modificar estudiante`)
 
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fa fa-user" aria-hidden="true"></i> Nombre </label>
-                        <input id="nombreModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.name}" class="form-control border-input" >
-                    </div>
-
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"> Apellido paterno </label>
-                        <input id="apellido1ModAlumno"  value="${alumnosRowSelectedData.lastname1}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" >
-                    </div>
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;">Apellido materno</label>
-                        <input id="apellido2ModAlumno"  value="${alumnosRowSelectedData.lastname2}" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input">
-                    </div>
-
-                    
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fa fa-envelope" aria-hidden="true"></i> Correo</label>
-                        <input id="correoModAlumno" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" value="${alumnosRowSelectedData.email}" aria-describedby="emailHelp" class="form-control border-input">
-                    </div>
-
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
-                        <input id="celularModAlumno" type="text"  value="${alumnosRowSelectedData.phone}" class="form-control border-input">
-                    </div>
-
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fa fa-home" aria-hidden="true"></i> Dirección </label>
-                        <input id="direccionModAlumno" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.address}" class="form-control border-input">
-                    </div>
-                    <!--
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fas fa-image"></i> Foto alumno</label>
-                        <input type="file" accept="image/*" class="form-control-file" id="matrImage">
-                    </div>
-                    -->
-                </div>
-            </div>    
-
-            <div class="card" style="margin-top:3px">
-                <div class="card-header"><h5>Datos apoderado</h5></div>
-                <div class="card-body row">        
-
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fas fa-user-tie"></i> Nombre apoderado</label>
-                        <input id="nombreApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.nameAp}" class="form-control border-input">
-                    </div>
-
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;">Parentesco </label>
-                        <input id="parentescoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" value="${alumnosRowSelectedData.parentesco}" class="form-control border-input"  >
-                    </div>
-
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fas fa-building"></i> Lugar de trabajo </label>
-                        <input id="trabajoApoderadoMod" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" class="form-control border-input" value="${alumnosRowSelectedData.workAp}">
-                    </div>
-
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fas fa-phone-square"></i> Celular</label>
-                        <input id="celularApoderadoMod" type="text" class="form-control border-input" value="${alumnosRowSelectedData.phoneAp}">
-                    </div> 
-                    <div class="col-md-4" style="margin-top:3px;">
-                        <label style="float:left;"><i class="fa fa-envelope"></i> Correo</label>
-                        <input id="correoApoderadoMod" type="email" onkeyup="aMinus(event, this)" onblur="aMinus(event, this)" aria-describedby="emailHelp" class="form-control border-input" value="${alumnosRowSelectedData.emailAp}" >
-                    </div> 
-                </div>
-            </div>
-
-
-
-            <div class="card" style="margin-top:5px">
-                <div class="card-header"><h5>Datos académicos</h5></div>
-            <div class="card-body row">
-                <div style="padding:5px;"> 
-                    <div class="row">
-                        <div class="col-md-4">
-                            <label style="float:left;"><i class="fas fa-school"></i> Colegio </label>
-                            <input id="matrColegio" type="text" onkeyup="aMays(event, this)" onblur="aMays(event, this)" required class="form-control border-input" value="${alumnosRowSelectedData.colegio}">
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label><i class="far fa-calendar"></i> Egreso </label>
-                                <input id="matrEgreso" type="text"  required class="form-control border-input" value="${alumnosRowSelectedData.egreso}" readOnly>
-                            </div>  
-                        </div>
-                        <div class="col-md-4">
-                            <label style="float:left;"><i class="fab fa-bimobject"></i> Becado </label>
-                            <input id="matrBeca" type="text"  required class="form-control border-input" value="${alumnosRowSelectedData.beca}" readOnly>
-                        </div>
-
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label><i class="far fa-calendar-check"></i> Año de egreso </label>
-                                <input id="matrAñoEgreso" type="text"  required class="form-control border-input" value="${alumnosRowSelectedData.añoEgreso}" readOnly>
-                            </div>  
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label><i class="fas fa-graduation-cap"></i> Cursando </label>
-                                <input id="matrCurso" type="text"  required class="form-control border-input" readOnly value="${alumnosRowSelectedData.cursando}" >
-                            </div>  
-                        </div>
-                        <div class="col-md-4">
-                            <label><i class="fas fa-book"></i> Promedio </label>
-                            <input id="matrPromedio" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.promedio}" readOnly>
-                        </div>
-
-
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label ><i class="far fa-calendar-alt"></i> Horario</label>
-                                <select id="matrHorario">
-                                    <option>${alumnosRowSelectedData.horario}</option>
-                                </select>
-                            </div>  
-                        </div>
-                       
-
-                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label><i class="fas fa-graduation-cap"></i>ETP </label>
-                                <input id="matrETP" maxlength="2" type="text" class="form-control border-input solo-numero" disabled value="${alumnosRowSelectedData.etp}" >
-                            </div>  
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label><i class="fas fa-graduation-cap"></i>Prueba electiva</label>
-                                <input id="matrElectivo" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.electivo}" readOnly>
-                            </div>  
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label><i class="fas fa-graduation-cap"></i>Prueba electiva 2</label>
-                                <input id="matrElectivo2" maxlength="2" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.electivo2}" readOnly>
-                            </div>  
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="card" style="margin-top:5px">
-        <div class="card-header"><h5>Datos de matrícula</h5></div>
-        <div class="card-body row">
-            <div style="padding:5px;"> 
-                <div class="row">
-                    <div class="col-md-3" >
-                        <label style="float:left;"><i class="far fa-calendar"></i> Fecha de matrícula </label>
-                        <input  id="matrFechaMatricula"  class="form-control" type="text" value="${alumnosRowSelectedData.fechaMatricula}" readOnly>
-                    </div>
-                    <div class="col-md-3">
-                        <label><i class="fas fa-book"></i> Día de cobro </label>
-                        <input id="matrDiaCobro" type="text" class="form-control border-input solo-numero" value="${alumnosRowSelectedData.diacobro}" readOnly>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label><i class="fas fa-graduation-cap"></i> Tipo de curso </label>
-                            <input  id="matrTipoCurso"  class="form-control" type="text" value="${alumnosRowSelectedData.tipoCurso}" readOnly>
-                        </div>  
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label><i class="fas fa-graduation-cap"></i> Forma de pago </label>
-                            <input  id="matrFormaPago"  class="form-control" type="text" value="${alumnosRowSelectedData.formaP}" readOnly>
-                        </div>  
-                    </div>
-                    
-                    <div class="col-md-12">
-                        <h4>Descuentos</h4><br>
+    $('#modal_body').html(`
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <h3 class="card-header">Datos de alumno</h3>
+                    <div class="card-body">
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label><i class="fas fa-graduation-cap"></i> Descuento 1</label>
-                                        <input  id="matrDescuento1"  class="form-control" type="text" readOnly value="${alumnosRowSelectedData.descuento1}">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Rut *</label>
+                                    <input disabled value="${studentData._id}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese rut" id="newEnrolledRut">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Fecha de nacimiento *</label>
+                                    <input value="${studentData.birthday}" class="form-control" type="text" placeholder="Fecha de nacimiento" id="newEnrolledBirthdate">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Ciudad *</label>
+                                    <input class="form-control" type="text" placeholder="Ciudad" value="{{{credentials.place}}}" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Nombre *</label>
+                                    <input value="${studentData.name}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese nombre" id="newEnrolledName">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Apellido paterno *</label>
+                                    <input value="${studentData.lastname1}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese apellido paterno" id="newEnrolledLastname">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Apellido materno</label>
+                                    <input value="${studentData.lastname2}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese apellido materno" id="newEnrolledLastname2">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Email</label>
+                                    <input value="${studentData.email}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="email" placeholder="Ingrese correo electrónico" id="newEnrolledEmail">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Teléfono</label>
+                                    <input value="${studentData.phone}" class="form-control" type="text" placeholder="Ingrese número de telefono" id="newEnrolledPhone">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Dirección*</label>
+                                    <input value="${studentData.address}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Ingrese Dirección" id="newEnrolledAddress">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-header">Datos de apoderado</h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Nombre completo *</label>
+                                    <input value="${studentData.nameAp}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Nombre completo del apoderado" id="newEnrolledAssigneeName">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Parentesco *</label>
+                                    <input value="${studentData.relationshipAp}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="parentesco con alumno" id="newEnrolledAssigneeRelationship">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Lugar de trabajo</label>
+                                    <input value="${studentData.workAp}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Lugar de trabajo del apoderado" id="newEnrolledAssigneeWorkplace">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Teléfono</label>
+                                    <input value="${studentData.phoneAp}" class="form-control" type="text" placeholder="Teléfono del apoderado" id="newEnrolledAssigneePhone">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Email</label>
+                                    <input value="${studentData.emailAp}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Correo electrónico del apoderado" id="newEnrolledAssigneeEmail">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="card-header">Datos académicos</h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Colegio *</label>
+                                    <input value="${studentData.matricula.colegio}" class="form-control" onkeyup="minToCapital(event, this)" onblur="minToCapital(event, this)" type="text" placeholder="Nombre del colegio" id="newEnrolledSchool">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label generalTrigger">Egreso </label>
+                                    
+                                    <select class="custom-select" id="newEnrolledEgress" disabled>
+                                        <option value="graduated">Egresado</option>
+                                        <option value="notGraduated">No egresado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="egressRes"></div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Becado </label>
+                                    
+                                    <select class="custom-select generalTrigger" id="newEnrolledBeca" disabled>
+                                        <option value="no">No</option>
+                                        <option value="yes">Si</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Promedio *</label>
+                                    
+                                    <input class="form-control generalTrigger solo-numero" type="text" placeholder="Ej: 6.0" id="newEnrolledAverage" disabled>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Horario </label>
+                                    <select id="newEnrolledHorary"></select>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <label class="col-form-label">ETP </label>
+                                <select class="custom-select" id="newEnrolledEtpStatus">
+                                    <option value="no">No</option>
+                                    <option value="yes">Si</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group" id="electivesContainer">
+                                    <label class="col-form-label">Electivos *</label>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="newEnrolledScience">
+                                        <label class="custom-control-label" for="newEnrolledScience" >Ciencias</label>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label><i class="fas fa-graduation-cap"></i> Descuento 2</label>
-                                        <input  id="matrDescuento2"  class="form-control" type="text" readOnly value="${alumnosRowSelectedData.descuento2}">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="newEnrolledHistory">
+                                        <label class="custom-control-label" for="newEnrolledHistory" >Historia</label>
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <div class="form-group" id="scienceRes"></div>
+                            </div>
+
+
                         </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="card">
+                    <h3 class="card-header">Datos de matrícula</h3>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Fecha de matrícula *</label>
+                                    <input value="${studentData.matricula.fechaMatricula}" class="form-control" type="text" placeholder="Fecha de matrícula" id="newEnrolledDate" disabled>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="col-form-label">Día de cobro </label>
+                                    <select disabled class="custom-select" id="newEnrolledPayDay">
+                                        <option value="01">01</option>
+                                        <option value="02">02</option> 
+                                        <option value="03">03</option> 
+                                        <option value="04">04</option> 
+                                        <option value="05">05</option> 
+                                        <option value="06">06</option> 
+                                        <option value="07">07</option> 
+                                        <option value="08">08</option> 
+                                        <option value="09">09</option> 
+                                        <option value="10">10</option> 
+                                        <option value="11">11</option> 
+                                        <option value="12">12</option> 
+                                        <option value="13">13</option> 
+                                        <option value="14">14</option> 
+                                        <option value="15">15</option> 
+                                        <option value="16">16</option>
+                                        <option value="17">17</option> 
+                                        <option value="18">18</option> 
+                                        <option value="19">19</option> 
+                                        <option value="20">20</option> 
+                                        <option value="21">21</option> 
+                                        <option value="22">22</option> 
+                                        <option value="23">23</option> 
+                                        <option value="24">24</option> 
+                                        <option value="25">25</option> 
+                                        <option value="26">26</option> 
+                                        <option value="27">27</option> 
+                                        <option value="28">28</option> 
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Tipo de curso </label>
+                                    <select disabled class="form-control generalTrigger" id="newEnrolledCourseType">
+                                        <option value="yearly">Anual</option>
+                                        <option value="intensive">Intensivo</option>
+                                    </select> 
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Forma de pago </label>
+                                    <select disabled class="form-control generalTrigger" id="newEnrolledPayType">
+                                        <option value="cuotas">Cuotas</option>
+                                        <option value="contado">Contado</option>
+                                    </select> 
+                                </div>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <center><h3><b>Descuentos</b></h3></center>
+                            </div>
+                        </div>
+
+                        <div class="row">
+
+                            
+                            <div class="col-md-1"></div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Descuento 1 </label>
+                                    <select class="form-control generalTrigger" id="newEnrolledDiscount" disabled>
+                                        <option>Sin descuento (0%)</option>
+                                        <option>Hijo de profesor (15%)</option>
+                                        <option>Ex alumno (5%)</option>
+                                        <option>Hermano (15%)</option>
+                                    </select> 
+                                </div>  
+                            </div>
+
+                            <div class="col-md-2"></div>
+                            
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Descuento 2 </label>
+                                    <select class="form-control generalTrigger" id="newEnrolledDiscount2" disabled>
+                                        <option>Sin descuento (0%)</option>
+                                        <option>Hijo de profesor (15%)</option>
+                                        <option>Ex alumno (5%)</option>
+                                        <option>Hermano (15%)</option>
+                                    </select> 
+                                </div>  
+                            </div>
+
+                            <div class="col-md-1"></div>
+                        </div>
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <h3 class="card-header">Pago de matrícula</h3>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label class="col-form-label">N° Boleta *</label>
+                                                    <input class="form-control solo-numero" type="text" placeholder="Número de boleta" id="newEnrolledTicket" disabled>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <h3 class="card-header">Datos financieros</h3>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <table>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Valor matrícula </td>
+                                                            <td><input class="form-control" type="text" placeholder="Valor matrícula" id="newEnrollmentInfoValue" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Cantidad cuotas </td>
+                                                            <td><input class="form-control" type="text" placeholder="Cantidad cuotas" id="newEnrollmentInfoQtyQuotas" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Monto por cuota </td>
+                                                            <td><input class="form-control" type="text" placeholder="Monto por cuota" id="newEnrollmentInfoAmountxQuota" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Total cuotas </td>
+                                                            <td><input class="form-control" type="text" placeholder="Monto por cuota" id="newEnrollmentInfoQuotasTotal" readOnly></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Monto total </td>
+                                                            <td><input class="form-control" type="text" placeholder="Monto por cuota" id="newEnrollmentInfoTotalAmount" readOnly></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                                <div id="loadingGeneralData"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="row"> 
-            <div class="offset-md-6 col-md-3" style="margin-top:15px;">
-                <button id="cancelarModAlum" class="btn btn-secondary btn-block"><i style="color:#f1c40f;" class="fas fa-ban"></i> Cancelar</button>
+        
+        <br>
+        <div id="errMessages"></div>
+        <div class="col-md-12">
+            <div class="row"> 
+                <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                    <button data-dismiss="modal" id="cancel" class="btn btn-secondary btn-block"><i style="color:#e74c3c;" class="fas fa-ban"></i> Cancelar</button>
+                </div>
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="saveNewEnrolled" class="btn btn-secondary btn-block"><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar</button>
+                </div>
             </div>
-            <div class="col-md-3" style="margin-top:15px;">
-                <button id="modificarAlumnoCebal" class="btn btn-secondary btn-block" ><i style="color:#3498db;" class="fas fa-cloud"></i> Modificar</button>
-            </div>
-        </div>                       
-      `)
+        </div>
+    `)    
+    egressStatus()
+    becaStatus()
+    prom()
+    etpStatus()
+    electiveStatus()
+    payDay()
+    tipoCurso()
+    payType()
+    discounts()
+    ticket()
+    values()
 
-let selects = {
-    place:[],
-    horario: [],
-}
-ajax({ // cargar horarios
-    url:'/api/horariosCebalTraerEnrroled'
+    $('#newEnrolledScience').on('change', function() {
+        scienceStatus()
+    })
+
+    function values() {
+        $('#newEnrollmentInfoValue').val(number_format(studentData.matricula.finance.valorMatricula))
+        $('#newEnrollmentInfoQtyQuotas').val(studentData.matricula.finance.numCuotas)
+        $('#newEnrollmentInfoAmountxQuota').val(number_format(studentData.matricula.finance.montoCuota))
+        $('#newEnrollmentInfoQuotasTotal').val(number_format(studentData.matricula.finance.totalCuotas))
+        $('#newEnrollmentInfoTotalAmount').val(number_format(studentData.matricula.finance.montoTotal))
+    }
+
+    function ticket() {
+        $('#newEnrolledTicket').val(studentData.matricula.finance.ticketEnrollment)
+    }
+
+    function discounts() {
+        $('#newEnrolledDiscount').val(studentData.matricula.finance.descuento)
+        $('#newEnrolledDiscount2').val(studentData.matricula.finance.descuento2)
+    }
+
+    function payType() {
+        if(studentData.matricula.finance.formaPago == 'Contado') {
+            $('#newEnrolledPayType').val('contado')
+        } else if(studentData.matricula.finance.formaPago == 'Cuotas') {
+            $('#newEnrolledPayType').val('cuotas')
+        }
+    
+    }
+
+    function tipoCurso() {
+        if(studentData.matricula.tipoCurso == 'Anual') {
+            $('#newEnrolledCourseType').val('yearly')
+        } else if(studentData.matricula.tipoCurso == 'Intensivo') {
+            $('#newEnrolledCourseType').val('intensive')
+        }
+    }
+
+    function payDay() {
+        $('#newEnrolledPayDay').val(studentData.matricula.diaCobro) 
+    }
+
+    function egressStatus() {
+        console.log(studentData.matricula.estadoEgreso)
+        if(studentData.matricula.estadoEgreso == 'Egresado') {
+            $('#newEnrolledEgress').val('graduated')
+            $('#egressRes').html(`
+                <label class="col-form-label">Año de egreso </label>                        
+                <select class="custom-select" id="newEnrolledEgressRes">
+                    <option value="2000">2000</option>
+                    <option value="2001">2001</option>
+                    <option value="2002">2002</option>
+                    <option value="2003">2003</option>
+                    <option value="2004">2004</option>
+                    <option value="2005">2005</option>
+                    <option value="2006">2006</option>
+                    <option value="2007">2007</option>
+                    <option value="2008">2008</option>
+                    <option value="2009">2009</option>
+                    <option value="2010">2010</option>
+                    <option value="2011">2011</option>
+                    <option value="2012">2012</option>
+                    <option value="2013">2013</option>
+                    <option value="2014">2014</option>
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                </select>
+            `)
+            
+            
+            $('#newEnrolledEgressRes').val(studentData.matricula.añoEgreso)    
+            
+        } else if(studentData.matricula.estadoEgreso == 'No egresado') {
+            $('#newEnrolledEgress').val('notGraduated')
+
+            $('#egressRes').html(`
+                <label class="col-form-label">Cursando </label>                        
+                <select class="custom-select" id="newEnrolledEgressRes">
+                    <option value="primero medio">Primero medio</option>
+                    <option value="segundo medio">Segundo medio</option>
+                    <option value="tercero medio">Tercero medio</option>
+                    <option value="cuarto medio">Cuarto medio</option>
+                </select>
+            `)
+
+            
+            $('#newEnrolledEgressRes').val(studentData.matricula.curso)    
+             
+        }
+    }
+
+    function electiveStatus() {
+        if(studentData.matricula.electivo == 'Ciencias' || studentData.matricula.electivo2 == 'Ciencias'){
+            $('#newEnrolledScience').prop('checked', true)
+
+            $('#scienceRes').html(`
+                <label class="col-form-label">electivo 2 *</label>                        
+                <select class="custom-select" id="newEnrolledScienceRes">
+                    <option value="physics">Física</option>
+                    <option value="chemistry">Química</option>
+                    <option value="biology">Biología</option>
+                </select>
+            `)
+
+            if(studentData.matricula.electivoCiencias == 'Química') {
+                $('#newEnrolledScienceRes').val('chemistry')
+            } else if(studentData.matricula.electivoCiencias == 'Física') {
+                $('#newEnrolledScienceRes').val('physics')
+            } else if(studentData.matricula.electivoCiencias == 'Biología') {
+                $('#newEnrolledScienceRes').val('biology')
+            }
+        }
+        
+        if(studentData.matricula.electivo == 'Historia' || studentData.matricula.electivo2 == 'Historia') {
+            $('#newEnrolledHistory').prop('checked', true) 
+        }
+    }
+
+    function scienceStatus() {
+        let scienceStatus = $('#newEnrolledScience').prop('checked')
+        console.log(scienceStatus)
+        if(scienceStatus) {
+            $('#scienceRes').html(`
+                <label class="col-form-label">electivo 2 *</label>                        
+                <select class="custom-select" id="newEnrolledScienceRes">
+                    <option value="physics">Física</option>
+                    <option value="chemistry">Química</option>
+                    <option value="biology">Biología</option>
+                </select>
+            `)
+
+            if(studentData.matricula.electivoCiencias == 'Química') {
+                $('#newEnrolledScienceRes').val('chemistry')
+            } else if(studentData.matricula.electivoCiencias == 'Física') {
+                $('#newEnrolledScienceRes').val('physics')
+            } else if(studentData.matricula.electivoCiencias == 'Biología') {
+                $('#newEnrolledScienceRes').val('biology')
+            }
+
+        } else {
+            $('#scienceRes').empty()
+        }
+    }
+
+    function becaStatus() {
+        if(studentData.matricula.beca == 'Si') {
+            $('#newEnrolledBeca').val('yes')
+        } else if(studentData.matricula.beca == 'No'){
+            $('#newEnrolledBeca').val('no')
+        }
+    }
+
+    function prom() {
+        $('#newEnrolledAverage').val(studentData.matricula.promedio)
+    }
+
+    function etpStatus() {
+        if(studentData.matricula.etp == 'Si') {
+            $('#newEnrolledEtpStatus').val('yes')
+        } else if(studentData.matricula.etp == 'No') {
+            $('#newEnrolledEtpStatus').val('no')
+        }
+    }
+
+    ajax({ // cargar horarios
+        url:'/api/horariosCebalTraer'
     }).then(res => {
+        let selects = {
+            place:[],
+            horary: []
+        }
         console.log(res)
         selects.place = res.filter(function(el) {
             return el.place == '{{{credentials.place}}}'
         })
         console.log(selects.place)
-        let horario = selects.place.reduce((arr, el, i) => {
+        let horary = selects.place.reduce((arr, el, i) => {
             return arr.concat({
                 id: i,
                 text: el.horary
             })   
         }, []);
 
-        $('#matrHorario').select2({
-            placeholder:'seleccione',
+        console.log(horary)
+
+        $('#newEnrolledHorary').select2({
             width:'100%',
-            data: horario
-        });
-    });  
+            data: horary
+        })
+        
 
-//cerrar modal editar alumnos
-$('#cancelarModAlum').on('click', function(){
-    $('#modalEstudiantes').modal('hide')
-})
-//editar los datos de los alumnos
-$('#modificarAlumnoCebal').on('click', function(){
-    let id = alumnosRowSelectedData._id;
-    let birthday   = $('#fechaModAlumno').val();
-    let name    = $('#nombreModAlumno').val();
-    let lastname1  = $('#apellido1ModAlumno').val();
-    let lastname2  = $('#apellido2ModAlumno').val();
-    let email     = $('#correoModAlumno').val();
-    let phone    = $('#celularModAlumno').val();
-    let address  = $('#direccionModAlumno').val();
+        let horarySelected = horary.filter(function(el){
+            return el.text == studentData.matricula.horario
+        })[0]
 
-    let nameAp     = $('#nombreApoderadoMod').val();
-    let relationshipAp = $('#parentescoApoderadoMod').val();
-    let workAp    = $('#trabajoApoderadoMod').val();
-    let phoneAp    = $('#celularApoderadoMod').val();
-    let emailAp     = $('#correoApoderadoMod').val();
+        $('#newEnrolledHorary').val(horarySelected.id).trigger('change');
+    })
 
-    let colegio    = $('#matrColegio').val();
-    let horario    = $('#matrHorario').select2('data')[0].text;
-    ajax({
-        url: 'api/modStudentEnrroledCebal',
-        type: 'POST',
-        data: {
-            id: id,
-            birthday: birthday,
-            name: name,
-            lastname1: lastname1,
-            lastname2: lastname2,
-            email: email,
-            phone: phone,
-            address:  address,
-            nameAp: nameAp,
-            relationshipAp: relationshipAp,
-            workAp: workAp,
-            phoneAp: phoneAp,
-            emailAp: emailAp,
-            colegio: colegio,
-            horario: horario,
-        }
-    }).then(res => {
-        if (res.error) {
-            toastr.error(res.error)
+    $('#saveNewEnrolled').on('click', function(){
+        $('#saveNewEnrolled').attr('disabled', true);
+
+        let newEnrolledObj = {}
+        let validateCounter = 0
+        let errMessage = ''
+
+        // ALUMNO
+        newEnrolledObj.rut             = ktoK(cleanRut(studentData._id))
+        newEnrolledObj.birthdate       = removeExtraSpaces($('#newEnrolledBirthdate').val()) //* 1
+        newEnrolledObj.name            = removeExtraSpaces($('#newEnrolledName').val()) //* 2
+        newEnrolledObj.lastname        = removeExtraSpaces($('#newEnrolledLastname').val()) //* 3
+        newEnrolledObj.lastname2       = removeExtraSpaces($('#newEnrolledLastname2').val()) 
+        newEnrolledObj.email           = removeExtraSpaces($('#newEnrolledEmail').val())
+        newEnrolledObj.phone           = removeExtraSpaces($('#newEnrolledPhone').val())
+        newEnrolledObj.address         = removeExtraSpaces($('#newEnrolledAddress').val()) //* 4
+
+        // APODERADO
+        newEnrolledObj.nameAp          = removeExtraSpaces($('#newEnrolledAssigneeName').val()) //* 5
+        newEnrolledObj.relationshipAp  = removeExtraSpaces($('#newEnrolledAssigneeRelationship').val()) //* 6
+        newEnrolledObj.workAp          = removeExtraSpaces($('#newEnrolledAssigneeWorkplace').val())
+        newEnrolledObj.phoneAp         = removeExtraSpaces($('#newEnrolledAssigneePhone').val())
+        newEnrolledObj.emailAp         = removeExtraSpaces($('#newEnrolledAssigneeEmail').val())
+        
+        // ACADEMICOS
+        newEnrolledObj.school          = removeExtraSpaces($('#newEnrolledSchool').val()) //* 7
+        newEnrolledObj.egressRes       = $('#newEnrolledEgressRes').val()
+        newEnrolledObj.horary          = $('#newEnrolledHorary').select2('data')[0].text //* 8
+        newEnrolledObj.etp             = $('#newEnrolledEtpStatus').val()
+        newEnrolledObj.science         = $('#newEnrolledScience').is(':checked') //* 9
+        newEnrolledObj.history         = $('#newEnrolledHistory').is(':checked') //* 9 
+        newEnrolledObj.scienceElective = $('#newEnrolledScienceRes').val() || '' // si selecciona ciencias debe seleccionar 1
+        
+        
+       
+
+        if(newEnrolledObj.birthdate.length > 0) { // 1
+            validateCounter++
+            $('#newEnrolledBirthdate').css({border:'1px solid #3498db'})
         } else {
-            swal({
-                title: 'Alumno modificado correctamente!',
-                text: res.ok,
-                backdrop: 'static',
-                keyboard: false,
-                type: 'success',
-                timer: 3000
-            }).then(result => {
-                $('#modalEstudiantes').modal('hide')  
-                
-                //location.reload()
-                reloadTableAlumnosEnrolled()
-            })
+            $('#newEnrolledBirthdate').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar una fecha de nacimiento válida.`
         }
-    })
-    })
-};
 
+        if(newEnrolledObj.name.length > 0) { // 2
+            validateCounter++
+            $('#newEnrolledName').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledName').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el nombre del alumno.`
+        }
+
+        if(newEnrolledObj.lastname.length > 0) { // 3
+            validateCounter++
+            $('#newEnrolledLastname').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledLastname').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el apellido paterno del alumno.`
+        }
+
+        if(newEnrolledObj.address.length > 0) { // 4
+            validateCounter++
+            $('#newEnrolledAddress').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledAddress').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar la dirección del alumno.`
+        }
+
+        if(newEnrolledObj.nameAp.length > 0) { // 5
+            validateCounter++
+            $('#newEnrolledAssigneeName').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledAssigneeName').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el nombre completo del apoderado.`
+        }
+
+        if(newEnrolledObj.relationshipAp.length > 0) { // 6
+            validateCounter++
+            $('#newEnrolledAssigneeRelationship').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledAssigneeRelationship').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el parentesco del apoderado con el alumno.`
+        }
+
+        if(newEnrolledObj.school.length > 0) { // 7
+            validateCounter++
+            $('#newEnrolledSchool').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledSchool').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar el nombre del colegio del alumno.`
+        }
+
+        if(newEnrolledObj.horary.length > 0) { // 8
+            validateCounter++
+            $('#newEnrolledHorary').css({border:'1px solid #3498db'})
+        } else {
+            $('#newEnrolledHorary').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe seleccionar un horario`
+        }
+        
+        if(newEnrolledObj.science  || newEnrolledObj.history) { // 9
+            validateCounter++
+            $('#electivesContainer').css({border:'1px solid #3498db'})
+        } else {
+            $('#electivesContainer').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe seleccionar al menos 1 electivo`
+        }
+
+        if(newEnrolledObj.email.length > 0 && !isEmail(newEnrolledObj.email)) { // 9-1
+            validateCounter = validateCounter-1
+            $('#newEnrolledEmail').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar un correo de alumno válido.`
+        } else if(newEnrolledObj.email.length > 0 && isEmail(newEnrolledObj.email)){
+            $('#newEnrolledEmail').css({border:'1px solid #3498db'})
+        } else if(newEnrolledObj.email.length == 0){
+            $('#newEnrolledEmail').css({border:'1px solid #ced4da'})
+        }
+        
+      
+        if(newEnrolledObj.emailAp.length > 0 && !isEmail(newEnrolledObj.emailAp)) { // 9-1
+            validateCounter = validateCounter-1
+            $('#newEnrolledAssigneeEmail').css({border:'1px solid #e74c3c'})
+            errMessage += `<br> * Debe ingresar un correo de apoderado válido.`
+            console.log('correo apoderado incorrecto')
+        } else if(newEnrolledObj.emailAp.length > 0 && isEmail(newEnrolledObj.emailAp)){
+            $('#newEnrolledAssigneeEmail').css({border:'1px solid #3498db'})
+            console.log('correo apoderado correcto')
+        } else if(newEnrolledObj.emailAp.length == 0){
+            $('#newEnrolledAssigneeEmail').css({border:'1px solid #ced4da'})
+            console.log('sin correo apoderado')
+        }
+        
+        if(validateCounter == 9) {
+            $('#errMessages').empty()
+            
+            updateEnrollment(newEnrolledObj)
+            
+        } else {
+            $('#saveNewEnrolled').attr('disabled', false);
+
+            $('#errMessages').html(`
+            <div class="alert alert-dismissible alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <h4 class="alert-heading">Debe solucionar los siguientes errores:</h4>
+                <p class="mb-0">${errMessage}</p>
+            </div>
+            `)
+        }
+
+    })
+    
+    function updateEnrollment(data) {
+        swal({
+            title: '¿Seguro de modificar al estudiante?',
+            type: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Si, modificar.',
+            cancelButtonText: 'No, cancelar.'
+        }).then((result) => {
+            if (result.value) {
+                let sendData = {
+                    //ALUMNO
+                    studentRut          :data.rut,
+                    studentBirthdate    :data.birthdate,
+                    studentName         :data.name,
+                    studentLastname     :data.lastname,   
+                    studentLastname2    :data.lastname2,
+                    studentEmail        :data.email,
+                    studentPhone        :data.phone,
+                    studentAddress      :data.address,
+                    //APODERADO
+                    assigneeName        :data.nameAp,
+                    assigneeRelationship:data.relationshipAp,
+                    assigneeWork        :data.workAp,
+                    assigneePhone       :data.phoneAp,
+                    assigneeEmail       :data.emailAp,
+                    //ACADEMICOS
+                    school              :data.school,
+                    egressRes           :data.egressRes,
+                    horary              :data.horary,
+                    etp                 :data.etp,
+                    science             :data.science,
+                    history             :data.history,
+                    scienceElective     :data.scienceElective,
+                }
+
+                console.log(sendData)
+                
+                ajax({
+                    url: '/api/modEnrollment',
+                    type: 'POST',
+                    data: sendData 
+                }).then(res => {
+                    console.log(res)
+                    if(res.ok) {
+
+                        $('#pagosRetired').prop('disabled', true);
+                        $('#modStudentRetired').prop('disabled', true);
+                        $('#optionStudentRetired').prop('disabled', true);
+                        $('#observationsRetired').prop('disabled', true);
+                        toastr.success('Alumno modificado correctamente')
+                        $('#modalEstudiantes').modal('hide')
+                        res.ok._id = rutFunc(res.ok._id)
+                        res.ok.numMatricula = res.ok.matricula.numMatricula
+
+                        studentRowSelected.remove().draw();
+                        let newStudentRowAdded = studentDatatableSelected.row.add(res.ok)
+                        .draw()
+                        .node()
+
+                        $(newStudentRowAdded).css('color', '#1abc9c')
+                        setTimeout(() => {
+                            $(newStudentRowAdded).css('color', '#484848')
+                        }, 5000);
+                    } else if(res.err) {
+                        $('#saveNewEnrolled').attr('disabled', false);
+                        toastr.warning(res.err)
+                    }
+                })      
+            } else if(result.dismiss) {
+                $('#saveNewEnrolled').attr('disabled', false);
+            }
+        })
+    }
+};
 
 $('#newEnrolled').on('click', function() {
     $('#modalEstudiantes').modal()
@@ -741,7 +1281,7 @@ $('#newEnrolled').on('click', function() {
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="col-form-label">Teléfono</label>
-                                    <input class="form-control" type="text" placeholder="Ingrese correo electrónico" id="newEnrolledPhone">
+                                    <input class="form-control" type="text" placeholder="Ingrese número de telefono" id="newEnrolledPhone">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -882,7 +1422,6 @@ $('#newEnrolled').on('click', function() {
                                 <div class="form-group">
                                     <label class="col-form-label">Día de cobro </label>
                                     <select class="custom-select" id="newEnrolledPayDay">
-                                        <option value="0" disabled>0</option>
                                         <option value="01">01</option>
                                         <option value="02">02</option> 
                                         <option value="03">03</option> 
@@ -1069,10 +1608,18 @@ $('#newEnrolled').on('click', function() {
         
         <br>
         <div id="errMessages"></div>
-        <center>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary" id="saveNewEnrolled">Guardar</button>
-        </center>
+        
+        <div class="col-md-12">
+            <div class="row"> 
+                <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                    <button data-dismiss="modal" id="cancel" class="btn btn-secondary btn-block"><i style="color:#e74c3c;" class="fas fa-ban"></i> Cancelar</button>
+                </div>
+                <div class="col-md-3" style="margin-top:15px;">
+                    <button id="saveNewEnrolled" class="btn btn-secondary btn-block"><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar</button>
+                </div>
+            </div>
+        </div>
+        
     `)
     egressStatus()
     generalFunction()
@@ -1244,6 +1791,8 @@ $('#newEnrolled').on('click', function() {
     })
 
     function generalFunction() {
+        //$('#saveNewEnrolled').attr('disabled', true)
+
         $('#loadingGeneralData').html(`
             <center>
                 <i style="color:#3498db;" class="fa fa-spinner fa-pulse fa-2x fa-fw"></i>
@@ -1579,13 +2128,13 @@ $('#newEnrolled').on('click', function() {
                 allValues.totalCuotas = 0
                 $('#newEnrolledPayType').val('contado')
                 $('#newEnrolledPayType').prop('disabled', true)
-                $('#newEnrolledPayDay').val('0')
+                $('#newEnrolledPayDay').val('01')
                 $('#newEnrolledPayDay').prop('disabled', true)
                 resolve()
             }else if (beca === 'no'){
                 statusBeca = 0
                 $('#newEnrolledPayType').prop('disabled', false)
-                $('#newEnrolledPayDay').val('01') // Puede ser cualquier día
+                //$('#newEnrolledPayDay').val('01') // Puede ser cualquier día
                 $('#newEnrolledPayDay').prop('disabled', false)
                 resolve()
             }
@@ -1698,6 +2247,8 @@ $('#newEnrolled').on('click', function() {
     })
 
     $('#saveNewEnrolled').on('click', function(){
+        $('#saveNewEnrolled').attr('disabled', true);
+
         let newEnrolledObj = {}
         let validateCounter = 0
         let errMessage = ''
@@ -1920,6 +2471,8 @@ $('#newEnrolled').on('click', function() {
                 createEnrollment({data: newEnrolledObj})
             }
         } else {
+            $('#saveNewEnrolled').attr('disabled', false);
+
             $('#errMessages').html(`
             <div class="alert alert-dismissible alert-warning">
                 <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -1934,99 +2487,121 @@ $('#newEnrolled').on('click', function() {
 })
 
 function createEnrollment({data, cheque}) {
+    swal({
+        title: '¿Seguro de matricular al nuevo estudiante?',
+        type: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, matricular.',
+        cancelButtonText: 'No, cancelar.'
+    }).then((result) => {
+        if (result.value) {
+            let sendData = {
+                //ALUMNO
+                studentRut          :ktoK(cleanRut(data.rut)),
+                studentBirthdate    :data.birthdate,
+                studentName         :data.name,
+                studentLastname     :data.lastname,   
+                studentLastname2    :data.lastname2,
+                studentEmail        :data.email,
+                studentPhone        :data.phone,
+                studentAddress      :data.address,
+                //APODERADO
+                assigneeName        :data.nameAp,
+                assigneeRelationship:data.relationshipAp,
+                assigneeWork        :data.workAp,
+                assigneePhone       :data.phoneAp,
+                assigneeEmail       :data.emailAp,
+                //ACADEMICOS
+                school              :data.school,
+                statusEgress        :data.statusEgress,
+                egressRes           :data.egressRes,
+                beca                :data.beca,
+                average             :data.average,
+                horary              :data.horary,
+                etp                 :data.etp,
+                science             :data.science,
+                history             :data.history,
+                scienceElective     :data.scienceElective,
+                //MATRICULA
+                enrollmentDate      :data.enrollmentDate,
+                payDay              :data.payDay,
+                courseType          :data.courseType,
+                payType             :data.payType,
+                yearSelected        :data.yearSelected,
+                //DESCUENTOS
+                discount1           :data.discount1,
+                discount2           :data.discount2,
+                //PAGO
+                firstQuota          :data.firstQuota,
+                paymentMethod       :data.paymentMethod,
+                ticket              :data.ticket,
+                //MONTOS
+                enrollmentCost      :allValues.valorMatricula,
+                QuotasQty           :allValues.cantidadCuotas,
+                QuotaCost           :allValues.montoPorCuota,
+                totalQuotas         :allValues.totalCuotas,
+                totalAmount         :allValues.totalCuotas+allValues.valorMatricula
+            }
 
-    let sendData = {
-        //ALUMNO
-        studentRut          :ktoK(cleanRut(data.rut)),
-        studentBirthdate    :data.birthdate,
-        studentName         :data.name,
-        studentLastname     :data.lastname,   
-        studentLastname2    :data.lastname2,
-        studentEmail        :data.email,
-        studentPhone        :data.phone,
-        studentAddress      :data.address,
-        //APODERADO
-        assigneeName        :data.nameAp,
-        assigneeRelationship:data.relationshipAp,
-        assigneeWork        :data.workAp,
-        assigneePhone       :data.phoneAp,
-        assigneeEmail       :data.emailAp,
-        //ACADEMICOS
-        school              :data.school,
-        statusEgress        :data.statusEgress,
-        egressRes           :data.egressRes,
-        beca                :data.beca,
-        average             :data.average,
-        horary              :data.horary,
-        etp                 :data.etp,
-        science             :data.science,
-        history             :data.history,
-        scienceElective     :data.scienceElective,
-        //MATRICULA
-        enrollmentDate      :data.enrollmentDate,
-        payDay              :data.payDay,
-        courseType          :data.courseType,
-        payType             :data.payType,
-        yearSelected        :data.yearSelected,
-        //DESCUENTOS
-        discount1           :data.discount1,
-        discount2           :data.discount2,
-        //PAGO
-        firstQuota          :data.firstQuota,
-        paymentMethod       :data.paymentMethod,
-        ticket              :data.ticket,
-        //MONTOS
-        enrollmentCost      :allValues.valorMatricula,
-        QuotasQty           :allValues.cantidadCuotas,
-        QuotaCost           :allValues.montoPorCuota,
-        totalQuotas         :allValues.totalCuotas,
-        totalAmount         :allValues.totalCuotas+allValues.valorMatricula
-    }
+            if(cheque) {
+                sendData.cheque = JSON.stringify(cheque)
+            }
 
-    if(cheque) {
-        sendData.cheque = JSON.stringify(cheque)
-    }
+            console.log(sendData)
+            
+            ajax({
+                url: '/api/newEnrollment',
+                type: 'POST',
+                data: sendData 
+            }).then(res => {
+                console.log(res)
+                if(res.ok) {
+                    toastr.success('Alumno matriculado correctamente')
+                    $('#modalEstudiantes').modal('hide')
+                    res.ok._id = rutFunc(res.ok._id)
+                    res.ok.numMatricula = res.ok.matricula.numMatricula
+                    let newStudentRowAdded = datatableAlumnosEnrolled.row.add(res.ok)
+                    .draw()
+                    .node()
 
-    console.log(sendData)
-    
-    ajax({
-        url: '/api/newEnrollment',
-        type: 'POST',
-        data: sendData 
-    }).then(res => {
-        console.log(res)
-        if(res.ok) {
-            toastr.success('Alumno matriculado correctamente')
-            res.ok._id = rutFunc(res.ok._id)
-            res.ok.numMatricula = res.ok.matricula.numMatricula
-            let newWorkerRowAdded = datatableAlumnosEnrolled.row.add(res.ok)
-            .draw()
-            .node()
-
-            $(newWorkerRowAdded).css('color', '#1abc9c')
-            setTimeout(() => {
-                $(newWorkerRowAdded).css('color', '#484848')
-            }, 5000);
-        } else if(res.err) {
-            toastr.warning(res.err)
+                    $(newStudentRowAdded).css('color', '#1abc9c')
+                    setTimeout(() => {
+                        $(newStudentRowAdded).css('color', '#484848')
+                    }, 5000);
+                } else if(res.err) {
+                    $('#saveNewEnrolled').attr('disabled', false);
+                    toastr.warning(res.err)
+                }
+            })      
+        } else if(result.dismiss) {
+            $('#saveNewEnrolled').attr('disabled', false);
         }
     })
-    
-    
 }
 
 $('#observationsEnrolled').on('click', function(){
+    observations(alumnosRowSelectedData)
+})
+
+$('#observationsRetired').on('click', function(){
+    observations(alumnosRowSelectedDataDisabled)
+})
+
+
+function observations(studentData) {
     ajax({
         url:'api/getObservations',
         type: 'POST',
         data: {
-            rut: alumnosRowSelectedData._id
+            rut: studentData._id
         }
     }).then(res=>{
         let creatingObservationStatus = 0;
 
         $('#modalEstudiantes').modal();
-        $('#modal_title').text(`Observaciones de ${alumnosRowSelectedData.name} ${alumnosRowSelectedData.lastname1}`);
+        $('#modal_title').text(`Observaciones de ${studentData.name} ${studentData.lastname1}`);
 
         $('#modal_body').html(`
             <div class="row">
@@ -2120,7 +2695,7 @@ $('#observationsEnrolled').on('click', function(){
                             url: 'api/createObservation',
                             type: 'POST',
                             data: {
-                                rut: alumnosRowSelectedData._id,
+                                rut: studentData._id,
                                 title: newObservationTitleValidate,
                                 text: newObservationTextValidate
                             }
@@ -2150,8 +2725,7 @@ $('#observationsEnrolled').on('click', function(){
         })
         
     })
-})
-
+}
  //iniciar select de horarios
 
 $('#closeMatrStudentEnrolled').on('click', function(){
@@ -2191,12 +2765,17 @@ $('#closeMatrStudentEnrolled').on('click', function(){
 //XXXXXXXXXXXXXXXXXXXXX
 //Opciones estudiante
 $('#optionStudentEnrolled').on('click', function(){
-    opcionesModal();
+    opcionesModal(alumnosRowSelectedData);
 })
-function opcionesModal() { 
-      $('#modalEstudiantes').modal();
-      $('#modal_title').text('Opciones');
-      $('#modal_body').html(`
+
+$('#optionStudentRetired').on('click', function(){
+    opcionesModal(alumnosRowSelectedDataDisabled);
+})
+
+function opcionesModal(studentData) { 
+    $('#modalEstudiantes').modal();
+    $('#modal_title').text('Opciones');
+    $('#modal_body').html(`
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-12">
                 <div class="info-box">
@@ -2237,774 +2816,603 @@ function opcionesModal() {
         </div>
        
      `)
-    /*
-     $('#certificadoMatr').on('click', function () {
-
-         defaultModalHTML = $('#modal_body').html()
-         $('#modal_body').empty()
-      
-        $('#modal_body').html(`
-        <div class="row"> 
-            <div class="col-md-3" style="margin-top:15px;">
-                <button id="Atrás" class="btn btn-danger btn-block"><i class="fas fa-ban"></i> Atrás</button>
-            </div>
-            <div class="col-md-3" style="margin-top:15px;">
-                <button id="printPDF" class="btn btn-primary btn-block"><i class="fas fa-cloud"></i> Imprimir</button>
-            </div>
-
-            <div class="col-md-12" id="matriculaImprimir" style="margin-top:20px">
-                <div class="row">
-                    <div class="col-md-2 col-xs-12">
-                        <img class="card-img-top" src="/public/img/logo.png" width:"100%">
-                    </div>
-                <div class="offset-md-2 col-md-4">
-                        <label><h5><u>Ficha de Matrícula</u></h5></label><br>
-                        <label> Preuniversitario CEBAL </label>  
-                    </div> 
-                    <div class="col-md-2 col-xs-12">
-                        <img class="card-img-top" src="/public/img/carnet2.jpeg" width:"100%">
-                    </div>
-                </div>
-                <div class="row" style="margin-top:-30px;">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                        <label><b> Nombre completo</b></label>
-                    </div>
-                    <div class="col-md-5 col-sm-6">
-                        <label>${alumnosRowSelectedData.name + " " + alumnosRowSelectedData.lastname1 + " " + alumnosRowSelectedData.lastname2}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                        <label><b> Rut</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData._id}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                        <label><b> Fecha de nacimiento</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                        <label>${alumnosRowSelectedData.birthday}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                        <label><b> Domicilio</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.address}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                        <label><b> Celular</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                        <label>${alumnosRowSelectedData.phone}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                        <label><b> Correo</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.email}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Colegio</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.colegio}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Año de egreso</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.añoEgreso}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                        <label><b> Promedio</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.promedio}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Horario</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.horario}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Prueba optativa</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.electivo}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Apoderado</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.apoderado}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Parentesco</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.parentesco}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Lugar de trabajo</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.workAp}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Celular apoderado</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.phoneAp}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Fecha de matrícula</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.date}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Tipo de curso</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.tipoCurso}</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="offset-md-2 col-md-3 col-sm-6">
-                            <label><b> Forma de pago</b></label>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                         <label>${alumnosRowSelectedData.formaP}</label>
-                    </div>
-                </div><br><br>
-                <div class="row">
-                    <div class="offset-md-1 col-md-11 col-sm-11">
-                        <center><label>Dirección: Manuel Montt #358 - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl</label>
-                        <label>CEBAL Sólido eN P.S.U</label></center>
-                        </div>
-                </div>
-            </div>
-        </div>
-            `)
-        $('#Atrás').on('click', function () {
-            $('#modal_body').html(defaultModalHTML)
-        })
-*/  
-$('#certificadoRegular').on('click', function () {
-            var doc = new jsPDF();
-            doc.setDrawColor(0, 0, 0);
-            doc.setFontSize(16);
-            doc.setFontType("bold")
-            doc.text(66,83,"Certificado de alumno regular");
-            doc.line(66, 85, 145, 85);
-            doc.addImage(logoCebal, 'JPEG', 20, 40, 40, 15);
-
-            doc.setFontType("normal");
-            doc.setFontSize(10);
-            doc.text(130,40, moment().format('dddd DD [de] MMMM [de] YYYY'));
-            doc.setFontSize(12);
-            doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${alumnosRowSelectedData.name} ${alumnosRowSelectedData.lastname1.trim()} ${alumnosRowSelectedData.lastname2.trim()}, Rut ${alumnosRowSelectedData._id} es alumno(a)`);
-            doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${alumnosRowSelectedData.numMatricula}, año ${moment().format('YYYY')}.`);
-            doc.text(37,128,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
-            
-
-            doc.setFontSize(14);
-            doc.setFontType("bold")
-            doc.text(79,250,"Ricardo Bravo Méndez");
-            doc.text(95,257,"Director");
-
-
-            doc.setFontType("italic");
-            doc.setFontSize(9);
-            if (place==='Curicó'){
-                doc.text(35,275,"Dirección: Manuel Montt #358, Curicó - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
-            }else if(place==='Parral'){
-                doc.text(35,275,"Dirección: Urrutia #405, Parral - Contacto: parral@cebal.cl - Fono: 73 2462307 - www.cebal.cl");
-            }else if (place==='Linares'){
-                doc.text(35,275,"Dirección: Manuel Rodriguez #315, Linares - Contacto: linares@cebal.cl - Fono: 73 2214675 - www.cebal.cl");
-            }
-            doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
-
-            doc.setFontSize(8)
-            doc.setFont('times')
-            doc.setFontType('normal')
-            doc.setTextColor(100)
-            doc.text(35, 290, `Generado por {{{credentials.name}}}`+` {{{credentials.lastname}}}`)
-            doc.save(`Certificado alumno regular `+ ` ${alumnosRowSelectedData.name}.pdf`);
-        
-        })
-
-        $('#printPDF').on('click', function () {
-            var doc = new jsPDF();
-            doc.setDrawColor(0, 0, 0);
-            doc.setFontSize(16);
-            doc.setFontType("bold")
-            doc.text(85,50,"Ficha de Matrícula");
-            doc.line(85, 52, 134, 52);
-            doc.setFontSize(10);
-            doc.setFontType("normal");
-            doc.text(90,58,"Preuniversitario CEBAL");
-
-            doc.addImage(logoCebal, 'JPEG', 20, 32, 30, 10);
-            doc.addImage(perfil, 'JPEG', 150, 42, 40, 40);
-
-            doc.setFontType("bold");
-            doc.text(40,78,"N° Matrícula");
-            doc.setFontType("normal");
-            doc.text(85,78,alumnosRowSelectedData.numMatricula.toString());
-
-            doc.setFontType("bold");
-            doc.text(40,85,"Año");
-            doc.setFontType("normal");
-            doc.text(85,85,moment(alumnosRowSelectedData.date).format('YYYY'));
-            
-            doc.line(40, 88, 134, 88);
-            doc.setFontSize(11);
-            doc.setFontType("bold");
-            doc.text(40,94,"Nombre Completo");
-            doc.setFontType("normal");
-            doc.text(85,94,alumnosRowSelectedData.name + " " + alumnosRowSelectedData.lastname1 + " " + alumnosRowSelectedData.lastname2);
-
-            doc.setFontType("bold");
-            doc.text(40,101,"Rut");
-            doc.setFontType("normal");
-            doc.text(85,101,rutFunc(alumnosRowSelectedData._id));
-
-            doc.setFontType("bold");
-            doc.text(40,108,"Fecha de nacimiento");
-            doc.setFontType("normal");
-            doc.text(85,108,alumnosRowSelectedData.birthday);
-
-            doc.setFontType("bold");
-            doc.text(40,115,"Domicilio");
-            doc.setFontType("normal");
-            doc.text(85,115,alumnosRowSelectedData.address);
-            
-            doc.setFontType("bold");
-            doc.text(40,122,"Celular");
-            doc.setFontType("normal");
-            doc.text(85,122,alumnosRowSelectedData.phone);
-
-            doc.setFontType("bold");
-            doc.text(40,129,"Correo");
-            doc.setFontType("normal");
-            doc.text(85,129,alumnosRowSelectedData.email);
-
-            doc.setFontType("bold");
-            doc.text(40,136,"Colegio");
-            doc.setFontType("normal");
-            doc.text(85,136,alumnosRowSelectedData.matricula.colegio);
-            
-            if(alumnosRowSelectedData.matricula.estadoEgreso == 'Graduado') {
-                doc.setFontType("bold");
-                doc.text(40,143,"Año de egreso");
-                doc.setFontType("normal");
-                doc.text(85,143,alumnosRowSelectedData.matricula.añoEgreso);
-            } else {
-                doc.setFontType("bold");
-                doc.text(40,143,"Cursando");
-                doc.setFontType("normal");
-                doc.text(85,143,alumnosRowSelectedData.matricula.curso);
-            }
-
-            
-
-            doc.setFontType("bold");
-            doc.text(40,150,"Promedio");
-            doc.setFontType("normal");
-            doc.text(85,150,alumnosRowSelectedData.matricula.promedio);
-
-            doc.setFontType("bold");
-            doc.text(40,157,"Horario");
-            doc.setFontType("normal");
-            doc.text(85,157,alumnosRowSelectedData.matricula.horario);
-            
-            if(alumnosRowSelectedData.matricula.electivo == 'Ciencias' && alumnosRowSelectedData.matricula.electivo2 == 'Historia') { // CIENCIAS Y HISTORIA
-                doc.setFontType("bold");
-                doc.text(40,164,"Electivos");
-                doc.setFontType("normal");
-                doc.text(85,164,alumnosRowSelectedData.matricula.electivo + ": "+alumnosRowSelectedData.matricula.electivoCiencias+" | "+ alumnosRowSelectedData.matricula.electivo2);
-            } else if(alumnosRowSelectedData.matricula.electivo == 'Historia' && alumnosRowSelectedData.matricula.electivo2 == 'Ciencias') { // HISTORIA Y CIENCIAS
-                doc.setFontType("bold");
-                doc.text(40,164,"Electivos");
-                doc.setFontType("normal");
-                doc.text(85,164,alumnosRowSelectedData.matricula.electivo2 + ": "+alumnosRowSelectedData.matricula.electivoCiencias+" | "+ alumnosRowSelectedData.matricula.electivo);
-            } else if(alumnosRowSelectedData.matricula.electivo == 'Ciencias' && alumnosRowSelectedData.matricula.electivo2 == '') { // SOLO CIENCIAS
-                doc.setFontType("bold");
-                doc.text(40,164,"Electivo");
-                doc.setFontType("normal");
-                doc.text(85,164,alumnosRowSelectedData.matricula.electivo + ": "+alumnosRowSelectedData.matricula.electivoCiencias);
-            } else if(alumnosRowSelectedData.matricula.electivo == 'Historia' && alumnosRowSelectedData.matricula.electivo2 == '') { // SOLO HISTORIA
-                doc.setFontType("bold");
-                doc.text(40,164,"Electivo");
-                doc.setFontType("normal");
-                doc.text(85,164,alumnosRowSelectedData.matricula.electivo);
-            }
-
-            doc.line(40, 168, 134, 168);
-            doc.setFontType("bold");
-            doc.text(40,174,"Apoderado");
-            doc.setFontType("normal");
-            doc.text(85,174,alumnosRowSelectedData.nameAp);
-
-            doc.setFontType("bold");
-            doc.text(40,181,"Parentesco");
-            doc.setFontType("normal");
-            doc.text(85,181,alumnosRowSelectedData.relationshipAp);
-
-            doc.setFontType("bold");
-            doc.text(40,188,"Lugar de trabajo");
-            doc.setFontType("normal");
-            doc.text(85,188,alumnosRowSelectedData.workAp);
-            
-            doc.setFontType("bold");
-            doc.text(40,195,"Teléfono apoderado");
-            doc.setFontType("normal");
-            doc.text(85,195,alumnosRowSelectedData.phoneAp);
-
-            doc.setFontType("normal");
-            doc.line(40, 198, 134, 198);
-            doc.setFontType("bold");
-            doc.text(40,204,"Fecha matrícula");
-            doc.setFontType("normal");
-            doc.text(85,204,moment(alumnosRowSelectedData.date).format('DD/MM/YYYY'));
-
-            doc.setFontType("bold");
-            doc.text(40,211,"Tipo de curso");
-            doc.setFontType("normal");
-            doc.text(85,211,alumnosRowSelectedData.matricula.tipoCurso);
-
-            doc.setFontType("bold");
-            doc.text(40,218,"Forma de pago");
-            doc.setFontType("normal");
-            doc.text(85,218,alumnosRowSelectedData.matricula.finance.formaPago);
-            
-            doc.setFontType("italic");
-            doc.setFontSize(9);
-            if (place==='Curicó'){
-                doc.text(35,275,"Dirección: Manuel Montt #358, Curicó - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
-            }else if(place==='Parral'){
-                doc.text(35,275,"Dirección: Urrutia #405, Parral - Contacto: parral@cebal.cl - Fono: 73 2462307 - www.cebal.cl");
-            }else if (place==='Linares'){
-                doc.text(35,275,"Dirección: Manuel Rodriguez #315, Linares - Contacto: linares@cebal.cl - Fono: 73 2214675 - www.cebal.cl");
-            }
-           
-            doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
-            doc.save(`FichaMatricula `+ ` ${alumnosRowSelectedData.name}.pdf`);
-        })
-
-     }
     
+    $('#certificadoRegular').on('click', function () {
+        var doc = new jsPDF();
+        doc.setDrawColor(0, 0, 0);
+        doc.setFontSize(16);
+        doc.setFontType("bold")
+        doc.text(66,83,"Certificado de alumno regular");
+        doc.line(66, 85, 145, 85);
+        doc.addImage(logoCebal, 'JPEG', 20, 40, 40, 15);
+
+        doc.setFontType("normal");
+        doc.setFontSize(10);
+        doc.text(130,40, moment().format('dddd DD [de] MMMM [de] YYYY'));
+        doc.setFontSize(12);
+        doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${studentData.name} ${studentData.lastname1.trim()} ${studentData.lastname2.trim()}, Rut ${studentData._id} es alumno(a)`);
+        doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${studentData.numMatricula}, año ${moment().format('YYYY')}.`);
+        doc.text(37,128,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
+        
+
+        doc.setFontSize(14);
+        doc.setFontType("bold")
+        doc.text(79,250,"Ricardo Bravo Méndez");
+        doc.text(95,257,"Director");
 
 
-    $('#pagosEnrolled').on('click', function(){
-        pagosModal();
+        doc.setFontType("italic");
+        doc.setFontSize(9);
+        if (place==='Curicó'){
+            doc.text(35,275,"Dirección: Manuel Montt #358, Curicó - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
+        }else if(place==='Parral'){
+            doc.text(35,275,"Dirección: Urrutia #405, Parral - Contacto: parral@cebal.cl - Fono: 73 2462307 - www.cebal.cl");
+        }else if (place==='Linares'){
+            doc.text(35,275,"Dirección: Manuel Rodriguez #315, Linares - Contacto: linares@cebal.cl - Fono: 73 2214675 - www.cebal.cl");
+        }
+        doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
+
+        doc.setFontSize(8)
+        doc.setFont('times')
+        doc.setFontType('normal')
+        doc.setTextColor(100)
+        doc.text(35, 290, `Generado por {{{credentials.name}}}`+` {{{credentials.lastname}}}`)
+        doc.save(`Certificado alumno regular `+ ` ${studentData.name}.pdf`);
+            
     })
 
-    function pagosModal() {
-        console.log('enviando pago')
-        let cuotasAPagar = []
-        ajax({
-            url: '/api/getCuotas',
-            type: 'POST',
-            data:{rut: alumnosRowSelectedData._id}
-        }).then(res=>{
-            console.log(res)
-            let maxCuotas = alumnosRowSelectedData.numCuotas
-            let montoTotal = 0
-            let chequeStatus = 0
+    $('#printPDF').on('click', function () {
+        var doc = new jsPDF();
+        doc.setDrawColor(0, 0, 0);
+        doc.setFontSize(16);
+        doc.setFontType("bold")
+        doc.text(85,50,"Ficha de Matrícula");
+        doc.line(85, 52, 134, 52);
+        doc.setFontSize(10);
+        doc.setFontType("normal");
+        doc.text(90,58,"Preuniversitario CEBAL");
 
-            let listCuotas = res.ok.matricula.finance.cuotas.reduce((txt, el, i)=>{
-                let thisList = ''
-                
-                if(el.status == 'pending') {
-                    thisList = `
-                    <div class="col-md-4" style="margin-top:10px;">
-                        <a id="cuota_${el.num}" href="#" class="list-group-item list-group-item-action flex-column align-items-start cuotaPay">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
-                                <small>Cuota número ${el.num}</small>
-                            </div>
-                            <p class="mb-1">$ ${number_format(el.amount)}</p>
-                            <small>Pendiente</small>
-                        </a>
-                    </div>
-                    `
-                } else if(el.status == 'payed') {
-                    let ticketPayed = ''
-                    if(el.ticket) {
-                        ticketPayed = `<span>Boleta: <b>${el.ticket}</b></span>`
-                    }
-                    thisList = `
-                    <div class="col-md-4" style="margin-top:10px;">
-                        <a href="#" onclick="getTicket('${el.ticket}')" class="list-group-item list-group-item-action flex-column align-items-start active">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
-                                <small>Cuota número ${el.num}</small>
-                            </div>
-                            <p class="mb-1">$ ${number_format(el.amount)}</p>
-                            ${ticketPayed}
-                            <br>
-                            <small>Pagada el ${moment(el.payedDay).format('DD/MM/YYYY')}</small>
-                        </a>
-                    </div>
-                    `
-                }
-                return txt += `
-                    ${thisList}
-                `
-            }, '') 
+        doc.addImage(logoCebal, 'JPEG', 20, 32, 30, 10);
+        doc.addImage(perfil, 'JPEG', 150, 42, 40, 40);
+
+        doc.setFontType("bold");
+        doc.text(40,78,"N° Matrícula");
+        doc.setFontType("normal");
+        doc.text(85,78,studentData.numMatricula.toString());
+
+        doc.setFontType("bold");
+        doc.text(40,85,"Año");
+        doc.setFontType("normal");
+        doc.text(85,85,moment(studentData.date).format('YYYY'));
+        
+        doc.line(40, 88, 134, 88);
+        doc.setFontSize(11);
+        doc.setFontType("bold");
+        doc.text(40,94,"Nombre Completo");
+        doc.setFontType("normal");
+        doc.text(85,94,studentData.name + " " + studentData.lastname1 + " " + studentData.lastname2);
+
+        doc.setFontType("bold");
+        doc.text(40,101,"Rut");
+        doc.setFontType("normal");
+        doc.text(85,101,rutFunc(studentData._id));
+
+        doc.setFontType("bold");
+        doc.text(40,108,"Fecha de nacimiento");
+        doc.setFontType("normal");
+        doc.text(85,108,studentData.birthday);
+
+        doc.setFontType("bold");
+        doc.text(40,115,"Domicilio");
+        doc.setFontType("normal");
+        doc.text(85,115,studentData.address);
+        
+        doc.setFontType("bold");
+        doc.text(40,122,"Celular");
+        doc.setFontType("normal");
+        doc.text(85,122,studentData.phone);
+
+        doc.setFontType("bold");
+        doc.text(40,129,"Correo");
+        doc.setFontType("normal");
+        doc.text(85,129,studentData.email);
+
+        doc.setFontType("bold");
+        doc.text(40,136,"Colegio");
+        doc.setFontType("normal");
+        doc.text(85,136,studentData.matricula.colegio);
+        
+        if(studentData.matricula.estadoEgreso == 'Graduado') {
+            doc.setFontType("bold");
+            doc.text(40,143,"Año de egreso");
+            doc.setFontType("normal");
+            doc.text(85,143,studentData.matricula.añoEgreso);
+        } else {
+            doc.setFontType("bold");
+            doc.text(40,143,"Cursando");
+            doc.setFontType("normal");
+            doc.text(85,143,studentData.matricula.curso);
+        }
+
+        
+
+        doc.setFontType("bold");
+        doc.text(40,150,"Promedio");
+        doc.setFontType("normal");
+        doc.text(85,150,studentData.matricula.promedio);
+
+        doc.setFontType("bold");
+        doc.text(40,157,"Horario");
+        doc.setFontType("normal");
+        doc.text(85,157,studentData.matricula.horario);
+        
+        if(studentData.matricula.electivo == 'Ciencias' && studentData.matricula.electivo2 == 'Historia') { // CIENCIAS Y HISTORIA
+            doc.setFontType("bold");
+            doc.text(40,164,"Electivos");
+            doc.setFontType("normal");
+            doc.text(85,164,studentData.matricula.electivo + ": "+studentData.matricula.electivoCiencias+" | "+ studentData.matricula.electivo2);
+        } else if(studentData.matricula.electivo == 'Historia' && studentData.matricula.electivo2 == 'Ciencias') { // HISTORIA Y CIENCIAS
+            doc.setFontType("bold");
+            doc.text(40,164,"Electivos");
+            doc.setFontType("normal");
+            doc.text(85,164,studentData.matricula.electivo2 + ": "+studentData.matricula.electivoCiencias+" | "+ studentData.matricula.electivo);
+        } else if(studentData.matricula.electivo == 'Ciencias' && studentData.matricula.electivo2 == '') { // SOLO CIENCIAS
+            doc.setFontType("bold");
+            doc.text(40,164,"Electivo");
+            doc.setFontType("normal");
+            doc.text(85,164,studentData.matricula.electivo + ": "+studentData.matricula.electivoCiencias);
+        } else if(studentData.matricula.electivo == 'Historia' && studentData.matricula.electivo2 == '') { // SOLO HISTORIA
+            doc.setFontType("bold");
+            doc.text(40,164,"Electivo");
+            doc.setFontType("normal");
+            doc.text(85,164,studentData.matricula.electivo);
+        }
+
+        doc.line(40, 168, 134, 168);
+        doc.setFontType("bold");
+        doc.text(40,174,"Apoderado");
+        doc.setFontType("normal");
+        doc.text(85,174,studentData.nameAp);
+
+        doc.setFontType("bold");
+        doc.text(40,181,"Parentesco");
+        doc.setFontType("normal");
+        doc.text(85,181,studentData.relationshipAp);
+
+        doc.setFontType("bold");
+        doc.text(40,188,"Lugar de trabajo");
+        doc.setFontType("normal");
+        doc.text(85,188,studentData.workAp);
+        
+        doc.setFontType("bold");
+        doc.text(40,195,"Teléfono apoderado");
+        doc.setFontType("normal");
+        doc.text(85,195,studentData.phoneAp);
+
+        doc.setFontType("normal");
+        doc.line(40, 198, 134, 198);
+        doc.setFontType("bold");
+        doc.text(40,204,"Fecha matrícula");
+        doc.setFontType("normal");
+        doc.text(85,204,moment(studentData.date).format('DD/MM/YYYY'));
+
+        doc.setFontType("bold");
+        doc.text(40,211,"Tipo de curso");
+        doc.setFontType("normal");
+        doc.text(85,211,studentData.matricula.tipoCurso);
+
+        doc.setFontType("bold");
+        doc.text(40,218,"Forma de pago");
+        doc.setFontType("normal");
+        doc.text(85,218,studentData.matricula.finance.formaPago);
+        
+        doc.setFontType("italic");
+        doc.setFontSize(9);
+        if (place==='Curicó'){
+            doc.text(35,275,"Dirección: Manuel Montt #358, Curicó - Contacto: contacto@cebal.cl - Fono: 75 2320402 - www.cebal.cl");
+        }else if(place==='Parral'){
+            doc.text(35,275,"Dirección: Urrutia #405, Parral - Contacto: parral@cebal.cl - Fono: 73 2462307 - www.cebal.cl");
+        }else if (place==='Linares'){
+            doc.text(35,275,"Dirección: Manuel Rodriguez #315, Linares - Contacto: linares@cebal.cl - Fono: 73 2214675 - www.cebal.cl");
+        }
+        
+        doc.text(70,280,"Preuniversitario CEBAL - Sólido en P.S.U");
+        doc.save(`FichaMatricula `+ ` ${studentData.name}.pdf`);
+    })
+
+}
+    
+
+
+$('#pagosEnrolled').on('click', function(){
+    pagosModal(alumnosRowSelectedData._id);
+})
+
+$('#pagosRetired').on('click', function(){
+    pagosModal(alumnosRowSelectedDataDisabled._id);
+})
+
+function pagosModal(selected_id) {
+    //alumnosRowSelectedDataDisabled
+    console.log('enviando pago')
+    let cuotasAPagar = []
+    let cuotasARemover = []
+
+    ajax({
+        url: '/api/getCuotas',
+        type: 'POST',
+        data:{rut: selected_id}
+    }).then(res=>{
+        console.log(res)
+        let montoTotal = 0
+        let chequeStatus = 0
+
+        let listCuotas = res.ok.matricula.finance.cuotas.reduce((txt, el, i)=>{
+            let thisList = ''
             
-            let enrollmentTicketPayed = ''
-            if(res.ok.matricula.finance.ticketEnrollment) {
-                enrollmentTicketPayed = `<span>Boleta: <b>${res.ok.matricula.finance.ticketEnrollment}</b></span>`
-            }
-            $('#modalEstudiantes').modal();
-            $('#modal_title').html('Gestión de cuotas');
-            $('#modal_body').html(`
-                <div class="card  mb-12" style="max-width: 50rem;">
-                    <div class="card-header"><h5>Datos estudiante</h5></div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <label style="float:left;"><i class="fa fa-user"></i> Rut</label>
-                                <input type="text" value="${rutFunc(res.ok._id)}"  required class="form-control border-input" readOnly>
-                            </div>
-                            <div class="col-md-4">
-                                <label style="float:left;"><i class="fa fa-user"></i> Nombre</label>
-                                <input type="text" value="${res.ok.name} ${res.ok.lastname1}"  required class="form-control border-input" readOnly>
-                            </div>
-                            <div class="col-md-4">
-                                <label style="float:left;"><i class="fa fa-key"></i> Monto matrícula</label>
-                                <input type="text" value="${res.ok.matricula.finance.valorMatricula}"  required class="form-control border-input" readOnly>
-                            </div>
-                            <div class="col-md-4">
-                                <label style="float:left;"><i class="fa fa-key"></i> Cantidad total de cuotas</label>
-                                <input type="text" value="${res.ok.matricula.finance.numCuotas}"  required class="form-control border-input" readOnly>
-                            </div>
-                            <div class="col-md-4">
-                                <label style="float:left;"><i class="fa fa-key"></i> Valor de cada cuota</label>
-                                <input type="text" value="${res.ok.matricula.finance.montoCuota}"  required class="form-control border-input" readOnly>
-                            </div>
-                            <div class="col-md-4">
-                                <label style="float:left;"><i class="fa fa-key"></i> Monto Total cuotas</label>
-                                <input type="text" value="${res.ok.matricula.finance.totalCuotas}"  required class="form-control border-input" readOnly>
-                            </div>
-                            
+            if(el.status == 'pending') {
+                thisList = `
+                <div class="col-md-4" style="margin-top:10px;">
+                    <a id="cuota_${el.num}" href="#" class="list-group-item list-group-item-action flex-column align-items-start cuotaPay">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
+                            <small>Cuota número ${el.num}</small>
                         </div>
+                        <p class="mb-1">$ ${number_format(el.amount)}</p>
+                        <small>Pendiente</small>
+                    </a>
+                </div>
+                `
+            } else if(el.status == 'payed') {
+                let ticketPayed = ''
+                if(el.ticket) {
+                    ticketPayed = `<span>Boleta: <b>${el.ticket}</b></span>`
+                }
+                thisList = `
+                <div class="col-md-4" style="margin-top:10px;">
+                    <a href="#" onclick="getTicket('${el.ticket}')" class="list-group-item list-group-item-action flex-column align-items-start active">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
+                            <small>Cuota número ${el.num}</small>
+                        </div>
+                        <p class="mb-1">$ ${number_format(el.amount)}</p>
+                        ${ticketPayed}
+                        <br>
+                        <small>Pagada el ${moment(el.payedDay).format('DD/MM/YYYY')}</small>
+                    </a>
+                </div>
+                `
+            } else if(el.status == 'removed') {
+                thisList = `
+                    <div class="col-md-4" style="margin-top:10px;">
+                        <a href="#" class="list-group-item list-group-item-action flex-column align-items-start removedStatus">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">${moment(el.payday).format('DD/MM/YYYY')}</h5>
+                                <small>Cuota número ${el.num}</small>
+                            </div>
+                            <p class="mb-1">$ ${number_format(el.amount)}</p>
+                            <h4><b>Removida</b></h4>
+                            <small>Removida el ${moment(el.removedDay).format('DD/MM/YYYY')}</small>
+                        </a>
                     </div>
+                `
+            }
+
+            return txt += `
+                ${thisList}
+            `
+        }, '') 
+        
+        let enrollmentTicketPayed = ''
+        if(res.ok.matricula.finance.ticketEnrollment) {
+            enrollmentTicketPayed = `<span>Boleta: <b>${res.ok.matricula.finance.ticketEnrollment}</b></span>`
+        }
+        $('#modalEstudiantes').modal();
+        $('#modal_title').html('Gestión de cuotas');
+        $('#modal_body').html(`
+            <div class="card  mb-12" style="max-width: 50rem;">
+                <div class="card-header"><h5>Datos estudiante</h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-user"></i> Rut</label>
+                            <input type="text" value="${rutFunc(res.ok._id)}"  required class="form-control border-input" readOnly>
+                        </div>
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-user"></i> Nombre</label>
+                            <input type="text" value="${res.ok.name} ${res.ok.lastname1}"  required class="form-control border-input" readOnly>
+                        </div>
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-key"></i> Monto matrícula</label>
+                            <input type="text" value="${res.ok.matricula.finance.valorMatricula}"  required class="form-control border-input" readOnly>
+                        </div>
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-key"></i> Cantidad total de cuotas</label>
+                            <input type="text" value="${res.ok.matricula.finance.numCuotas}"  required class="form-control border-input" readOnly>
+                        </div>
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-key"></i> Valor de cada cuota</label>
+                            <input type="text" value="${res.ok.matricula.finance.montoCuota}"  required class="form-control border-input" readOnly>
+                        </div>
+                        <div class="col-md-4">
+                            <label style="float:left;"><i class="fa fa-key"></i> Monto Total cuotas</label>
+                            <input type="text" value="${res.ok.matricula.finance.totalCuotas}"  required class="form-control border-input" readOnly>
+                        </div>
+                        
                     </div>
                 </div>
-                        
+                </div>
+            </div>
+                    
 
-                <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
-                    <div class="card-header"><h5>Acción <input type="checkbox" id="toggle_quota_status" checked data-toggle="toggle" data-onstyle="success" data-offstyle="danger"></h5></div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <a href="#" onclick="getTicket('${res.ok.matricula.finance.ticketEnrollment}')" class="list-group-item list-group-item-action flex-column align-items-start active">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1">${moment(res.ok.matricula.date).format('DD/MM/YYYY')}</h5>
-                                        <small>Matrícula</small>
-                                    </div>
-                                    <p class="mb-1">$ ${res.ok.matricula.finance.valorMatricula}</p>
-                                    ${enrollmentTicketPayed}
-                                    <br>
-                                    <small>Pagada</small>
-                                </a>
-                            </div>
-                            ${listCuotas}
+            <div class="card  mb-12" style="max-width: 50rem;margin-top:10px" >
+                <div class="card-header"><h5>Acción : 
+                    <span>
+                        <label class="radio-inline"> <input type="radio" name="season" id="payQuotaOption" value="pay" checked> Pagar </label>
+                        <label class="radio-inline"> <input type="radio" name="season" id="removeQuotaOption" value="remove"> Remover </label>
+                    </span>
+            
+                </h5></div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="#" onclick="getTicket('${res.ok.matricula.finance.ticketEnrollment}')" class="list-group-item list-group-item-action flex-column align-items-start active">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">${moment(res.ok.matricula.date).format('DD/MM/YYYY')}</h5>
+                                    <small>Matrícula</small>
+                                </div>
+                                <p class="mb-1">$ ${res.ok.matricula.finance.valorMatricula}</p>
+                                ${enrollmentTicketPayed}
+                                <br>
+                                <small>Pagada</small>
+                            </a>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6" style="margin-top:10px;">
-                                <label style="float:left;"><i class="fa fa-asterisk"></i> Forma de pago *</label>
-                                <select class="form-control" id="boletaFormaPago">
-                                    <option value="cash">Efectivo</option>
-                                    <option value="check">Cheque</option>
-                                    <option value="transfer">Transferencia</option>
-                                </select> 
-                            </div>
-    
-                            
-                            <div class="col-md-6" style="margin-top:10px"> 
-                                <label style="float:left;"><i class="fa fa-asterisk"></i> Número de boleta *</label>
-                                <input id="ticket" type="text" value="" placeholder="Debe agregar un número de boleta" class="form-control border-input solo-numero">
-                            </div>
-                        </div>
-                        <div id="ifCheque"></div>
+                        ${listCuotas}
                     </div>
                     
-                </div>
-                <div class="col-md-12">
-                    <div class="row"> 
-                        <div class="offset-md-6 col-md-3" style="margin-top:15px;">
-                            <button id="cancel" class="btn btn-secondary btn-block"><i style="color:#e74c3c;" class="fas fa-ban"></i> Cancelar</button>
+                    <div class="row">
+                        <div class="col-md-6" style="margin-top:10px;">
+                            <label style="float:left;"><i class="fa fa-asterisk"></i> Forma de pago *</label>
+                            <select class="form-control" id="boletaFormaPago">
+                                <option value="cash">Efectivo</option>
+                                <option value="check">Cheque</option>
+                                <option value="transfer">Transferencia</option>
+                            </select> 
                         </div>
-                        <div class="col-md-3" style="margin-top:15px;">
-                            <button id="save" class="btn btn-secondary btn-block"><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar</button>
+
+                        
+                        <div class="col-md-6" style="margin-top:10px"> 
+                            <label style="float:left;"><i class="fa fa-asterisk"></i> Número de boleta *</label>
+                            <input id="ticket" type="text" value="" placeholder="Debe agregar un número de boleta" class="form-control border-input solo-numero">
                         </div>
                     </div>
+                    <div id="ifCheque"></div>
                 </div>
-            `)
+                
+            </div>
+            <div class="col-md-12">
+                <div class="row"> 
+                    <div class="offset-md-6 col-md-3" style="margin-top:15px;">
+                        <button id="cancel" class="btn btn-secondary btn-block"><i style="color:#e74c3c;" class="fas fa-ban"></i> Cancelar</button>
+                    </div>
+                    <div class="col-md-3" style="margin-top:15px;">
+                        <button id="save" class="btn btn-secondary btn-block"><i style="color:#3498db;" class="fas fa-cloud"></i> Guardar</button>
+                    </div>
+                </div>
+            </div>
+        `)
 
-            
-            $('#toggle_quota_status').bootstrapToggle({
-                on: 'Pagar',
-                off: 'Quitar',
-                size: 'large'
+        $('.solo-numero').keyup(function (){
+            this.value = (this.value + '').replace(/[^0-9]/g, ''); 
+        });
+        
+            $('#cancel').on('click', function () {
+                $('#modalEstudiantes').modal('hide')
             })
+            //fecha
+            $('#initDate').daterangepicker({
+            "locale": {
+                "format": "DD/MM/YYYY",
+                "daysOfWeek": [
+                "Dom",
+                "Lun",
+                "Mar",
+                "Mie",
+                "Jue",
+                "Vie",
+                "Sab"
+                ],
+                "monthNames": [
+                "Enero",
+                "Febrero",
+                "Marzo",
+                "Abril",
+                "Mayo",
+                "Junio",
+                "Julio",
+                "Agosto",
+                "Septiembre",
+                "Octubre",
+                "Noviembre",
+                "Diciembre"
+                ],
+                "firstDay": 1
+            },
+            drops: "up",
+            singleDatePicker: true,
+            showDropdowns: true
+        });
 
-            $('.solo-numero').keyup(function (){
-                this.value = (this.value + '').replace(/[^0-9]/g, ''); 
-            });
-          
-                $('#cancel').on('click', function () {
-                    $('#modalEstudiantes').modal('hide')
-                })
-                //fecha
-                $('#initDate').daterangepicker({
-                "locale": {
-                    "format": "DD/MM/YYYY",
-                    "daysOfWeek": [
-                    "Dom",
-                    "Lun",
-                    "Mar",
-                    "Mie",
-                    "Jue",
-                    "Vie",
-                    "Sab"
-                    ],
-                    "monthNames": [
-                    "Enero",
-                    "Febrero",
-                    "Marzo",
-                    "Abril",
-                    "Mayo",
-                    "Junio",
-                    "Julio",
-                    "Agosto",
-                    "Septiembre",
-                    "Octubre",
-                    "Noviembre",
-                    "Diciembre"
-                    ],
-                    "firstDay": 1
-                },
-                drops: "up",
-                singleDatePicker: true,
-                showDropdowns: true
-            });
-
-            $('.cuotaPay').on('click', function(e){
-                $('#'+e.currentTarget.id).toggleClass( 'active' )
-                $('#'+e.currentTarget.id).toggleClass( 'actived' )
-
-                if($('#'+e.currentTarget.id).hasClass('active')) {
-                    cuotasAPagar.push(e.currentTarget.id.split('_')[1])
+        $('.cuotaPay').on('click', function(e){
+            
+            if($('#payQuotaOption').is(':checked')) {
+                
+                if(cuotasARemover[0]) {
+                    toastr.warning('Solo se puede realizar 1 acción a la vez (pagar o remover)')
                 } else {
-                    if (cuotasAPagar.indexOf(e.currentTarget.id.split('_')[1]) > -1) {
-                        cuotasAPagar.splice(cuotasAPagar.indexOf(e.currentTarget.id.split('_')[1]), 1);
+                    if($('#'+e.currentTarget.id).hasClass('toRemove')) {
+                        toastr.warning('Primero debe remover el estado <b>remover</b> de la cuota seleccionada')
+                    } else {
+                        $('#'+e.currentTarget.id).toggleClass( 'active' )
+                        $('#'+e.currentTarget.id).toggleClass( 'actived' )
+
+                        if($('#'+e.currentTarget.id).hasClass('active')) {
+                            cuotasAPagar.push(e.currentTarget.id.split('_')[1])
+                        } else {
+                            if (cuotasAPagar.indexOf(e.currentTarget.id.split('_')[1]) > -1) {
+                                cuotasAPagar.splice(cuotasAPagar.indexOf(e.currentTarget.id.split('_')[1]), 1);
+                            }
+                        }   
                     }
                 }
-            }) 
 
-            $('#boletaFormaPago').on('change', function(){
-                if($(this).val() == 'check') {
-                    chequeStatus = 1;
-                    $('#ifCheque').html(`
-                        <div class="col-md-12" style="margin-top:10px;">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label style="float:left;"> Banco *</label>
-                                    <input id="chequeBanco" type="text" value="" placeholder="Nombre del banco" class="form-control border-input">
-                                </div>
-                                <div class="col-md-6">
-                                    <label style="float:left;"> Nº Serie *</label>
-                                    <input id="chequeNum" type="text" value="" placeholder="Número de serie del cheque" class="form-control border-input">
-                                </div>
-                                <div class="col-md-6">
-                                    <label style="float:left;"> Monto cheque *</label>
-                                    <input id="chequeMonto" type="text" value="" placeholder="Monto del cheque" class="form-control border-input">
-                                </div> 
-                                <div class="col-md-6">
-                                    <label style="float:left;"> Fecha pago *</label>
-                                    <input id="chequeFecha" type="text" value="" placeholder="Fecha de pago del cheque" class="form-control border-input">
-                                </div>
-                                
-                            </div>
-                        </div>
-                    `)
-                    $('#chequeFecha').daterangepicker({
-                        "locale": {
-                            "format": "DD/MM/YYYY",
-                            "daysOfWeek": [
-                            "Dom",
-                            "Lun",
-                            "Mar",
-                            "Mie",
-                            "Jue",
-                            "Vie",
-                            "Sab"
-                            ],
-                            "monthNames": [
-                            "Enero",
-                            "Febrero",
-                            "Marzo",
-                            "Abril",
-                            "Mayo",
-                            "Junio",
-                            "Julio",
-                            "Agosto",
-                            "Septiembre",
-                            "Octubre",
-                            "Noviembre",
-                            "Diciembre"
-                            ],
-                            "firstDay": 1
-                        },
-                        drops: "up",
-                        singleDatePicker: true,
-                        showDropdowns: true
-                    });
+                
+            } else if($('#removeQuotaOption').is(':checked')) {
+
+                if(cuotasAPagar[0]) {
+                    toastr.warning('Solo se puede realizar 1 acción a la vez (pagar o remover)')
                 } else {
-                    $('#ifCheque').empty()
-                    chequeStatus = 0;
+                    if($('#'+e.currentTarget.id).hasClass('actived')) {
+                        toastr.warning('Primero debe remover el estado <b>pagar</b> de la cuota seleccionada')
+                    } else {
+                        $('#'+e.currentTarget.id).toggleClass( 'active' )
+                        $('#'+e.currentTarget.id).toggleClass( 'toRemove' )
+
+                        if($('#'+e.currentTarget.id).hasClass('active')) {
+                            cuotasARemover.push(e.currentTarget.id.split('_')[1])
+                        } else {
+                            if (cuotasARemover.indexOf(e.currentTarget.id.split('_')[1]) > -1) {
+                                cuotasARemover.splice(cuotasARemover.indexOf(e.currentTarget.id.split('_')[1]), 1);
+                            }
+                        }
+                    }
                 }
-            })
+                
+            }
+            console.log(cuotasAPagar, cuotasARemover)
             
-            $('#save').on('click', function(){
-                let ticket = $('#ticket').val();
-                let boletaFormaPago = $('#boletaFormaPago').val()
-                let boletaFormaPagoES = ''
-                if(boletaFormaPago == 'cash'){
-                    boletaFormaPagoES = 'Efectivo'
-                } else if(boletaFormaPago == 'check') {
-                    boletaFormaPagoES = 'Cheque'
-                } else if(boletaFormaPago == 'transfer') {
-                    boletaFormaPagoES = 'Transferencia'
-                }
-                $(this).attr('disabled', true);
-                console.log(boletaFormaPagoES)
+        }) 
 
-                if (ticket == '') {
-                    toastr.warning('Debe ingresar un número de boleta.')
-                    $(this).attr('disabled', false);
-                } else {
-                    if(cuotasAPagar[0]) {
-                        let cheque = {}
-
-                        if(chequeStatus == 1) {
-                            let chequeBanco = $('#chequeBanco').val()
-                            let chequeNum   = $('#chequeNum').val()
-                            let chequeMonto = $('#chequeMonto').val()
-                            let chequeFecha = $('#chequeFecha').val()
-                            let chequeValidateCounter = 0;
-
-                            if(chequeBanco.length > 0) { // 1
-                                cheque.banco = chequeBanco
-                                chequeValidateCounter++
-                            } else {
-                                toastr.warning('Ingrese el nombre del banco del cheque')
-                            }
-
-                            if(chequeNum.length > 0) { // 2
-                                cheque.num = chequeNum
-                                chequeValidateCounter++
-                            } else {
-                                toastr.warning('Ingrese el número de serie del cheque')
-                            }
-
-                            if(chequeMonto.length > 0) { // 3
-                                cheque.monto = chequeMonto
-                                chequeValidateCounter++
-                            } else {
-                                toastr.warning('Ingrese el monto del cheque')
-                            }
-
-                            if(chequeFecha.length > 0) { // 4
-                                cheque.date = chequeFecha
-                                chequeValidateCounter++
-                            } else {
-                                toastr.warning('Ingrese Fecha de pago del cheque')
-                            }            
+        $('#boletaFormaPago').on('change', function(){
+            if($(this).val() == 'check') {
+                chequeStatus = 1;
+                $('#ifCheque').html(`
+                    <div class="col-md-12" style="margin-top:10px;">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label style="float:left;"> Banco *</label>
+                                <input id="chequeBanco" type="text" value="" placeholder="Nombre del banco" class="form-control border-input">
+                            </div>
+                            <div class="col-md-6">
+                                <label style="float:left;"> Nº Serie *</label>
+                                <input id="chequeNum" type="text" value="" placeholder="Número de serie del cheque" class="form-control border-input">
+                            </div>
+                            <div class="col-md-6">
+                                <label style="float:left;"> Monto cheque *</label>
+                                <input id="chequeMonto" type="text" value="" placeholder="Monto del cheque" class="form-control border-input">
+                            </div> 
+                            <div class="col-md-6">
+                                <label style="float:left;"> Fecha pago *</label>
+                                <input id="chequeFecha" type="text" value="" placeholder="Fecha de pago del cheque" class="form-control border-input">
+                            </div>
                             
-                            if(chequeValidateCounter == 4) {
-                                ajax({
-                                    url: 'api/pagarcuotas',
-                                    type: 'POST',
-                                    data: {
-                                        rut: res.ok._id,
-                                        cuotas: JSON.stringify(cuotasAPagar),
-                                        ticket: ticket,
-                                        formaPago: boletaFormaPago,
-                                        cheque: JSON.stringify(cheque)
-                                    }
-                                }).then(res2=>{
-                                    if(res2.ok) {
-                                        let txtCuotas = cuotasAPagar.reduce((txt, el, i) => {
-                                            return txt += `${el}, `
-                                        }, '');
-                                        
-                                        screenLog({
-                                            id: 'modal_body',
-                                            form: 'Pagar cuotas',
-                                            action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPagoES} en {{credentials.place}}`,
-                                            type: 'pagarCuota'
-                                        })
-                                        
-                                        swal({
-                                            title: res2.ok,
-                                            backdrop: 'static', 
-                                            keyboard: false,
-                                            text: '',
-                                            type: 'success',
-                                            timer: 5000
-                                        }).then(result => {
-                                            $('#modalEstudiantes').modal('hide')
-                                        }) 
-                                    } else if (res2.err) {
-                                        toastr.warning(res2.err)
-                                        $(this).attr('disabled', false);
-                                    }
-                                    
-                                })
-                            } else {
-                                $('#save').attr('disabled', false);
-                            }
-                            
+                        </div>
+                    </div>
+                `)
+                $('#chequeFecha').daterangepicker({
+                    "locale": {
+                        "format": "DD/MM/YYYY",
+                        "daysOfWeek": [
+                        "Dom",
+                        "Lun",
+                        "Mar",
+                        "Mie",
+                        "Jue",
+                        "Vie",
+                        "Sab"
+                        ],
+                        "monthNames": [
+                        "Enero",
+                        "Febrero",
+                        "Marzo",
+                        "Abril",
+                        "Mayo",
+                        "Junio",
+                        "Julio",
+                        "Agosto",
+                        "Septiembre",
+                        "Octubre",
+                        "Noviembre",
+                        "Diciembre"
+                        ],
+                        "firstDay": 1
+                    },
+                    drops: "up",
+                    singleDatePicker: true,
+                    showDropdowns: true
+                });
+            } else {
+                $('#ifCheque').empty()
+                chequeStatus = 0;
+            }
+        })
+        
+        $('#save').on('click', function(){
+            let ticket = $('#ticket').val();
+            let boletaFormaPago = $('#boletaFormaPago').val()
+            let boletaFormaPagoES = ''
+            if(boletaFormaPago == 'cash'){
+                boletaFormaPagoES = 'Efectivo'
+            } else if(boletaFormaPago == 'check') {
+                boletaFormaPagoES = 'Cheque'
+            } else if(boletaFormaPago == 'transfer') {
+                boletaFormaPagoES = 'Transferencia'
+            }
+            $(this).attr('disabled', true);
+            console.log(boletaFormaPagoES)
+
+            if(cuotasAPagar[0]) { // falta programar los remover!
+                let cheque = {}
+
+                if(chequeStatus == 1) { // si existe cheque
+                    let chequeBanco = $('#chequeBanco').val()
+                    let chequeNum   = $('#chequeNum').val()
+                    let chequeMonto = $('#chequeMonto').val()
+                    let chequeFecha = $('#chequeFecha').val()
+                    let chequeValidateCounter = 0;
+
+                    if(chequeBanco.length > 0) { // 1
+                        cheque.banco = chequeBanco
+                        chequeValidateCounter++
+                    } else {
+                        toastr.warning('Ingrese el nombre del banco del cheque')
+                    }
+
+                    if(chequeNum.length > 0) { // 2
+                        cheque.num = chequeNum
+                        chequeValidateCounter++
+                    } else {
+                        toastr.warning('Ingrese el número de serie del cheque')
+                    }
+
+                    if(chequeMonto.length > 0) { // 3
+                        cheque.monto = chequeMonto
+                        chequeValidateCounter++
+                    } else {
+                        toastr.warning('Ingrese el monto del cheque')
+                    }
+
+                    if(chequeFecha.length > 0) { // 4
+                        cheque.date = chequeFecha
+                        chequeValidateCounter++
+                    } else {
+                        toastr.warning('Ingrese Fecha de pago del cheque')
+                    }            
+                    
+                    if(chequeValidateCounter == 4) {
+                        if (ticket == '') {
+                            toastr.warning('Debe ingresar un número de boleta para las cuotas a pagar.')
+                            $(this).attr('disabled', false);
                         } else {
                             ajax({
                                 url: 'api/pagarcuotas',
@@ -3013,7 +3421,8 @@ $('#certificadoRegular').on('click', function () {
                                     rut: res.ok._id,
                                     cuotas: JSON.stringify(cuotasAPagar),
                                     ticket: ticket,
-                                    formaPago: boletaFormaPago
+                                    formaPago: boletaFormaPago,
+                                    cheque: JSON.stringify(cheque)
                                 }
                             }).then(res2=>{
                                 if(res2.ok) {
@@ -3045,20 +3454,103 @@ $('#certificadoRegular').on('click', function () {
                                 
                             })
                         }
-
                         
-                    }else {
-                        toastr.warning('Debe seleccionar al menos una cuota a pagar')
+                    } else {
+                        $('#save').attr('disabled', false);
+                    }
+                    
+                } else { // si no existe cheque
+                    if (ticket == '') {
+                        toastr.warning('Debe ingresar un número de boleta para las cuotas a pagar.')
+                        $(this).attr('disabled', false);
+                    } else { 
+                        ajax({
+                            url: 'api/pagarcuotas',
+                            type: 'POST',
+                            data: {
+                                rut: res.ok._id,
+                                cuotas: JSON.stringify(cuotasAPagar),
+                                ticket: ticket,
+                                formaPago: boletaFormaPago
+                            }
+                        }).then(res2=>{
+                            if(res2.ok) {
+                                let txtCuotas = cuotasAPagar.reduce((txt, el, i) => {
+                                    return txt += `${el}, `
+                                }, '');
+                                
+                                screenLog({
+                                    id: 'modal_body',
+                                    form: 'Pagar cuotas',
+                                    action: `Se han pagado las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. Número de boleta: ${ticket} con forma de pago: ${boletaFormaPagoES} en {{credentials.place}}`,
+                                    type: 'pagarCuota'
+                                })
+                                
+                                swal({
+                                    title: res2.ok,
+                                    backdrop: 'static', 
+                                    keyboard: false,
+                                    text: '',
+                                    type: 'success',
+                                    timer: 5000
+                                }).then(result => {
+                                    $('#modalEstudiantes').modal('hide')
+                                }) 
+                            } else if (res2.err) {
+                                toastr.warning(res2.err)
+                                $(this).attr('disabled', false);
+                            }
+                            
+                        })
+                    }
+                    
+                }
+            } else if(cuotasARemover[0]) { // remover cuotas
+                ajax({
+                    url: 'api/removercuotas',
+                    type: 'POST',
+                    data: {
+                        rut: res.ok._id,
+                        cuotas: JSON.stringify(cuotasARemover)
+                    }
+                }).then(res2=>{
+                    if(res2.ok) {
+                        let txtCuotas = cuotasARemover.reduce((txt, el, i) => {
+                            return txt += `${el}, `
+                        }, '');
+                        
+                        screenLog({
+                            id: 'modal_body',
+                            form: 'Remover cuotas',
+                            action: `Se han removido las cuotas ${txtCuotas} del alumno de rut ${rutFunc(res.ok._id)}. en {{credentials.place}}`,
+                            type: 'removerCuota'
+                        })
+                        
+                        swal({
+                            title: res2.ok,
+                            backdrop: 'static', 
+                            keyboard: false,
+                            text: '',
+                            type: 'success',
+                            timer: 5000
+                        }).then(result => {
+                            $('#modalEstudiantes').modal('hide')
+                        }) 
+                    } else if (res2.err) {
+                        toastr.warning(res2.err)
                         $(this).attr('disabled', false);
                     }
-                }
-                   
+                    
+                })
+            } else {
+                toastr.warning('Debe seleccionar al menos una cuota')
+                $(this).attr('disabled', false);
+            }
                 
-                
-            }) 
-        })
-        
-    };
+        }) 
+    })
+    
+};
 
 function getTicket(ticket) {
     $('#ticketView').remove()
@@ -3126,6 +3618,7 @@ function getTicket(ticket) {
             }
 
             //$('#modal_title').html(`<button id="goBack" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Volver atrás</button> Boleta N° ${res.ok.numBoleta}`)
+            $('#ticketView').remove()
             $('#modal_body').prepend(`
             <div id="ticketView" style="margin-top:20px;">
 

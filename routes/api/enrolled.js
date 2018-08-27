@@ -34,59 +34,6 @@ const Enrolled = [
                             el._id = format(el._id)
                             return el
                         })
-                        /*
-                        let res = result.docs.reduce((arr, el, i)=>{
-                            return arr.concat({
-                                _id: format(el._id),
-                                numMatricula: el.matricula.numMatricula,
-                                status: el.status,
-                                birthday:el.birthday,  
-                                name: el.name,
-                                lastname1: el.lastname1,
-                                lastname2: el.lastname2,
-                                email: el.email,
-                                phone: el.phone,
-                                address: el.address,
-                                nameAp: el.nameAp,
-                                relationshipAp: el.relationshipAp,
-                                workAp: el.workAp,
-                                phoneAp: el.phoneAp,
-                                city: el.city,
-                                apoderado: el.nameAp,
-                                parentesco: el.relationshipAp,
-                                workAp: el.workAp,
-                                phoneAp:el.phoneAp,
-                                emailAp: el.emailAp,
-
-                                egreso:el.matricula.estadoEgreso,
-                                beca:el.matricula.beca,
-                                colegio:el.matricula.colegio,
-                                añoEgreso:el.matricula.añoEgreso,
-                                cursando:el.matricula.curso,
-                                promedio:el.matricula.promedio,
-                                horario:el.matricula.horario,
-                                etp: el.matricula.etp,
-                                electivo:el.matricula.electivo,
-                                electivo2:el.matricula.electivo2,
-                                diacobro:el.matricula.diaCobro,
-                                
-                                fechaMatricula:el.matricula.fechaMatricula,
-                                date: el.matricula.date,
-                                tipoCurso: el.matricula.tipoCurso,
-                                formaP: el.matricula.finance.formaPago,
-
-                                descuento1: el.matricula.finance.descuento,
-                                descuento2: el.matricula.finance.descuento2,
-                                
-                                numCuotas:el.matricula.finance.numCuotas,
-                                montoCuota:el.matricula.finance.montoCuota,
-                                totalCuotas:el.matricula.finance.totalCuotas,
-                                montoTotal: el.matricula.finance.montoTotal,
-
-                            })
-                        }, []) 
-                        
-                        */
 
                         resolve({ ok: res });
                     } else {
@@ -245,42 +192,15 @@ const Enrolled = [
                     if (err) throw err;
 
                     if (result.docs[0]) {
-                        let res = result.docs.reduce((arr, el, i)=>{
-                            return arr.concat({
-                                _id: el._id,
-                                status: el.status,
-                                birthday:el.birthday,  
-                                name: el.name,
-                                lastname1: el.lastname1,
-                                lastname2: el.lastname2,
-                                email: el.email,
-                                phone: el.phone,
-                                address: el.address,
-                                nameAp: el.nameAp,
-                                relationshipAp: el.relationshipAp,
-                                workAp: el.workAp,
-                                phoneAp: el.phoneAp,
-                                city: el.city,
+                        let res = result.docs.map(el=>{
+                            el.numMatricula = el.matricula.numMatricula
+                            el._id = format(el._id)
+                            return el
+                        })
 
-                                colegio:el.matricula.colegio,
-                                añoEgreso:el.matricula.añoEgreso,
-                                promedio:el.matricula.promedio,
-                                horario:el.matricula.horario,
-                                electivo:el.matricula.electivo,
-                                electivo2:el.matricula.electivo2,
-                                apoderado: el.nameAp,
-                                parentesco: el.relationshipAp,
-                                workAp: el.workAp,
-                                phoneAp:el.phoneAp,
-                                date: el.matricula.date,
-                                tipoCurso: el.matricula.tipoCurso,
-                                formaP: el.matricula.finance.formaPago
-                            })
-                        }, []) 
-
-                        resolve(res);
+                        resolve({ok: res});
                     } else {
-                        resolve({ err: 'no existen alumnos' });
+                        resolve({ err: 'No existen alumnos retirados' });
                     }
                 });
             });
@@ -454,6 +374,70 @@ const Enrolled = [
           })
       }
   }
+},
+{
+    method: 'POST',
+    path: '/api/removercuotas',
+    options: {
+        handler: (request, h) => {
+            let session = request.auth.credentials
+            let rut = request.payload.rut
+            let cuotas = JSON.parse(request.payload.cuotas)
+
+            return new Promise(resolve=> {
+                db.find({ 
+                    "selector": {
+                        '_id': cleanRut(rut),
+                        'type': 'alumnos',
+                    }
+                }, function(err, result) {
+                    if (err) throw err;
+    
+                    if(result.docs[0]) {
+                        let student = result.docs[0]
+                        let originalFees = student.matricula.finance.cuotas
+
+                        let res = originalFees.map((el, i, arr) => {
+                            let fil = cuotas.filter(function(el2) {
+                                return el.num == el2
+                            })
+                            if(fil[0]) {
+
+                                return {
+                                    num: el.num,
+                                    amount: el.amount,
+                                    payday: el.payday,
+                                    status: 'removed',
+                                    removedDay: moment.tz('America/Santiago').format('YYYY-MM-DDTHH:mm:ss.SSSSS')
+                                }
+                            } else {
+                                return el
+                            }         
+                        })
+
+                        student.matricula.finance.cuotas = res
+                        
+                        db.insert(student, function(errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+
+                            if(cuotas.length > 1) {
+                                resolve({ok: 'Cuotas removidas correctamente'});
+                            } else {
+                                resolve({ok: 'Cuota removida correctamente'})
+                            } 
+                        }) 
+                        
+                    }
+                });
+            })
+        },
+        validate: {
+            payload: Joi.object().keys({
+                rut: Joi.string().required(),
+                cuotas: Joi.string().required()
+            })
+        }
+    }
 },
 {
     method: 'POST',
@@ -654,7 +638,7 @@ const Enrolled = [
                                 matriculaObject.numMatricula = res[session.place] // res es número de la matrícula obtenida en getEnrollmentCounter()
                                 matriculaObject.colegio = reqData.school // nombre de la escuela
                                 matriculaObject.beca = ((reqData.beca == 'yes') ? 'Si' : 'No') // si es yes: Si, en caso contrario: No
-                                matriculaObject.estadoEgreso = ((reqData.statusEgress == 'graduated') ? 'Graduado' : 'No graduado')
+                                matriculaObject.estadoEgreso = ((reqData.statusEgress == 'graduated') ? 'Egresado' : 'No egresado')
                                 matriculaObject.añoEgreso = ((reqData.statusEgress == 'graduated') ? reqData.egressRes : '') // si es graduated: año en que se graduo, en caso contrario: ''
                                 matriculaObject.curso = ((reqData.statusEgress == 'notGraduated') ? reqData.egressRes : '') // si es notGraduated: curso en el que va, en caso contrario '' 
                                 matriculaObject.promedio = reqData.average // promedio: 10 a 70
@@ -799,6 +783,146 @@ const Enrolled = [
                 QuotaCost: Joi.string().required(), // valor de cada cuota por separado
                 totalQuotas: Joi.string().required(), // monto total de todas las cuotas juntas
                 totalAmount: Joi.string().required() // monto final: matricula + totalcuotas
+            })
+        }
+    }
+},
+{ 
+    method: 'POST',
+    path: '/api/modEnrollment',
+    options: {
+        handler: (request, h) => {
+            let session = request.auth.credentials
+            let reqData = {
+                //ALUMNO
+                studentRut          :request.payload.studentRut,
+                studentBirthdate    :request.payload.studentBirthdate,
+                studentName         :request.payload.studentName,
+                studentLastname     :request.payload.studentLastname,   
+                studentLastname2    :request.payload.studentLastname2,
+                studentEmail        :request.payload.studentEmail,
+                studentPhone        :request.payload.studentPhone,
+                studentAddress      :request.payload.studentAddress,
+                //APODERADO
+                assigneeName        :request.payload.assigneeName,
+                assigneeRelationship:request.payload.assigneeRelationship,
+                assigneeWork        :request.payload.assigneeWork,
+                assigneePhone       :request.payload.assigneePhone,
+                assigneeEmail       :request.payload.assigneeEmail,
+                //ACADEMICOS
+                school              :request.payload.school,
+                egressRes           :request.payload.egressRes,
+                horary              :request.payload.horary,
+                etp                 :request.payload.etp,
+                science             :request.payload.science,
+                history             :request.payload.history,
+                scienceElective     :request.payload.scienceElective
+            }
+
+            return new Promise(resolve => {
+                db.find({
+                    'selector': {
+                        '_id': reqData.studentRut, // solo id sin type !IMPORTANTE
+                    }
+                }, (err, result) => {
+                    if (err) throw err
+
+                    if (result.docs[0]) {
+                        let student = result.docs[0]
+
+                        student.birthday = reqData.studentBirthdate // fecha de nacimineto del estudiante
+                        student.name = reqData.studentName
+                        student.lastname1 = reqData.studentLastname
+                        student.lastname2 = reqData.studentLastname2
+                        student.email = reqData.studentEmail
+                        student.phone = reqData.studentPhone
+                        student.address = reqData.studentAddress
+                        student.nameAp = reqData.assigneeName
+                        student.relationshipAp = reqData.assigneeRelationship
+                        student.workAp = reqData.assigneeWork
+                        student.phoneAp = reqData.assigneePhone
+                        student.emailAp = reqData.assigneeEmail
+
+                        student.matricula.colegio = reqData.school 
+                        student.matricula.horario = reqData.horary // horario seleccionado
+                        student.matricula.etp = ((reqData.etp == 'yes') ? 'Si' : 'No') // etp: Si o No 
+                        if(student.matricula.estadoEgreso == 'Egresado') {
+                            student.matricula.añoEgreso = reqData.egressRes
+                        } else if(student.matricula.estadoEgreso == 'No egresado') {
+                            student.matricula.curso = reqData.egressRes
+                        }
+
+                        if(reqData.science == 'true' && reqData.history == 'false') { // ciencias pero no historia //16
+                            console.log('CIENCIAS PERO NO HISTORIA')
+                            student.matricula.electivo = 'Ciencias'
+                            student.matricula.electivo2 = ''
+
+                            if(reqData.scienceElective == 'physics') {
+                                student.matricula.electivoCiencias = 'Física'
+                            } else if(reqData.scienceElective == 'chemistry') {
+                                student.matricula.electivoCiencias = 'Química'
+                            } else if(reqData.scienceElective == 'biology') {
+                                student.matricula.electivoCiencias = 'Biología'
+                            }
+                        } else if(reqData.science == 'true' && reqData.history == 'true') { // ciencias y historia
+                            console.log('CIENCIAS Y HISTORIA')
+                            student.matricula.electivo = 'Ciencias'
+                            student.matricula.electivo2 = 'Historia'
+
+                            if(reqData.scienceElective == 'physics') { 
+                                student.matricula.electivoCiencias = 'Física'
+                            } else if(reqData.scienceElective == 'chemistry') {
+                                student.matricula.electivoCiencias = 'Química'
+                            } else if(reqData.scienceElective == 'biology') {
+                                student.matricula.electivoCiencias = 'Biología'
+                            }
+                        } else if(reqData.history == 'true' && reqData.science == 'false') { // historia pero no ciencias
+                            console.log('HISTORIA PERO NO CIENCIAS')
+                            student.matricula.electivo = 'Historia'
+                            student.matricula.electivo2 = ''
+                            student.matricula.electivoCiencias = ''
+                        }
+
+                        db.insert(student, function (errUpdate, body) {
+                            if (errUpdate) throw errUpdate;
+                            
+                            resolve({ ok: student });
+                        });
+
+                        
+                    } else {
+                        resolve({err: 'No se encuentra el estudiante.'})
+                    }
+                    
+                })
+                
+            })
+        }, 
+        validate: {
+            payload: Joi.object().keys({
+                //ALUMNO
+                studentRut: Joi.string().required(), // rut
+                studentBirthdate: Joi.string().required(), // fecha de nacimiento alumno
+                studentName: Joi.string().required(), // nombre alumno
+                studentLastname: Joi.string().required(), //apellido paterno alumno
+                studentLastname2: Joi.string().allow(''), // apellido materno alumno
+                studentEmail: Joi.string().allow(''), // email alumno
+                studentPhone: Joi.string().allow(''), // teléfono alumno
+                studentAddress: Joi.string().required(),  // dirección alumno
+                //APODERADO
+                assigneeName: Joi.string().required(), // nombre completo apoderado
+                assigneeRelationship: Joi.string().required(), // parentesco apoderado
+                assigneeWork: Joi.string().allow(''), // lugar de trabajo apoderado
+                assigneePhone: Joi.string().allow(''), // telefono apoderado
+                assigneeEmail: Joi.string().allow(''), // correo apoderado
+                //ACADEMICOS
+                school: Joi.string().required(),    // colegio
+                egressRes: Joi.string().required(), // si es egresado: año | si no es egresado: curso
+                horary: Joi.string().required(), // horario
+                etp: Joi.string().required(), // ETP no | yes
+                science: Joi.string().required(), // ciencias true | false
+                history: Joi.string().required(), // historia true | false
+                scienceElective: Joi.string().allow(''), // si electivo de ciencias es true: physics | chemistry | biology  || si es false: ''
             })
         }
     }
