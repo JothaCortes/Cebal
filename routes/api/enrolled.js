@@ -674,6 +674,11 @@ const Enrolled = [
                                     matriculaObject.electivo = 'Historia'
                                     matriculaObject.electivo2 = ''
                                     matriculaObject.electivoCiencias = ''
+                                } else { // 'NI HISTORIA NI CIENCIAS'
+                                    console.log('NI HISTORIA NI CIENCIAS')
+                                    matriculaObject.electivo = ''
+                                    matriculaObject.electivo2 = ''
+                                    matriculaObject.electivoCiencias = ''
                                 }
 
                                 console.log(reqData.science, reqData.history, matriculaObject.electivo, matriculaObject.electivo2, matriculaObject.electivoCiencias)
@@ -879,6 +884,11 @@ const Enrolled = [
                         } else if(reqData.history == 'true' && reqData.science == 'false') { // historia pero no ciencias
                             console.log('HISTORIA PERO NO CIENCIAS')
                             student.matricula.electivo = 'Historia'
+                            student.matricula.electivo2 = ''
+                            student.matricula.electivoCiencias = ''
+                        } else { // 'NI HISTORIA NI CIENCIAS'
+                            console.log('NI HISTORIA NI CIENCIAS')
+                            student.matricula.electivo = ''
                             student.matricula.electivo2 = ''
                             student.matricula.electivoCiencias = ''
                         }

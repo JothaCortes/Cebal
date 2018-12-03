@@ -726,30 +726,33 @@ $('#matrElectivo').on('change', function (e){
 
 function etp (){
     return new Promise(resolve =>{ 
-        let estadpETP= $('#etp').val()
-            if(estadpETP=='No'){
-                $('#matrElectivo option:eq(1)').prop('disabled', false);
-                $('#matrElectivo option:eq(2)').prop('disabled', false);
-                resolve()
-                let estadoElectivo = $('#matrElectivo').val()
-                if(estadoElectivo=='Historia'||estadoElectivo=='Ciencias'){
-                    $('#matrElectivo2 option:eq(1)').prop('disabled', false);
-                    $('#matrElectivo2 option:eq(2)').prop('disabled', false);
-                    $('#matrElectivo2 option:eq(3)').prop('disabled', false);
-                    $('#matrElectivo2 option:eq(4)').prop('disabled', true);
-                } 
-            }else{
-                $('#matrElectivo option:eq(1)').prop('disabled', false);
-                $('#matrElectivo option:eq(2)').prop('disabled', false);
-                resolve()
-                let estadoElectivo2 = $('#matrElectivo').val()
-                if(estadoElectivo2=='Ciencias'){
-                    $('#matrElectivo2 option:eq(1)').prop('disabled', true);
-                    $('#matrElectivo2 option:eq(2)').prop('disabled', true);
-                    $('#matrElectivo2 option:eq(3)').prop('disabled', true);
-                    $('#matrElectivo2 option:eq(4)').prop('disabled', false);
-                }
-            }  
+        let estadoETP= $('#etp').val()
+
+        if (estadoETP=='No'){
+            $('#matrElectivo option:eq(1)').prop('disabled', false);
+            $('#matrElectivo option:eq(2)').prop('disabled', false);
+            
+            let estadoElectivo = $('#matrElectivo').val()
+            if(estadoElectivo=='Historia'||estadoElectivo=='Ciencias'){
+                $('#matrElectivo2 option:eq(1)').prop('disabled', false);
+                $('#matrElectivo2 option:eq(2)').prop('disabled', false);
+                $('#matrElectivo2 option:eq(3)').prop('disabled', false);
+                $('#matrElectivo2 option:eq(4)').prop('disabled', true);
+            }
+            resolve()
+        } else{
+            $('#matrElectivo option:eq(1)').prop('disabled', false);
+            $('#matrElectivo option:eq(2)').prop('disabled', false);
+            
+            let estadoElectivo2 = $('#matrElectivo').val()
+            if(estadoElectivo2=='Ciencias'){
+                $('#matrElectivo2 option:eq(1)').prop('disabled', true);
+                $('#matrElectivo2 option:eq(2)').prop('disabled', true);
+                $('#matrElectivo2 option:eq(3)').prop('disabled', true);
+                $('#matrElectivo2 option:eq(4)').prop('disabled', false);
+            }
+            resolve()
+        }  
     })
 }
 function electivo1 (){

@@ -799,6 +799,20 @@ function modificarEstModal({student, rowSelected, datatableSelected}) {
         scienceStatus()
     })
 
+    $('#newEnrolledEtpStatus').on('change', function() {
+        let thisEtpStatus = $(this).val()
+        if(thisEtpStatus == 'yes') {
+            $('#newEnrolledScience').prop('checked', false)
+            $('#newEnrolledHistory').prop('checked', false)
+            $('#newEnrolledScience').prop('disabled', true)
+            $('#newEnrolledHistory').prop('disabled', true)
+            scienceStatus()
+        } else {
+            $('#newEnrolledScience').prop('disabled', false)
+            $('#newEnrolledHistory').prop('disabled', false)
+        }
+    })
+
     function values() {
         $('#newEnrollmentInfoValue').val(number_format(studentData.matricula.finance.valorMatricula))
         $('#newEnrollmentInfoQtyQuotas').val(studentData.matricula.finance.numCuotas)
@@ -958,8 +972,15 @@ function modificarEstModal({student, rowSelected, datatableSelected}) {
     function etpStatus() {
         if(studentData.matricula.etp == 'Si') {
             $('#newEnrolledEtpStatus').val('yes')
+            $('#newEnrolledScience').prop('checked', false)
+            $('#newEnrolledHistory').prop('checked', false)
+            $('#newEnrolledScience').prop('disabled', true)
+            $('#newEnrolledHistory').prop('disabled', true)
+            scienceStatus()
         } else if(studentData.matricula.etp == 'No') {
             $('#newEnrolledEtpStatus').val('no')
+            $('#newEnrolledScience').prop('disabled', false)
+            $('#newEnrolledHistory').prop('disabled', false)
         }
     }
 
@@ -1097,14 +1118,19 @@ function modificarEstModal({student, rowSelected, datatableSelected}) {
             errMessage += `<br> * Debe seleccionar un horario`
         }
         
-        if(newEnrolledObj.science  || newEnrolledObj.history) { // 9
+
+        if(newEnrolledObj.etp == 'yes') { // si es etp no debe tener electivos
             validateCounter++
             $('#electivesContainer').css({border:'1px solid #3498db'})
         } else {
-            $('#electivesContainer').css({border:'1px solid #e74c3c'})
-            errMessage += `<br> * Debe seleccionar al menos 1 electivo`
+            if(newEnrolledObj.science  || newEnrolledObj.history) { // 9
+                validateCounter++
+                $('#electivesContainer').css({border:'1px solid #3498db'})
+            } else {
+                $('#electivesContainer').css({border:'1px solid #e74c3c'})
+                errMessage += `<br> * Debe seleccionar al menos 1 electivo`
+            }
         }
-
         if(newEnrolledObj.email.length > 0 && !isEmail(newEnrolledObj.email)) { // 9-1
             validateCounter = validateCounter-1
             $('#newEnrolledEmail').css({border:'1px solid #e74c3c'})
@@ -1628,6 +1654,20 @@ $('#newEnrolled').on('click', function() {
         this.value = (this.value + '').replace(/[^0-9]/g, ''); 
     })
 
+    $('#newEnrolledEtpStatus').on('change', function() {
+        let thisEtpStatus = $(this).val()
+        if(thisEtpStatus == 'yes') {
+            $('#newEnrolledScience').prop('checked', false)
+            $('#newEnrolledHistory').prop('checked', false)
+            $('#newEnrolledScience').prop('disabled', true)
+            $('#newEnrolledHistory').prop('disabled', true)
+            scienceStatus()
+        } else {
+            $('#newEnrolledScience').prop('disabled', false)
+            $('#newEnrolledHistory').prop('disabled', false)
+        }
+    })
+
     $('input#newEnrolledRut').keyup(function (){
         if(isRut($(this).val())) {
             $(this).val(rutFunc($(this).val()))
@@ -1880,7 +1920,7 @@ $('#newEnrolled').on('click', function() {
                     })[0].price
 
                     allValues.valorMatricula = matrScore;
-                    allValues.montoPorCuota= valNormal;
+                    allValues.montoPorCuota = valNormal;
                 
                     setTimeout(() => {
                         resolve()
@@ -1903,7 +1943,7 @@ $('#newEnrolled').on('click', function() {
                         return el.type == 'yearly';
                     })[0].quotaNumber
 
-                    allValues.cantidadCuotas= numberQuotes.yearly;
+                    allValues.cantidadCuotas = numberQuotes.yearly;
 
                     setTimeout(() => {
                         console.log("cuotas anual",allValues.cantidadCuotas)
@@ -2015,7 +2055,7 @@ $('#newEnrolled').on('click', function() {
                     typePayStatus = 0
                     allValues.cantidadCuotas = 9
                     allValues.totalCuotas = (allValues.montoPorCuota * allValues.cantidadCuotas)
-                
+                    
                     resolve()
                 }else if (tipoAnualIntensivo == 'intensive'){
                     typePayStatus = 0
@@ -2297,6 +2337,7 @@ $('#newEnrolled').on('click', function() {
         newEnrolledObj.firstQuota      = $('#newEnrolledFirstQuotaPay').val()
         newEnrolledObj.paymentMethod   = $('#newEnrolledPaymentMethod').val()
         newEnrolledObj.ticket          = removeExtraSpaces($('#newEnrolledTicket').val()) //* 13
+        console.log(newEnrolledObj)
         
         if(isRut(newEnrolledObj.rut)) { // 1
             validateCounter++
@@ -2378,14 +2419,19 @@ $('#newEnrolled').on('click', function() {
             errMessage += `<br> * Debe seleccionar un horario`
         }
         
-        if(newEnrolledObj.science  || newEnrolledObj.history) { // 11
+        if(newEnrolledObj.etp == 'yes') { // si es etp no debe tener electivos
             validateCounter++
             $('#electivesContainer').css({border:'1px solid #3498db'})
         } else {
-            $('#electivesContainer').css({border:'1px solid #e74c3c'})
-            errMessage += `<br> * Debe seleccionar al menos 1 electivo`
+            if(newEnrolledObj.science  || newEnrolledObj.history) { // 11
+                validateCounter++
+                $('#electivesContainer').css({border:'1px solid #3498db'})
+            } else {
+                $('#electivesContainer').css({border:'1px solid #e74c3c'})
+                errMessage += `<br> * Debe seleccionar al menos 1 electivo`
+            }
         }
-
+        
         if(newEnrolledObj.enrollmentDate.length > 0) { // 12
             validateCounter++
             $('#newEnrolledDate').css({border:'1px solid #3498db'})
@@ -2832,7 +2878,7 @@ function opcionesModal(studentData) {
         doc.setFontSize(10);
         doc.text(130,40, moment().format('dddd DD [de] MMMM [de] YYYY'));
         doc.setFontSize(12);
-        doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${studentData.name} ${studentData.lastname1.trim()} ${studentData.lastname2.trim()}, Rut ${studentData._id} es alumno(a)`);
+        doc.text(37,100,`   Ricardo Bravo Méndez, rector del centro educacional CEBAL, certifica\nque ${studentData.name} ${studentData.lastname1.trim()} ${studentData.lastname2.trim()}, Rut ${studentData._id} es alumno(a) regular`);
         doc.text(37,110,`de este centro educacional, en la sede de {{{credentials.place}}}, conforme a matrícula\nN°${studentData.numMatricula}, año ${moment().format('YYYY')}.`);
         doc.text(37,128,`   Se extiende el presente certificado a petición del interesado, para ser\npresentado en el lugar que estime conveniente.`)
         
@@ -2935,8 +2981,6 @@ function opcionesModal(studentData) {
             doc.setFontType("normal");
             doc.text(85,143,studentData.matricula.curso);
         }
-
-        
 
         doc.setFontType("bold");
         doc.text(40,150,"Promedio");
